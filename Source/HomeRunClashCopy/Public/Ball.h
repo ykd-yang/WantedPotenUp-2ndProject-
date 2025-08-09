@@ -3,8 +3,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "BallInfo.h"
 #include "GameFramework/Actor.h"
 #include "Ball.generated.h"
+
 
 UCLASS()
 class HOMERUNCLASHCOPY_API ABall : public AActor
@@ -23,13 +25,23 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FBallInfo BallInfo;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UStaticMeshComponent* BallMesh;
+
 private:
 	bool IsInit = false;
 	float MagnusCoeff = 0.003f;
 	FVector Gravity = FVector(0.0f, 0.0f, -980.0f);
 	FVector Velocity = FVector(0.0f, 0.0f, 0.0f);
 
+public:
+	void Init(FBallInfo BI);
+	
 private:
-	void CalculateGravity();
-	void CalculateMagnusSimple();
+	void CalculateGravity(float DeltaTime);
+	void CalculateMagnusSimple(float DeltaTime);
+	void UpdateLocation(float DeltaTime);
 };

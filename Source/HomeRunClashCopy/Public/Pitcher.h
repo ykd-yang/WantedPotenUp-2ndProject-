@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "BallInfo.h"
 #include "Engine/DataTable.h"
 #include "Pitcher.generated.h"
 
@@ -35,12 +36,17 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Data")
 	UDataTable* PitchTypeDataTable;
 
-	bool Throw;
-	FVector Location;
-	
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool IsThrow = false;
 	
 private:
+	FBallInfo GetRandomBallInfo();
+
+public:
+	UFUNCTION(BlueprintCallable)
 	void SpawnBall();
+	
+	UFUNCTION(BlueprintCallable)
 	void ThrowBall();
-	UScriptStruct* GetRandomPitchType();
 };
