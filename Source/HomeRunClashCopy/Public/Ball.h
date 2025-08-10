@@ -30,6 +30,8 @@ public:
 	FBallInfo BallInfo;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UStaticMeshComponent* BallMesh;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UCurveFloat* DragCoefficientCurve;
 
 private:
 	bool IsInit = false;

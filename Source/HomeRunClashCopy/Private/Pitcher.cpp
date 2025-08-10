@@ -26,11 +26,11 @@ void APitcher::BeginPlay()
 	PitcherSkeletal = GetComponentByClass<USkeletalMeshComponent>();
 
 	//Test
-	// if (PitcherSkeletal != nullptr)
-	// {
-	// 	SpawnBall();
-	// 	IsThrow= true;
-	// }
+	if (PitcherSkeletal != nullptr)
+	{
+		SpawnBall();
+		IsThrow= true;
+	}
 }
 
 // Called every frame

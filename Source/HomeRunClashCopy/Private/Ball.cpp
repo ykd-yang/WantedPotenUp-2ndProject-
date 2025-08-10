@@ -2,6 +2,7 @@
 
 
 #include "Ball.h"
+#include "AirResistanceLibraryFunction.h"
 
 // Sets default values
 ABall::ABall()
@@ -14,6 +15,13 @@ ABall::ABall()
 	if (SphereMeshAsset.Succeeded())
 	{
 		BallMesh->SetStaticMesh(SphereMeshAsset.Object);
+		RootComponent = BallMesh;
+	}
+
+	static ConstructorHelpers::FObjectFinder<UCurveFloat> DragCurveObj(TEXT("/Game/LibraryFunction/Curve_DragCoefficient.Curve_DragCoefficient"));
+	if (DragCurveObj.Succeeded())
+	{
+		DragCoefficientCurve = DragCurveObj.Object;
 	}
 }
 
@@ -33,6 +41,7 @@ void ABall::Tick(float DeltaTime)
 	{
 		CalculateGravity(DeltaTime);
 		CalculateMagnusSimple(DeltaTime);
+		Velocity = UAirResistanceLibraryFunction::AirResistanceCpp(Velocity, DragCoefficientCurve);
 		UpdateLocation(DeltaTime);
 	}
 }
