@@ -16,4 +16,5 @@ FVector UAirResistanceLibraryFunction::AirResistanceCpp(FVector Velocity, UCurve
 	FVector VelocityWithDrag = Velocity - (DragVelocity / 1000000.0);	// 1000000.0: Drag Coefficient Parameter
 	
 	return VelocityWithDrag;
+	
 }
