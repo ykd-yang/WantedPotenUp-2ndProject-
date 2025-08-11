@@ -11,11 +11,16 @@ ABall::ABall()
 	PrimaryActorTick.bCanEverTick = true;
 
 	BallMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BallMesh"));
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> SphereMeshAsset(TEXT("/Engine/BasicShapes/Sphere.Sphere"));
-	if (SphereMeshAsset.Succeeded())
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> BallMeshAsset(TEXT("/Game/Asset/Ball/BallMesh.BallMesh"));
+	if (BallMeshAsset.Succeeded())
 	{
-		BallMesh->SetStaticMesh(SphereMeshAsset.Object);
+		BallMesh->SetStaticMesh(BallMeshAsset.Object);
 		RootComponent = BallMesh;
+		BallMesh->SetWorldScale3D(FVector(2.5f, 2.5f, 2.5f));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Failed to load BallMesh"));
 	}
 
 	static ConstructorHelpers::FObjectFinder<UCurveFloat> DragCurveObj(TEXT("/Game/LibraryFunction/Curve_DragCoefficient.Curve_DragCoefficient"));
@@ -37,7 +42,7 @@ void ABall::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (IsInit == true)
+	if (IsMove == true)
 	{
 		CalculateGravity(DeltaTime);
 		CalculateMagnusSimple(DeltaTime);
@@ -50,7 +55,13 @@ void ABall::Init(FBallInfo BI)
 {
 	BallInfo = BI;
 	Velocity = BI.Speed * BI.Dir;
-	IsInit = true;
+	IsMove = true;
+}
+
+void ABall::SetBallHit(FVector HitVelocity)
+{
+	Velocity = HitVelocity;
+	BallInfo.Rotation = FVector(0, 0, 0);
 }
 
 void ABall::CalculateGravity(float DeltaTime)

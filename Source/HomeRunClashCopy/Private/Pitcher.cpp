@@ -3,6 +3,7 @@
 
 #include "Pitcher.h"
 #include "Ball.h"
+#include "BaseBallGameMode.h"
 #include "UObject/ConstructorHelpers.h"
 
 // Sets default values
@@ -10,7 +11,7 @@ APitcher::APitcher()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-
+	
 	static ConstructorHelpers::FObjectFinder<UDataTable> PitchTypeDataTableObject(TEXT("/Game/Data/PitchTypeDataTable.PitchTypeDataTable"));
 	if (PitchTypeDataTableObject.Succeeded())
 	{
@@ -25,11 +26,17 @@ void APitcher::BeginPlay()
 		
 	PitcherSkeletal = GetComponentByClass<USkeletalMeshComponent>();
 
+	//get gamemode
+	Gm = Cast<ABaseBallGameMode>(GetWorld()->GetAuthGameMode());
+	if (Gm == nullptr)
+	{	
+		UE_LOG(LogTemp, Warning, TEXT("GameMode is null"));
+	}
+		
 	//Test
 	if (PitcherSkeletal != nullptr)
 	{
 		SpawnBall();
-		IsThrow= true;
 	}
 }
 
@@ -78,4 +85,9 @@ void APitcher::ThrowBall()
 	Ball->DetachFromActor(DetachRule);
 	Ball->Init(GetRandomBallInfo());
 	IsThrow = false;
+}
+
+void APitcher::ThrowTrigger()
+{
+	IsThrow = true;
 }

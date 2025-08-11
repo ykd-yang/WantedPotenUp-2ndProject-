@@ -8,6 +8,7 @@
 #include "Engine/DataTable.h"
 #include "Pitcher.generated.h"
 
+class ABaseBallGameMode;
 class ABall;
 
 UCLASS()
@@ -36,17 +37,23 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Data")
 	UDataTable* PitchTypeDataTable;
 
+	UPROPERTY(EditAnywhere)
+	ABaseBallGameMode* Gm;
+	
+
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool IsThrow = false;
 	
 private:
 	FBallInfo GetRandomBallInfo();
+	UFUNCTION(BlueprintCallable)
+	void ThrowBall();
 
 public:
 	UFUNCTION(BlueprintCallable)
 	void SpawnBall();
 	
 	UFUNCTION(BlueprintCallable)
-	void ThrowBall();
+	void ThrowTrigger();
 };

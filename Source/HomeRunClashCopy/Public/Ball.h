@@ -34,13 +34,14 @@ public:
 	UCurveFloat* DragCoefficientCurve;
 
 private:
-	bool IsInit = false;
+	bool IsMove = false;
 	float MagnusCoeff = 0.003f;
 	FVector Gravity = FVector(0.0f, 0.0f, -980.0f);
 	FVector Velocity = FVector(0.0f, 0.0f, 0.0f);
 
 public:
 	void Init(FBallInfo BI);
+	void SetBallHit(FVector HitVelocity);
 	
 private:
 	void CalculateGravity(float DeltaTime);
