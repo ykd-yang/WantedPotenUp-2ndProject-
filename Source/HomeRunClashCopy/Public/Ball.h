@@ -28,8 +28,10 @@ public:
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FBallInfo BallInfo;
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UStaticMeshComponent* BallMesh;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UCurveFloat* DragCoefficientCurve;
 
@@ -47,4 +49,12 @@ private:
 	void CalculateGravity(float DeltaTime);
 	void CalculateMagnusSimple(float DeltaTime);
 	void UpdateLocation(float DeltaTime);
+
+	UFUNCTION()
+	void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor,
+			   UPrimitiveComponent* OtherComp, FVector NormalImpulse,
+			   const FHitResult& Hit);
+
+	UFUNCTION()
+	void OnHitBuilding(UPrimitiveComponent* HitComp, AActor* OtherActor);
 };
