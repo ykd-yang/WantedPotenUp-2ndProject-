@@ -12,7 +12,7 @@ APitcher::APitcher()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	
-	static ConstructorHelpers::FObjectFinder<UDataTable> PitchTypeDataTableObject(TEXT("/Game/Data/PitchTypeDataTable.PitchTypeDataTable"));
+	ConstructorHelpers::FObjectFinder<UDataTable> PitchTypeDataTableObject(TEXT("/Game/Data/PitchTypeDataTable.PitchTypeDataTable"));
 	if (PitchTypeDataTableObject.Succeeded())
 	{
 		PitchTypeDataTable = PitchTypeDataTableObject.Object;
@@ -23,7 +23,7 @@ APitcher::APitcher()
 void APitcher::BeginPlay()
 {
 	Super::BeginPlay();
-		
+	
 	PitcherSkeletal = GetComponentByClass<USkeletalMeshComponent>();
 
 	//get gamemode
@@ -32,12 +32,9 @@ void APitcher::BeginPlay()
 	{	
 		UE_LOG(LogTemp, Warning, TEXT("GameMode is null"));
 	}
-		
-	//Test
-	if (PitcherSkeletal != nullptr)
-	{
-		SpawnBall();
-	}
+
+	//to spawn ball and set throw location
+	ThrowTrigger();
 }
 
 // Called every frame
@@ -45,21 +42,25 @@ void APitcher::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	//for Test
+	testT+=DeltaTime;
+	if (testT > 5.f)
+	{
+		ThrowTrigger();
+		testT = 0.f;
+	}
 }
 
 void APitcher::SpawnBall()
 {
-	UWorld* World = GetWorld();
-	if (World)
-	{
-		Ball = World->SpawnActor<ABall>();
-		FAttachmentTransformRules AttachRule(
-			EAttachmentRule::SnapToTarget,
-			EAttachmentRule::KeepWorld,
-			EAttachmentRule::KeepWorld,
-			true);
-		Ball->AttachToComponent(PitcherSkeletal, AttachRule, FName("RightHandSocket"));
-	}
+	Ball = GetWorld()->SpawnActor<ABall>(ABall::StaticClass());
+	FAttachmentTransformRules AttachRule(
+		EAttachmentRule::SnapToTarget,
+		EAttachmentRule::KeepWorld,
+		EAttachmentRule::KeepWorld,
+		true);
+	Ball->AttachToComponent(PitcherSkeletal, AttachRule, FName("RightHandSocket"));
+	Ball->Init(GetRandomBallInfo(), ThrowLocation);
 }
 
 FBallInfo APitcher::GetRandomBallInfo()
@@ -76,18 +77,31 @@ FBallInfo APitcher::GetRandomBallInfo()
 
 void APitcher::ThrowBall()
 {
+	if (ThrowLocation == FVector(0, 0, 0) || Ball == nullptr)
+	{
+		ThrowLocation = PitcherSkeletal->GetSocketLocation(FName("RightHandSocket"));
+		//UE_LOG(LogTemp, Warning, TEXT("%s"), *ThrowLocation.ToString());
+		IsThrow = false;
+		return;
+	}
+	
 	FDetachmentTransformRules DetachRule(
 		EDetachmentRule::KeepWorld,
 		EDetachmentRule::KeepWorld,
 		EDetachmentRule::KeepWorld,
 		true);
-	
 	Ball->DetachFromActor(DetachRule);
-	Ball->Init(GetRandomBallInfo());
+	
+	Ball->SetBallMove();
 	IsThrow = false;
 }
 
 void APitcher::ThrowTrigger()
 {
+	if (ThrowLocation != FVector(0, 0, 0))
+	{
+		SpawnBall();
+	}
+	
 	IsThrow = true;
 }

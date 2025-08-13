@@ -1,7 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 #include "Ball.h"
 #include "AirResistanceLibraryFunction.h"
-#include "Components/SphereComponent.h"
 
 // Sets default values
 ABall::ABall()
@@ -44,7 +43,6 @@ void ABall::BeginPlay()
 	Super::BeginPlay();
 
 	BallMesh->OnComponentHit.AddDynamic(this, &ABall::OnHit);
-	Velocity = FVector::ForwardVector * 1000;
 }
 
 // Called every frame
@@ -52,19 +50,43 @@ void ABall::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	if (IsSimulate)
+	{
+		ElapsedTime += DeltaTime;
+		OnSimulate(ElapsedTime);
+		
+		if (ElapsedTime > 1)
+		{
+			IsSimulate = false;
+		}
+	}
+
 	if (IsMove == true)
 	{
-		CalculateGravity(DeltaTime);
-		CalculateMagnusSimple(DeltaTime);
+		CalculateGravity(Velocity);
+		CalculateMagnusSimple(Velocity);
 		Velocity = UAirResistanceLibraryFunction::AirResistanceCpp(Velocity, DragCoefficientCurve);
 		UpdateLocation(DeltaTime);
 	}
 }
 
-void ABall::Init(FBallInfo BI)
+void ABall::Init(FBallInfo BI, FVector Location)
 {
 	BallInfo = BI;
+	BI.Dir.Normalize();
+	//UE_LOG(LogTemp, Warning, TEXT("%s"), *BI.Dir.ToString());
 	Velocity = BI.Speed * BI.Dir;
+	StartLocation = Location;
+
+	//Simulate - to Show indicator
+	SimulLocation = StartLocation;
+	SimulVelocity = Velocity;
+	IsSimulate = true;
+}
+
+void ABall::SetBallMove()
+{
+	SetActorLocation(StartLocation);
 	IsMove = true;
 }
 
@@ -74,20 +96,33 @@ void ABall::SetBallHit(FVector HitVelocity)
 	BallInfo.Rotation = FVector(0, 0, 0);
 }
 
-void ABall::CalculateGravity(float DeltaTime)
+void ABall::CalculateGravity(FVector& Vel)
 {
-	Velocity = Velocity + Gravity * DeltaTime;
+	Vel = Vel + Gravity * GetWorld()->GetDeltaSeconds();
 }
 
-void ABall::CalculateMagnusSimple(float DeltaTime)
+void ABall::CalculateMagnusSimple(FVector& Vel)
 {
-	Velocity = Velocity + FVector::CrossProduct(BallInfo.Rotation, Velocity) * MagnusCoeff * DeltaTime;
+	Vel = Vel + FVector::CrossProduct(BallInfo.Rotation, Vel) * MagnusCoeff * GetWorld()->GetDeltaSeconds();
 }
 
 void ABall::UpdateLocation(float DeltaTime)
 {
 	SetActorLocation(GetActorLocation() + Velocity * DeltaTime);
 }
+
+void ABall::OnSimulate(float ElapTime)
+{
+	PrevLocation = SimulLocation;
+	CalculateGravity(SimulVelocity);
+	CalculateMagnusSimple(SimulVelocity);
+	SimulVelocity = UAirResistanceLibraryFunction::AirResistanceCpp(SimulVelocity, DragCoefficientCurve);
+	SimulLocation = PrevLocation + SimulVelocity * GetWorld()->GetDeltaSeconds();
+
+	DrawDebugLine(GetWorld(), PrevLocation, SimulLocation, FColor::Red,
+		false, 1.f, 0, 5);
+}
+
 
 //바닥에 통통튀는 것
 void ABall::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
