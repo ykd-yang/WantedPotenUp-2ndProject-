@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "Ball.h"
+#include "AirResistanceLibraryFunction.h"
+#include "Components/SphereComponent.h"
 
 // Sets default values
 ABall::ABall()
@@ -10,10 +10,31 @@ ABall::ABall()
 	PrimaryActorTick.bCanEverTick = true;
 
 	BallMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BallMesh"));
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> SphereMeshAsset(TEXT("/Engine/BasicShapes/Sphere.Sphere"));
-	if (SphereMeshAsset.Succeeded())
+	ConstructorHelpers::FObjectFinder<UStaticMesh> BallMeshAsset(TEXT("/Game/Asset/Ball/BallMesh.BallMesh"));
+	if (BallMeshAsset.Succeeded())
 	{
-		BallMesh->SetStaticMesh(SphereMeshAsset.Object);
+		BallMesh->SetStaticMesh(BallMeshAsset.Object);
+		BallMesh->SetWorldScale3D(FVector(2.5f, 2.5f, 2.5f));
+		BallMesh->SetNotifyRigidBodyCollision(true);
+		BallMesh->SetCollisionResponseToAllChannels(ECR_Block);
+
+		// Block 이벤트 받기위해 physics만 켜주기
+		BallMesh->SetSimulatePhysics(true);
+		BallMesh->SetEnableGravity(false);
+		BallMesh->SetLinearDamping(0.f);
+		BallMesh->SetAngularDamping(0.f);
+		
+		SetRootComponent(BallMesh);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Failed to load BallMesh"));
+	}
+
+	static ConstructorHelpers::FObjectFinder<UCurveFloat> DragCurveObj(TEXT("/Game/LibraryFunction/Curve_DragCoefficient.Curve_DragCoefficient"));
+	if (DragCurveObj.Succeeded())
+	{
+		DragCoefficientCurve = DragCurveObj.Object;
 	}
 }
 
@@ -21,7 +42,9 @@ ABall::ABall()
 void ABall::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	BallMesh->OnComponentHit.AddDynamic(this, &ABall::OnHit);
+	Velocity = FVector::ForwardVector * 1000;
 }
 
 // Called every frame
@@ -29,10 +52,11 @@ void ABall::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (IsInit == true)
+	if (IsMove == true)
 	{
 		CalculateGravity(DeltaTime);
 		CalculateMagnusSimple(DeltaTime);
+		Velocity = UAirResistanceLibraryFunction::AirResistanceCpp(Velocity, DragCoefficientCurve);
 		UpdateLocation(DeltaTime);
 	}
 }
@@ -41,7 +65,13 @@ void ABall::Init(FBallInfo BI)
 {
 	BallInfo = BI;
 	Velocity = BI.Speed * BI.Dir;
-	IsInit = true;
+	IsMove = true;
+}
+
+void ABall::SetBallHit(FVector HitVelocity)
+{
+	Velocity = HitVelocity;
+	BallInfo.Rotation = FVector(0, 0, 0);
 }
 
 void ABall::CalculateGravity(float DeltaTime)
@@ -59,4 +89,11 @@ void ABall::UpdateLocation(float DeltaTime)
 	SetActorLocation(GetActorLocation() + Velocity * DeltaTime);
 }
 
-
+//바닥에 통통튀는 것
+void ABall::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
+	FVector NormalImpulse, const FHitResult& Hit)
+{
+	// if 지면인지 확인
+	FVector ReflectVec = Velocity -2 * FVector::DotProduct(Velocity, Hit.Normal) * Hit.Normal;
+	Velocity = ReflectVec * 0.7f;
+}

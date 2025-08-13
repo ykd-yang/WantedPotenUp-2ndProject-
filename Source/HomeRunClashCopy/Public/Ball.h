@@ -28,20 +28,31 @@ public:
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FBallInfo BallInfo;
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UStaticMeshComponent* BallMesh;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UCurveFloat* DragCoefficientCurve;
+
 private:
-	bool IsInit = false;
+	UPROPERTY(EditAnywhere)
+	bool IsMove = false;
 	float MagnusCoeff = 0.003f;
 	FVector Gravity = FVector(0.0f, 0.0f, -980.0f);
 	FVector Velocity = FVector(0.0f, 0.0f, 0.0f);
 
 public:
 	void Init(FBallInfo BI);
+	void SetBallHit(FVector HitVelocity);
 	
 private:
 	void CalculateGravity(float DeltaTime);
 	void CalculateMagnusSimple(float DeltaTime);
 	void UpdateLocation(float DeltaTime);
+
+	UFUNCTION()
+	void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor,
+			   UPrimitiveComponent* OtherComp, FVector NormalImpulse,
+			   const FHitResult& Hit);
 };
