@@ -1,13 +1,14 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 #include "Ball.h"
 #include "AirResistanceLibraryFunction.h"
+#include "Components/SphereComponent.h"
 
 // Sets default values
 ABall::ABall()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-	
+
 	BallMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BallMesh"));
 	ConstructorHelpers::FObjectFinder<UStaticMesh> BallMeshAsset(TEXT("/Game/Asset/Ball/BallMesh.BallMesh"));
 	if (BallMeshAsset.Succeeded())
@@ -15,6 +16,14 @@ ABall::ABall()
 		BallMesh->SetStaticMesh(BallMeshAsset.Object);
 		BallMesh->SetWorldScale3D(FVector(2.5f, 2.5f, 2.5f));
 		BallMesh->SetNotifyRigidBodyCollision(true);
+		BallMesh->SetCollisionResponseToAllChannels(ECR_Block);
+
+		// Block 이벤트 받기위해 physics만 켜주기
+		BallMesh->SetSimulatePhysics(true);
+		BallMesh->SetEnableGravity(false);
+		BallMesh->SetLinearDamping(0.f);
+		BallMesh->SetAngularDamping(0.f);
+		
 		SetRootComponent(BallMesh);
 	}
 	else
@@ -35,6 +44,7 @@ void ABall::BeginPlay()
 	Super::BeginPlay();
 
 	BallMesh->OnComponentHit.AddDynamic(this, &ABall::OnHit);
+	Velocity = FVector::ForwardVector * 1000;
 }
 
 // Called every frame
@@ -84,15 +94,6 @@ void ABall::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveCo
 	FVector NormalImpulse, const FHitResult& Hit)
 {
 	// if 지면인지 확인
-		
 	FVector ReflectVec = Velocity -2 * FVector::DotProduct(Velocity, Hit.Normal) * Hit.Normal;
-	Velocity = ReflectVec * 0.5f;
-
-	OnHitBuilding(HitComp, OtherActor);
-}
-
-void ABall::OnHitBuilding(UPrimitiveComponent* HitComp, AActor* OtherActor)
-{
-	//if 건물인지 확인
-	
+	Velocity = ReflectVec * 0.7f;
 }

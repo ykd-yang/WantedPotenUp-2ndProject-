@@ -36,6 +36,7 @@ public:
 	UCurveFloat* DragCoefficientCurve;
 
 private:
+	UPROPERTY(EditAnywhere)
 	bool IsMove = false;
 	float MagnusCoeff = 0.003f;
 	FVector Gravity = FVector(0.0f, 0.0f, -980.0f);
@@ -54,7 +55,4 @@ private:
 	void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor,
 			   UPrimitiveComponent* OtherComp, FVector NormalImpulse,
 			   const FHitResult& Hit);
-
-	UFUNCTION()
-	void OnHitBuilding(UPrimitiveComponent* HitComp, AActor* OtherActor);
 };
