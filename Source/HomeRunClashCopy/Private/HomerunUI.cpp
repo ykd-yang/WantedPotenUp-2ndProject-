@@ -3,3 +3,9 @@
 
 #include "HomerunUI.h"
 
+#include "Components/TextBlock.h"
+
+void UHomerunUI::UpdateHomerunGaugeText(FString newText)
+{
+	HomerunGaugeText->SetText(FText::FromString(newText));
+}

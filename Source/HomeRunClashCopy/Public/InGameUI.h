@@ -4,23 +4,23 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "HomerunUI.generated.h"
+#include "InGameUI.generated.h"
 
 /**
  * 
  */
+
 class UTextBlock;
 
 UCLASS()
-class HOMERUNCLASHCOPY_API UHomerunUI : public UUserWidget
+class HOMERUNCLASHCOPY_API UInGameUI : public UUserWidget
 {
 	GENERATED_BODY()
 
 public:
 	// declaring widget
 	UPROPERTY(meta = (BindWidget))
-	class UTextBlock* HomerunGaugeText;
+	UTextBlock* HomerunGaugeText;
 
-	void UpdateHomerunGaugeText(FString newText);
-	
+	void UpdateHomerunGaugeText(float HomerunGauge);
 };
