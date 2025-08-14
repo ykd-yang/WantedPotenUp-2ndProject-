@@ -6,6 +6,7 @@
 #include "GameFramework/Pawn.h"
 #include "HitBox.generated.h"
 
+
 UCLASS()
 class HOMERUNCLASHCOPY_API AHitBox : public APawn
 {
@@ -41,6 +42,10 @@ protected:
 	virtual void BeginPlay() override;
 	void InitCursorPlane();
 	void RecognizeCursorInPlane();
+	void ApplyHit(float Timing, float HeightBat, float SideBat, class ABall* ball);
+	float CheckTiming(class ABall* Ball);
+	float CheckHeight(class ABall* Ball);
+	float CheckSide(class ABall* Ball);
 
 public:	
 	// Called every frame

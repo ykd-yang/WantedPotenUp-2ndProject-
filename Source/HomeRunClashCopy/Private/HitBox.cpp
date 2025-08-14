@@ -2,8 +2,10 @@
 
 
 #include "HitBox.h"
-
+#include "Ball.h"
+#include "StrikeZone.h"
 #include "Components/BoxComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 AHitBox::AHitBox()
@@ -93,6 +95,75 @@ void AHitBox::RecognizeCursorInPlane()
 		}
 		
 	}
+}
+
+void AHitBox::ApplyHit(float Timing, float HeightBat, float SideBat,class ABall* ball)
+{
+	//ball.SetBallHit()
+	float BallDir = FMath::Lerp(1,-1,(Timing+1)/2); //당겨치기,정타,밀어치기의 비율
+	float BallAngle = FMath::Lerp(1,-1,(HeightBat+1)/2); //높이
+	float PowerAccuarcy = 1-FMath::Abs(SideBat);//정확도 얼마나 배트의 중심에 맞았는가?
+	FVector NewSpeed = {-1.f,BallDir,BallAngle};
+	NewSpeed.Normalize();
+	FVector FinalSpeed = NewSpeed*PowerAccuarcy*5000;//5000은 파워값!
+	ball->SetBallHit(FinalSpeed);
+	
+	return;
+	
+}
+
+float AHitBox::CheckTiming(class ABall* Ball)
+{
+	ABall* BallActor = Cast<ABall>(UGameplayStatics::GetActorOfClass(GetWorld(),ABall::StaticClass()));
+	AStrikeZone* StrikeZoneActor = Cast<AStrikeZone>(UGameplayStatics::GetActorOfClass(GetWorld(),AStrikeZone::StaticClass()));
+	return StrikeZoneActor->GetRatioInStrikeZone(BallActor);
+}
+float AHitBox::CheckSide(class ABall* Ball)
+{
+	FTransform BallTransform = Ball->GetActorTransform();
+	FTransform StrikeZoneTransform = HitBoxMesh->GetComponentTransform();
+	const FVector LocalPositionInBox = StrikeZoneTransform.InverseTransformPosition(BallTransform.GetLocation());
+	//1.큐브 Extent
+	FVector LocalMin, LocalMax;
+	HitBoxMesh->GetLocalBounds(LocalMin, LocalMax);
+	FVector CenterLocal = (LocalMin+LocalMax)*0.5f;
+	FVector ExtentLocal = (LocalMax-LocalMin)*0.5f; //half
+	FVector LocalCenter = LocalPositionInBox - CenterLocal;
+	const float SafeEx = FMath::Max(ExtentLocal.Y, 1e-6f);
+
+	// 4) 로컬 X축 기준 정규화
+	float Side= (LocalPositionInBox.Y - CenterLocal.Y) / SafeEx;
+	if (Side>1 || Side<-1)
+	{
+		Side= -2;
+	}
+	Side = FMath::Clamp(Side,-1,1);
+	
+	return -1;
+}
+float AHitBox::CheckHeight(class ABall* Ball)
+{
+	
+	FTransform BallTransform = Ball->GetActorTransform();
+	FTransform StrikeZoneTransform = HitBoxMesh->GetComponentTransform();
+	const FVector LocalPositionInBox = StrikeZoneTransform.InverseTransformPosition(BallTransform.GetLocation());
+	//1.큐브 Extent
+	FVector LocalMin, LocalMax;
+	HitBoxMesh->GetLocalBounds(LocalMin, LocalMax);
+	FVector CenterLocal = (LocalMin+LocalMax)*0.5f;
+	FVector ExtentLocal = (LocalMax-LocalMin)*0.5f; //half
+	FVector LocalCenter = LocalPositionInBox - CenterLocal;
+	const float SafeEx = FMath::Max(ExtentLocal.Z, 1e-6f);
+
+	// 4) 로컬 X축 기준 정규화
+	float Height= (LocalPositionInBox.Z - CenterLocal.Z) / SafeEx;
+	if (Height>1 || Height<-1)
+	{
+		Height= -2;
+	}
+	Height = FMath::Clamp(Height,-1,1);
+	
+	return -1;
 }
 
 // Called every frame
