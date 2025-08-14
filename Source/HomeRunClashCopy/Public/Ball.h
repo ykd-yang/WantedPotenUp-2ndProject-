@@ -7,6 +7,7 @@
 #include "GameFramework/Actor.h"
 #include "Ball.generated.h"
 
+class UNiagaraComponent;
 
 UCLASS()
 class HOMERUNCLASHCOPY_API ABall : public AActor
@@ -29,8 +30,11 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FBallInfo BallInfo;
 	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	UStaticMeshComponent* BallMesh;
+
+	UPROPERTY(EditAnywhere)
+	UNiagaraComponent* Trail;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UCurveFloat* DragCoefficientCurve;

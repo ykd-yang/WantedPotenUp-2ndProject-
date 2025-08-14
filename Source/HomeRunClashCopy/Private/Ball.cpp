@@ -4,6 +4,8 @@
 #include "Engine/EngineTypes.h"
 #include "Components/PrimitiveComponent.h"
 #include "Indicator.h"
+#include "NiagaraComponent.h"
+#include "NiagaraFunctionLibrary.h"
 
 // Sets default values
 ABall::ABall()
@@ -35,10 +37,19 @@ ABall::ABall()
 		UE_LOG(LogTemp, Warning, TEXT("Failed to load BallMesh"));
 	}
 
-	static ConstructorHelpers::FObjectFinder<UCurveFloat> DragCurveObj(TEXT("/Game/LibraryFunction/Curve_DragCoefficient.Curve_DragCoefficient"));
+	ConstructorHelpers::FObjectFinder<UCurveFloat> DragCurveObj(TEXT("/Game/LibraryFunction/Curve_DragCoefficient.Curve_DragCoefficient"));
 	if (DragCurveObj.Succeeded())
 	{
 		DragCoefficientCurve = DragCurveObj.Object;
+	}
+
+	Trail = CreateDefaultSubobject<UNiagaraComponent>(TEXT("NiagaraComponent"));
+	Trail->SetupAttachment(RootComponent);
+	ConstructorHelpers::FObjectFinder<UNiagaraSystem> TrailEffect(TEXT("/Game/Effect/NS_BallTail.NS_BallTail"));
+	if (TrailEffect.Succeeded())
+	{
+		Trail->SetAsset(TrailEffect.Object);
+		Trail->Activate(true);
 	}
 }
 
@@ -124,6 +135,7 @@ void ABall::OnSimulate(float ElapTime)
 	SimulVelocity = UAirResistanceLibraryFunction::AirResistanceCpp(SimulVelocity, DragCoefficientCurve);
 	SimulLocation = PrevLocation + SimulVelocity * GetWorld()->GetDeltaSeconds();
 
+	//Debug Line
 	DrawDebugLine(GetWorld(), PrevLocation, SimulLocation, FColor::Red,
 		false, 1.f, 0, 5);
 
