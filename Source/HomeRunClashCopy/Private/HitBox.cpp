@@ -179,6 +179,7 @@ void AHitBox::Tick(float DeltaTime)
 void AHitBox::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
+	
 
 }
 

@@ -36,16 +36,19 @@ public:
 	
 	float DepthOffset;
 	FVector Plane;
+
+	float CheckTiming(class ABall* Ball);
+	float CheckHeight(class ABall* Ball);
+	float CheckSide(class ABall* Ball);
+	void ApplyHit(float Timing, float HeightBat, float SideBat, class ABall* ball);
 	
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	void InitCursorPlane();
 	void RecognizeCursorInPlane();
-	void ApplyHit(float Timing, float HeightBat, float SideBat, class ABall* ball);
-	float CheckTiming(class ABall* Ball);
-	float CheckHeight(class ABall* Ball);
-	float CheckSide(class ABall* Ball);
+	
+	
 
 public:	
 	// Called every frame
