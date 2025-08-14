@@ -44,7 +44,7 @@ void APitcher::Tick(float DeltaTime)
 
 	//for Test
 	testT+=DeltaTime;
-	if (testT > 5.f)
+	if (testT > 5.f)	
 	{
 		ThrowTrigger();
 		testT = 0.f;

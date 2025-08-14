@@ -1,6 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 #include "Ball.h"
 #include "AirResistanceLibraryFunction.h"
+#include "Engine/EngineTypes.h"
+#include "Components/PrimitiveComponent.h"
+#include "Indicator.h"
 
 // Sets default values
 ABall::ABall()
@@ -15,7 +18,9 @@ ABall::ABall()
 		BallMesh->SetStaticMesh(BallMeshAsset.Object);
 		BallMesh->SetWorldScale3D(FVector(2.5f, 2.5f, 2.5f));
 		BallMesh->SetNotifyRigidBodyCollision(true);
+		BallMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 		BallMesh->SetCollisionResponseToAllChannels(ECR_Block);
+		//BallMesh->SetCollisionResponseToChannel(ECollisionChannel::)
 
 		// Block 이벤트 받기위해 physics만 켜주기
 		BallMesh->SetSimulatePhysics(true);
@@ -121,6 +126,27 @@ void ABall::OnSimulate(float ElapTime)
 
 	DrawDebugLine(GetWorld(), PrevLocation, SimulLocation, FColor::Red,
 		false, 1.f, 0, 5);
+
+	FHitResult HitResult;
+	bool Hit = GetWorld()->LineTraceSingleByChannel(
+		HitResult,
+		PrevLocation,
+		SimulLocation,
+		ECollisionChannel::ECC_Visibility);
+
+	if (Hit)
+	{
+		AIndicator* Ind = Cast<AIndicator>(HitResult.GetActor());
+		if (Ind)
+		{
+			IsSimulate = false;
+			Ind->OnLinetraceHit(HitResult.Location);
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Not Indicator"));
+		}
+	}
 }
 
 
