@@ -10,6 +10,7 @@
 
 class ABaseBallGameMode;
 class ABall;
+class UAnimSequence;
 
 UCLASS()
 class HOMERUNCLASHCOPY_API APitcher : public AActor
@@ -39,17 +40,22 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	ABaseBallGameMode* Gm;
-	
 
+	UPROPERTY(EditAnywhere)
+	FVector ThrowLocation = FVector(0, 0, 0);
+
+	float testT = 0.f;
+	
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool IsThrow = false;
 	
 private:
 	FBallInfo GetRandomBallInfo();
+	
 	UFUNCTION(BlueprintCallable)
 	void ThrowBall();
-
+	
 public:
 	UFUNCTION(BlueprintCallable)
 	void SpawnBall();

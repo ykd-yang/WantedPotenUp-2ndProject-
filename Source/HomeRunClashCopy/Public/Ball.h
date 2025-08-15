@@ -7,6 +7,7 @@
 #include "GameFramework/Actor.h"
 #include "Ball.generated.h"
 
+class UNiagaraComponent;
 
 UCLASS()
 class HOMERUNCLASHCOPY_API ABall : public AActor
@@ -29,8 +30,11 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FBallInfo BallInfo;
 	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	UStaticMeshComponent* BallMesh;
+
+	UPROPERTY(EditAnywhere)
+	UNiagaraComponent* Trail;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UCurveFloat* DragCoefficientCurve;
@@ -41,15 +45,26 @@ private:
 	float MagnusCoeff = 0.003f;
 	FVector Gravity = FVector(0.0f, 0.0f, -980.0f);
 	FVector Velocity = FVector(0.0f, 0.0f, 0.0f);
+	FVector StartLocation = FVector(0.0f, 0.0f, 0.0f);
+
+	FVector PrevLocation = FVector(0.0f, 0.0f, 0.0f);
+	FVector SimulLocation = FVector(0.0f, 0.0f, 0.0f);
+	FVector SimulVelocity = FVector(0.0f, 0.0f, 0.0f);
+	float ElapsedTime = 0.0f;
+	bool IsSimulate = false;
 
 public:
-	void Init(FBallInfo BI);
+	void Init(FBallInfo BI, FVector Location);
+	void SetBallMove();
 	void SetBallHit(FVector HitVelocity);
 	
 private:
-	void CalculateGravity(float DeltaTime);
-	void CalculateMagnusSimple(float DeltaTime);
+	void CalculateGravity(FVector& Vel);
+	void CalculateMagnusSimple(FVector& Vel);
 	void UpdateLocation(float DeltaTime);
+
+	UFUNCTION()
+	void OnSimulate(float ElapTime);
 
 	UFUNCTION()
 	void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor,
