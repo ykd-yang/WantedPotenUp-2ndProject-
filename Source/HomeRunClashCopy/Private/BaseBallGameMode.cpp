@@ -3,17 +3,30 @@
 
 #include "BaseBallGameMode.h"
 #include "Pitcher.h"
+#include "Blueprint/UserWidget.h"
 #include "Kismet/GameplayStatics.h"
 
 ABaseBallGameMode::ABaseBallGameMode()
 {
 	State = EGameModeState::None;
+	
 }
 
 void ABaseBallGameMode::BeginPlay()
 {
 	Super::BeginPlay();
 
+	// Create Widget
+	if (nullptr != UInGameUI)
+	{
+		GlobalWidget = CreateWidget<UUserWidget>(GetWorld(), UInGameUI);
+		if (nullptr != GlobalWidget)
+		{
+			// Display Widget
+			GlobalWidget->AddToViewport();
+		}
+	}
+	
 	AActor* FoundPitcher = UGameplayStatics::GetActorOfClass(GetWorld(), APitcher::StaticClass());
 	if (FoundPitcher)
 	{
@@ -150,7 +163,6 @@ void ABaseBallGameMode::OnStartExit()
 
 void ABaseBallGameMode::OnThrowExit()
 {
-	Pitcher->SpawnBall();
 }
 
 void ABaseBallGameMode::OnBallHitExit()

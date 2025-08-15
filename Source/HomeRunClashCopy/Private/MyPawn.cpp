@@ -39,7 +39,7 @@ void AMyPawn::CacheScreenPlaneDistance()
 		PC->SetInputMode(FInputModeGameOnly());
 	}
 
-	CacheScreenPlaneDistance();
+	//CacheScreenPlaneDistance();
 }
 
 // Called when the game starts or when spawned
