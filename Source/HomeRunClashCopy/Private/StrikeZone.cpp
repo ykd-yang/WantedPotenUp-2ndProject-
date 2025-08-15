@@ -45,10 +45,10 @@ float AStrikeZone::GetRatioInStrikeZone(class ABall* Ball)
 		{
 			Timing= -2;
 		}
-		
+		return 0;
 	
 	}
-	return Timing;
+	//return Timing;
 }
 
 // Called when the game starts or when spawned
