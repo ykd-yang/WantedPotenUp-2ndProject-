@@ -21,6 +21,7 @@ public:
 	UPROPERTY(EditAnywhere)
 	class UInputMappingContext * playerContext;
 	void PlayAnimSwing();
+	UFUNCTION(BlueprintCallable)
 	void ApplySwing();
 	bool bCanSwing = true;
 

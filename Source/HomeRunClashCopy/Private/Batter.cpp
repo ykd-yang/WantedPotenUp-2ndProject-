@@ -28,10 +28,14 @@ void ABatter::PlayAnimSwing()
 void ABatter::ApplySwing()
 {
 	ABall* BallActor = Cast<ABall>(UGameplayStatics::GetActorOfClass(GetWorld(),ABall::StaticClass()));
-	float Timing =MyHitBox->CheckTiming(BallActor);
-	float Height = MyHitBox->CheckHeight(BallActor);
-	float Side = MyHitBox->CheckSide(BallActor);
-	MyHitBox-> ApplyHit(Timing,Height,Side,BallActor);
+	if (BallActor)
+	{
+		float Timing =MyHitBox->CheckTiming(BallActor);
+		float Height = MyHitBox->CheckHeight(BallActor);
+		float Side = MyHitBox->CheckSide(BallActor);
+		MyHitBox-> ApplyHit(Timing,Height,Side,BallActor);
+	}
+	
 }
 
 void ABatter::PlaySwingMontage()

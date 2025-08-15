@@ -100,13 +100,16 @@ void AHitBox::RecognizeCursorInPlane()
 void AHitBox::ApplyHit(float Timing, float HeightBat, float SideBat,class ABall* ball)
 {
 	//ball.SetBallHit()
-	float BallDir = FMath::Lerp(1,-1,(Timing+1)/2); //당겨치기,정타,밀어치기의 비율
-	float BallAngle = FMath::Lerp(1,-1,(HeightBat+1)/2); //높이
-	float PowerAccuarcy = 1-FMath::Abs(SideBat);//정확도 얼마나 배트의 중심에 맞았는가?
-	FVector NewSpeed = {-1.f,BallDir,BallAngle};
-	NewSpeed.Normalize();
-	FVector FinalSpeed = NewSpeed*PowerAccuarcy*5000;//5000은 파워값!
-	ball->SetBallHit(FinalSpeed);
+	if (Timing >-2 && HeightBat >-2 && SideBat >-2)
+	{
+		float BallDir = FMath::Lerp(1,-1,(Timing+1)/2); //당겨치기,정타,밀어치기의 비율
+		float BallAngle = FMath::Lerp(1,-1,(HeightBat+1)/2); //높이
+		float PowerAccuarcy = 1-FMath::Abs(SideBat);//정확도 얼마나 배트의 중심에 맞았는가?
+		FVector NewSpeed = {-1.f,BallDir,BallAngle};
+		NewSpeed.Normalize();
+		FVector FinalSpeed = NewSpeed*PowerAccuarcy*5000;//5000은 파워값!
+		ball->SetBallHit(FinalSpeed);
+	}
 	
 	return;
 	
