@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "BallInfo.h"
+#include "Batter.h"
 #include "Engine/DataTable.h"
 #include "Pitcher.generated.h"
 
@@ -31,6 +32,8 @@ public:
 private:
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<ABall> Ball;
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<ABatter> Batter;
 
 	UPROPERTY(EditAnywhere)
 	USkeletalMeshComponent* PitcherSkeletal;

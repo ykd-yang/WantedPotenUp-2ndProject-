@@ -33,6 +33,12 @@ void APitcher::BeginPlay()
 		UE_LOG(LogTemp, Warning, TEXT("GameMode is null"));
 	}
 
+	Batter = Cast<ABatter>(GetWorld()->GetFirstPlayerController()->GetPawn());
+	if (Batter == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Batter is null"));
+	}
+	
 	//to spawn ball and set throw location
 	ThrowTrigger();
 }
@@ -61,6 +67,8 @@ void APitcher::SpawnBall()
 		true);
 	Ball->AttachToComponent(PitcherSkeletal, AttachRule, FName("RightHandSocket"));
 	Ball->Init(GetRandomBallInfo(), ThrowLocation);
+
+	Batter->SetBallActor(Ball);
 }
 
 FBallInfo APitcher::GetRandomBallInfo()
