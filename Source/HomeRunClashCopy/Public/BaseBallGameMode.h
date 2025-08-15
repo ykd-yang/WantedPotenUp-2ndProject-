@@ -41,6 +41,11 @@ public:
 	virtual void Tick(float DeltaSeconds) override;
 	void ChangeState(EGameModeState NewState);
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="UI")
+	TSubclassOf<UUserWidget> UInGameUI;
+	UPROPERTY()
+	UUserWidget* GlobalWidget;
+
 private:
 	// Tick
 	void OnStart();
@@ -62,4 +67,10 @@ private:
 	void OnBallHitExit();
 	void OnBallMissExit();
 	void OnEndExit();
+
+
+public:
+	// Variables for InGameUI
+	int32 RemainingBalls = 11;
+	int32 HomerunsForWin = 6;
 };

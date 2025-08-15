@@ -3,9 +3,39 @@
 
 #include "InGameUI.h"
 
+#include "BaseBallGameMode.h"
+#include "Blueprint/WidgetLayoutLibrary.h"
+#include "Components/CanvasPanelSlot.h"
+#include "Components/Image.h"
+#include "Components/Overlay.h"
 #include "Components/TextBlock.h"
+#include "Kismet/GameplayStatics.h"
 
+// InGameUI BeginPlay
+void UInGameUI::NativeConstruct()
+{
+	Super::NativeConstruct();
 
+	// Get GameMode (to get variables)
+	GameMode = Cast<ABaseBallGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+
+	// Initializing remaining ball count on UI.
+	RemainingBallText->SetText(FText::AsNumber(GameMode->RemainingBalls));
+
+	// Initializing homerun amounts needed to clear stage.
+	FText WinConditionText = FText::FromString(TEXT("0/{0}"));
+	int32 WinConditionInt = GameMode->HomerunsForWin;
+	FText WinCondition = FText::Format(WinConditionText, FText::AsNumber(WinConditionInt));
+	MainMissionCounterText->SetText(WinCondition);
+}
+
+// InGameUI Tick
+void UInGameUI::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
+{
+	Super::NativeTick(MyGeometry, InDeltaTime);
+}
+
+// Update Homerun Gauge 구현 필요
 void UInGameUI::UpdateHomerunGaugeText(float HomerunGauge)
 {
 	int32 HomerunGaugeInt = static_cast<int>(HomerunGauge);
@@ -13,3 +43,76 @@ void UInGameUI::UpdateHomerunGaugeText(float HomerunGauge)
 	
 	HomerunGaugeText->SetText(FText::FromString(HomerunGaugeString + "%"));
 }
+
+// Deduct Remaining Ball Count
+void UInGameUI::DeductRemainingBalls()
+{
+	FString RemainingBallsString = RemainingBallText->GetText().ToString();
+	int32 RemainingBallsInt = FCString::Atoi(*RemainingBallsString) - 1;
+	RemainingBallText->SetText(FText::AsNumber(RemainingBallsInt));	// Deduct remaining balls.
+	
+	// Stage failed. (no more remaining balls)
+	if (GameMode->RemainingBalls <= 0)
+	{
+		// 구현 필요
+		
+	}
+}
+
+// Update Main Mission UI
+void UInGameUI::UpdateSuccessfulHomerun()
+{
+	FText SuccessfulHomerunText = FText::FromString(TEXT("{0}/{1}"));
+	SuccessfulHomerun += 1;
+	SuccessfulHomerunText = FText::Format(SuccessfulHomerunText,FText::AsNumber(SuccessfulHomerun) , FText::AsNumber(GameMode->HomerunsForWin));
+	MainMissionCounterText->SetText(SuccessfulHomerunText);	// Count after a successful homerun.
+	
+	// Stage cleared.
+	if (GameMode->HomerunsForWin <= SuccessfulHomerun)	// is there more successful homerun than stage required homerun?
+	{
+		// 구현 필요
+		
+	}
+	
+}
+
+void UInGameUI::DisplayBallInfo(float BallSpeed)
+{
+	BallInfoOverlay->SetVisibility(ESlateVisibility::Visible);
+
+	PlayAnimation(BallInfoAnimation,0.f,1, EUMGSequencePlayMode::Forward,1.f);
+}
+
+// Display Ball Direction and Indicator
+void UInGameUI::DisplayBallHitDirection(float BallHitDirection)
+{
+	
+	// No Ball Direction Input -> Display Only HitDirection
+	if (FMath::IsNaN(BallHitDirection))
+	{
+		// Display Ball Direction
+		HitDirectionOverlay->SetVisibility(ESlateVisibility::Visible);
+		return;
+	}
+
+	// Position X: -130 ~ 130
+	float PositionX = FMath::GetMappedRangeValueClamped(FVector2D(-1.0f, 1.0f),FVector2D(-130.0f, 130.0f), BallHitDirection);
+
+	// Set Hit Indicator Position to Ball Direction
+	UCanvasPanelSlot* CanvasSlot = UWidgetLayoutLibrary::SlotAsCanvasSlot(HitIndicatorUI);
+	FVector2D CanvasPosition = CanvasSlot->GetPosition();
+	CanvasPosition.X = PositionX;
+	CanvasSlot->SetPosition(CanvasPosition);
+
+	// Display Ball Direction and Indicator
+	HitIndicatorUI->SetVisibility(ESlateVisibility::Visible);
+	HitDirectionOverlay->SetVisibility(ESlateVisibility::Visible);
+}
+
+// Hide Ball Direction and Indicator
+void UInGameUI::HideBallHitDirection()
+{
+	HitIndicatorUI->SetVisibility(ESlateVisibility::Hidden);
+	HitDirectionOverlay->SetVisibility(ESlateVisibility::Hidden);
+}
+
