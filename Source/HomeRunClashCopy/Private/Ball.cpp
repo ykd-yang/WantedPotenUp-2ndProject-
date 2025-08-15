@@ -50,7 +50,6 @@ ABall::ABall()
 	if (TrailEffect.Succeeded())
 	{
 		Trail->SetAsset(TrailEffect.Object);
-		Trail->SetAutoActivate(false);
 	}
 }
 
@@ -99,6 +98,8 @@ void ABall::Init(FBallInfo BI, FVector Location)
 	SimulLocation = StartLocation;
 	SimulVelocity = Velocity;
 	IsSimulate = true;
+
+	Trail->Deactivate();
 }
 
 void ABall::SetBallMove()
