@@ -21,9 +21,10 @@ ABall::ABall()
 		BallMesh->SetWorldScale3D(FVector(2.5f, 2.5f, 2.5f));
 		BallMesh->SetNotifyRigidBodyCollision(true);
 		BallMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-		BallMesh->SetCollisionResponseToAllChannels(ECR_Block);
-		//BallMesh->SetCollisionResponseToChannel(ECollisionChannel::)
-
+		BallMesh->SetCollisionObjectType(ECC_GameTraceChannel3);
+		BallMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel5, ECR_Overlap);
+		BallMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel4, ECR_Overlap);
+		
 		// Block 이벤트 받기위해 physics만 켜주기
 		BallMesh->SetSimulatePhysics(true);
 		BallMesh->SetEnableGravity(false);
@@ -49,7 +50,7 @@ ABall::ABall()
 	if (TrailEffect.Succeeded())
 	{
 		Trail->SetAsset(TrailEffect.Object);
-		Trail->Activate(true);
+		Trail->SetAutoActivate(false);
 	}
 }
 
@@ -110,6 +111,8 @@ void ABall::SetBallHit(FVector HitVelocity)
 {
 	Velocity = HitVelocity;
 	BallInfo.Rotation = FVector(0, 0, 0);
+	
+	Trail->Activate(true);
 }
 
 void ABall::CalculateGravity(FVector& Vel)
