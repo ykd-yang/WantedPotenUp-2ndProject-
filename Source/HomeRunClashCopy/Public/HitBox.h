@@ -30,12 +30,16 @@ public:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	class UStaticMeshComponent* HitBoxMesh;
 
+	UPROPERTY(EditAnywhere)
+	class AStrikeZone* StrikeZoneActor;
+
 	FVector CamLoc;
 	FRotator CamRot;
 	FVector CamFwd;
 	
 	float DepthOffset;
 	FVector Plane;
+	
 
 	float CheckTiming(class ABall* Ball);
 	float CheckHeight(class ABall* Ball);

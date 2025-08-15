@@ -49,6 +49,7 @@ void AHitBox::BeginPlay()
 {
 	Super::BeginPlay();
 	GetWorld() -> GetFirstPlayerController() ->SetShowMouseCursor(true);
+	//StrikeZoneActor = Cast<AStrikeZone>(UGameplayStatics::GetActorOfClass(GetWorld(),AStrikeZone::StaticClass()));
 	
 }
 
@@ -99,7 +100,7 @@ void AHitBox::RecognizeCursorInPlane()
 
 void AHitBox::ApplyHit(float Timing, float HeightBat, float SideBat,class ABall* ball)
 {
-	//ball.SetBallHit()
+	
 	if (Timing >-2 && HeightBat >-2 && SideBat >-2)
 	{
 		float BallDir = FMath::Lerp(1,-1,(Timing+1)/2); //당겨치기,정타,밀어치기의 비율
@@ -108,6 +109,7 @@ void AHitBox::ApplyHit(float Timing, float HeightBat, float SideBat,class ABall*
 		FVector NewSpeed = {-1.f,BallDir,BallAngle};
 		NewSpeed.Normalize();
 		FVector FinalSpeed = NewSpeed*PowerAccuarcy*5000;//5000은 파워값!
+		ball->SetActorRotation(FRotator(0,0,0));
 		ball->SetBallHit(FinalSpeed);
 	}
 	
@@ -117,9 +119,12 @@ void AHitBox::ApplyHit(float Timing, float HeightBat, float SideBat,class ABall*
 
 float AHitBox::CheckTiming(class ABall* Ball)
 {
-	ABall* BallActor = Cast<ABall>(UGameplayStatics::GetActorOfClass(GetWorld(),ABall::StaticClass()));
-	AStrikeZone* StrikeZoneActor = Cast<AStrikeZone>(UGameplayStatics::GetActorOfClass(GetWorld(),AStrikeZone::StaticClass()));
-	return StrikeZoneActor->GetRatioInStrikeZone(BallActor);
+	if (Ball != nullptr && StrikeZoneActor != nullptr)
+	{
+		//return StrikeZoneActor->GetRatioInStrikeZone(Ball);
+		return 0;
+	}
+	return -2;
 }
 float AHitBox::CheckSide(class ABall* Ball)
 {
@@ -134,15 +139,16 @@ float AHitBox::CheckSide(class ABall* Ball)
 	FVector LocalCenter = LocalPositionInBox - CenterLocal;
 	const float SafeEx = FMath::Max(ExtentLocal.Y, 1e-6f);
 
-	// 4) 로컬 X축 기준 정규화
+	
 	float Side= (LocalPositionInBox.Y - CenterLocal.Y) / SafeEx;
 	if (Side>1 || Side<-1)
 	{
-		Side= -2;
+		return 0;
 	}
 	Side = FMath::Clamp(Side,-1,1);
 	
-	return -1;
+	//return Side;
+	return 0;
 }
 float AHitBox::CheckHeight(class ABall* Ball)
 {
@@ -162,11 +168,13 @@ float AHitBox::CheckHeight(class ABall* Ball)
 	float Height= (LocalPositionInBox.Z - CenterLocal.Z) / SafeEx;
 	if (Height>1 || Height<-1)
 	{
-		Height= -2;
+		//return -2;
+		return 0;
 	}
 	Height = FMath::Clamp(Height,-1,1);
 	
-	return -1;
+	//return Height;
+	return 0;
 }
 
 // Called every frame

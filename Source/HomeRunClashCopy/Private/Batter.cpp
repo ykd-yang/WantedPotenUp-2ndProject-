@@ -27,13 +27,13 @@ void ABatter::PlayAnimSwing()
 
 void ABatter::ApplySwing()
 {
-	ABall* BallActor = Cast<ABall>(UGameplayStatics::GetActorOfClass(GetWorld(),ABall::StaticClass()));
-	if (BallActor)
+	if (BallActor != nullptr)
 	{
 		float Timing =MyHitBox->CheckTiming(BallActor);
 		float Height = MyHitBox->CheckHeight(BallActor);
 		float Side = MyHitBox->CheckSide(BallActor);
 		MyHitBox-> ApplyHit(Timing,Height,Side,BallActor);
+		UE_LOG(LogTemp, Warning, TEXT("Timing: %f, HeightBat: %f, SideBat: %f, Ball Address: %p"), Timing, Height, Side, BallActor);
 	}
 	
 }
@@ -47,6 +47,11 @@ void ABatter::PlaySwingMontage()
 		AnimInstance->Montage_Play(SwingMontage, 1.0f); 
 	}
 	
+}
+
+void ABatter::SetBallActor(class ABall* ball)
+{
+	BallActor = ball;
 }
 
 // Called when the game starts or when spawned
