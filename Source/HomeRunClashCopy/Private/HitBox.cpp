@@ -110,7 +110,10 @@ void AHitBox::ApplyHit(float Timing, float HeightBat, float SideBat,class ABall*
 		FVector FinalSpeed = NewSpeed*PowerAccuarcy*5000;//5000은 파워값!
 		ball->SetBallHit(FinalSpeed);
 	}
-	
+	else
+	{
+		
+	}
 	return;
 	
 }

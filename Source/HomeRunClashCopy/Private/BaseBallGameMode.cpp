@@ -5,6 +5,8 @@
 #include "Pitcher.h"
 #include "Blueprint/UserWidget.h"
 #include "Kismet/GameplayStatics.h"
+#include "InGameUI.h"
+#include "Components/Image.h"
 
 ABaseBallGameMode::ABaseBallGameMode()
 {
@@ -17,16 +19,16 @@ void ABaseBallGameMode::BeginPlay()
 	Super::BeginPlay();
 
 	// Create Widget
-	if (nullptr != UInGameUI)
+	if (nullptr != InGameUI)
 	{
-		GlobalWidget = CreateWidget<UUserWidget>(GetWorld(), UInGameUI);
-		if (nullptr != GlobalWidget)
+		InGameWidget = CreateWidget<class UInGameUI>(GetWorld(), InGameUI);
+		if (nullptr != InGameWidget)
 		{
-			// Display Widget
-			GlobalWidget->AddToViewport();
+			InGameWidget->AddToViewport();	// Display Widget
 		}
 	}
-	
+
+	// Casting Pitcher
 	AActor* FoundPitcher = UGameplayStatics::GetActorOfClass(GetWorld(), APitcher::StaticClass());
 	if (FoundPitcher)
 	{
@@ -47,19 +49,19 @@ void ABaseBallGameMode::Tick(float DeltaSeconds)
 	switch (State)
 	{
 		case EGameModeState::Start:
-			OnStart();
+			OnStartTick();
 			break;
 		case EGameModeState::Throw:
-			OnThrow();
+			OnThrowTick();
 			break;
 		case EGameModeState::BallHit:
-			OnBallHit();
+			OnBallHitTick();
 			break;
 		case EGameModeState::BallMiss:
-			OnBallMiss();
+			OnBallMissTick();
 			break;
 		case EGameModeState::End:
-			OnEnd();
+			OnEndTick();
 			break;
 		default:
 			break;
@@ -68,6 +70,8 @@ void ABaseBallGameMode::Tick(float DeltaSeconds)
 
 void ABaseBallGameMode::ChangeState(EGameModeState NewState)
 {
+	if (State == NewState)
+		return;
 	switch (State)
 	{
 	case EGameModeState::Start:
@@ -112,24 +116,55 @@ void ABaseBallGameMode::ChangeState(EGameModeState NewState)
 	}
 }
 
+FString ABaseBallGameMode::BallTypeToString(EBallType BT)
+{
+	switch(BallType)
+	{
+	case EBallType::Straight:  return TEXT("4FSB");
+	case EBallType::Curve:     return TEXT("CB");
+	case EBallType::Slider:    return TEXT("SL");
+	case EBallType::Fork:      return TEXT("FO");
+	case EBallType::ChangeUp:  return TEXT("CH");
+	case EBallType::Knuckle:   return TEXT("KN");
+	default: return TEXT("Unknown");
+	}
+}
+
 //On Tick
-void ABaseBallGameMode::OnStart()
+void ABaseBallGameMode::OnStartTick()
 {
 }
 
-void ABaseBallGameMode::OnThrow()
+void ABaseBallGameMode::OnThrowTick()
 {
 }
 
-void ABaseBallGameMode::OnBallHit()
+void ABaseBallGameMode::OnBallHitTick()
+{
+	// 3. 공이 땅에 닿으면 비거리 결정
+	// 4. 비거리 결정 후 타격상태 표시 
+	// 5. 타격상태 사리지면 Main Mission 갱신, 남은 공갯수 차감
+	// 6. 1초후 카메라 타자시점 원상복귀
+	// 7. 바로 다시 Throw State
+	//비거리 표시
+	if (!didBallFall)	// !!공이 배트 이외의 물체를 닿았냐
+		{
+			InGameWidget->UpdateBallDistance(5);	// !!strikezone location, ball location length
+		}
+	else if (InGameWidget->isJudgementDisplaying)	// 만약 판정UI가 남아 있다면 사라진 후에 표시
+	{
+	}
+	else if (!InGameWidget->isHomerunStateDisplaying)
+	{
+		InGameWidget->DisplayHomerunState(true);	// !!홈런이냐 아니냐 -> 땅이냐 벽이냐
+	}
+}
+
+void ABaseBallGameMode::OnBallMissTick()
 {
 }
 
-void ABaseBallGameMode::OnBallMiss()
-{
-}
-
-void ABaseBallGameMode::OnEnd()
+void ABaseBallGameMode::OnEndTick()
 {
 }
 
@@ -137,23 +172,61 @@ void ABaseBallGameMode::OnEnd()
 //On Enter
 void ABaseBallGameMode::OnStartEnter()
 {
+	// 1. 화면이 타자시점이 된다
+	
+	// 2. 줌이되고 ReadyUI 표시
+	
+	// 3. 카메라가 Pitch방향으로 숙인다
+	
+	// 4. GoUI 표시
+	
+	// 5. 몇초 뒤 Throw State
+	
 }
 
 void ABaseBallGameMode::OnThrowEnter()
 {
+	InGameWidget->isHomerunStateDisplaying = false;
+	// 카메라 원상복귀
+	
+	// 	1.공을 던진다 + 공의 정보를 가져온다
 	Pitcher->ThrowTrigger();
 }
 
 void ABaseBallGameMode::OnBallHitEnter()
 {
+	// 1. 타격시 성공
+	// 2. 공의 정보, 타자에서!!공의 방향, 타자에서!!타격 판정, tick에서 비거리 표시
+	InGameWidget->DisplayBallInfo(BallTypeToString(BallType));
 }
 
 void ABaseBallGameMode::OnBallMissEnter()
 {
+	// 1. 공이 지나간다
+	// 2. 지나간 후 남은 공갯수 차감, 공의 정보, 공의 방향, Miss표시(먼저 사라짐)
+	if (ESlateVisibility::Visible != InGameWidget->MissImage->GetVisibility())
+	{
+		InGameWidget->DisplayMiss();
+		InGameWidget->DisplayBallHitDirection(-2);
+		InGameWidget->DisplayBallInfo(BallTypeToString(BallType));	// 3. 공의 정보와 방향이 사라지면  4. 다시 Throw State
+	}
+	else	// 헛스윙 시, 바로 !!타자에서 Miss 표시
+	{
+		InGameWidget->DisplayBallHitDirection(-2);
+		InGameWidget->DisplayBallInfo(BallTypeToString(BallType));	// 3. 공의 정보와 방향이 사라지면  4. 다시 Throw State
+	}
 }
 
 void ABaseBallGameMode::OnEndEnter()
 {
+	if (InGameWidget->IsStageCleared)	// 스테이지 클리어 시
+	{
+		
+	}
+	else	// 스테이지 실패 시
+	{
+		
+	}
 }
 
 //On Exit
@@ -167,6 +240,7 @@ void ABaseBallGameMode::OnThrowExit()
 
 void ABaseBallGameMode::OnBallHitExit()
 {
+	didBallFall = false;	// didBallFall 초기화
 }
 
 void ABaseBallGameMode::OnBallMissExit()

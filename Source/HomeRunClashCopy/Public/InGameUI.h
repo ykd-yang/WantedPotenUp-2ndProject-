@@ -47,20 +47,57 @@ public:
 	UOverlay* BallInfoOverlay;
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
 	UWidgetAnimation* BallInfoAnimation;
+	// Ball Jugdement
+	UPROPERTY(meta = (BindWidget))
+	UImage* MissImage;
+	// Homerun State
+	UPROPERTY(meta = (BindWidget))
+	UImage* HomerunImage;
+	UPROPERTY(meta = (BindWidget))
+	UImage* HitImage;
+	
 	
 	UFUNCTION(BlueprintCallable)
 	void UpdateHomerunGaugeText(float HomerunGauge);
+	// 미션, 남은 공
 	UFUNCTION(BlueprintCallable)
 	void DeductRemainingBalls();
 	UFUNCTION(BlueprintCallable)
 	void UpdateSuccessfulHomerun();
+	// 공의 정보
 	UFUNCTION(BlueprintCallable)
-	void DisplayBallInfo(float BallSpeed);	// 나중에 구현
+	void DisplayBallInfo(FString BallType);
+	UFUNCTION(BlueprintCallable)
+	void HideBallInfo();
+	// 공의 방향
 	UFUNCTION(BlueprintCallable)
 	void DisplayBallHitDirection(float BallHitDirection);
 	UFUNCTION(BlueprintCallable)
 	void HideBallHitDirection();
+	// 공의 판정
+	UFUNCTION(BlueprintCallable)
+	void DisplayBallJudgement(int32 Judgement);
+	UFUNCTION(BlueprintCallable)
+	void HideBallJudgement();
+	UFUNCTION(BlueprintCallable)
+	void DisplayMiss();
+	// 비거리
+	UFUNCTION(BlueprintCallable)
+	void UpdateBallDistance(float Distance);
+	// 홈런이냐 아니냐
+	UFUNCTION(BlueprintCallable)
+	void DisplayHomerunState(bool Homerun);
+	UFUNCTION(BlueprintCallable)
+	void HideHomerunState();
 	
 	int32 SuccessfulHomerun = 0;
-	bool IsDirectionDisplaying = false;
+	bool IsStageCleared;
+
+	bool isJudgementDisplaying;
+	bool isHomerunStateDisplaying;
+	
+	FTimerHandle TimerHandle;
+	float DisplayTime = 3.0f;	// UI display time
+	
+
 };
