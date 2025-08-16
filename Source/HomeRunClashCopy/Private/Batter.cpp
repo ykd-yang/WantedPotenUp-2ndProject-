@@ -29,12 +29,10 @@ void ABatter::PlayAnimSwing()
 
 void ABatter::ApplySwing()
 {
-	if (bCanSwing)
-	{
-		PlaySwingMontage();
-	}
+	
 	if (BallActor != nullptr)
 	{
+		BallActor->SetActorRotation(FRotator(0, 0, 0));
 		float Timing =MyHitBox->CheckTiming(BallActor);
 		float Height = MyHitBox->CheckHeight(BallActor);
 		float Side = MyHitBox->CheckSide(BallActor);
@@ -98,7 +96,7 @@ void ABatter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
     
     if (input)
     {
-    	input -> BindAction(IA_Swing,ETriggerEvent::Triggered,this,&ABatter::ApplySwing);
+    	input -> BindAction(IA_Swing,ETriggerEvent::Triggered,this,&ABatter::PlaySwingMontage);
     }
 
 }

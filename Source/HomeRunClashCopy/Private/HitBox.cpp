@@ -158,41 +158,41 @@ void AHitBox::ApplyHit(float Timing, float HeightBat, float SideBat,class ABall*
 
 float AHitBox::CheckTiming(ABall* Ball)
 {
-	if (!Ball || !HitBoxMesh) return -999.f; // 방어
+	if (!Ball) return -999.f;
 
-	// 1) 배트 기준 중심/반경 구하기
-	const FTransform BoxXform = HitBoxMesh->GetComponentTransform();
-	FVector LocalMin, LocalMax;
-	HitBoxMesh->GetLocalBounds(LocalMin, LocalMax);
+	// 기준 컴포넌트: HitBox(UBoxComponent)가 있으면 그걸, 없으면 Mesh
+	const USceneComponent* Comp =
+		HitBox ? static_cast<const USceneComponent*>(HitBox)
+			   : static_cast<const USceneComponent*>(HitBoxMesh);
+	if (!Comp) return -999.f;
 
-	const FVector CenterLocal = (LocalMin + LocalMax) * 0.5f;
-	const FVector ExtentLocal = (LocalMax - LocalMin) * 0.5f;
-	const FVector AbsScale    = BoxXform.GetScale3D().GetAbs();
+	// 배트 중심/타이밍 축(로컬 X+) 기준
+	const FVector Center  = Comp->GetComponentLocation();
+	const FVector Forward = Comp->GetForwardVector();   // 타이밍 축
 
-	const FVector CenterW = BoxXform.TransformPosition(CenterLocal);
-	const float   ExtentX_W = FMath::Max(ExtentLocal.X * AbsScale.X, 1e-6f);
-	const FVector AxisX = HitBoxMesh->GetForwardVector(); // 배트의 로컬 X축(타이밍 축)
+	// 공이 배트 중심에서 타이밍 축으로 얼마나 앞/뒤에 있는지
+	const float offsetX = FVector::DotProduct(Ball->GetActorLocation() - Center, Forward);
 
-	// 2) 공 위치를 배트 중심 기준으로 투영
-	const FVector ToBallW = Ball->GetActorLocation() - CenterW;
-	const float offsetX   = FVector::DotProduct(ToBallW, AxisX);
+	// 허용 범위(반폭). 예: ±60cm 안이면 유효 타격 구간
+	constexpr float kHalfDepth = 60.f;
 
-	// 3) 비율 계산
-	const float ratio = offsetX / ExtentX_W;
+	// 범위 밖이면 -2
+	if (FMath::Abs(offsetX) > kHalfDepth)
+		return -2.f;
 
-	// 4) 로그 출력
-	const bool bInside = (FMath::Abs(ratio) <= 1.f);
-	const float overrun = FMath::Max(0.f, FMath::Abs(offsetX) - ExtentX_W);
+	// 범위 안이면 -1..1로 매핑: -kHalfDepth -> -1, 0 -> 0, +kHalfDepth -> +1
+	float ratio = offsetX / kHalfDepth;
 
-	UE_LOG(LogTemp, Log,
-		TEXT("[CheckTiming] offset=%.2fcm, halfExtent=%.2fcm, ratio=%.3f, %s, overrun=%.2fcm"),
-		offsetX, ExtentX_W, ratio,
-		bInside ? TEXT("INSIDE") : TEXT("OUTSIDE"),
-		overrun);
+	// 만약 네 게임에서 "빠른 타이밍이 음수/양수" 방향이 반대라면 아래처럼 부호만 뒤집어:
+	// ratio = -ratio;
 
-	// 5) 단순히 ratio를 리턴 (밖이어도 그대로 반환)
-	return -1;
+	// (선택) 디버그
+	// UE_LOG(LogTemp, Log, TEXT("[Timing] offsetX=%.1f, half=%.1f, ratio=%.3f"),
+	//        offsetX, kHalfDepth, ratio);
+
+	return ratio;
 }
+
 
 
 
@@ -217,26 +217,34 @@ float AHitBox::CheckSide(class ABall* Ball)
 	return (Side < -1.f || Side > 1.f) ? -2.f : Side;
 }
 
-float AHitBox::CheckHeight(class ABall* Ball)
+
+
+float AHitBox::CheckHeight(ABall* Ball)
 {
-	// 1) 공의 월드 위치를 배트(히트박스) 로컬로 변환
-	const FTransform BoxXform = HitBoxMesh->GetComponentTransform();
-	const FVector   BallLocal = BoxXform.InverseTransformPosition(Ball->GetActorLocation());
+	if (!Ball) return -999.f;
 
-	// 2) 히트박스의 로컬 바운드(min/max) 얻기  ← 올바른 API 사용
-	FVector LocalMin, LocalMax;
-	HitBoxMesh->GetLocalBounds(LocalMin, LocalMax);
+	// 기준 컴포넌트(Z 중심): HitBox가 있으면 그걸, 없으면 Mesh
+	const USceneComponent* Comp =
+		HitBox ? static_cast<const USceneComponent*>(HitBox)
+			   : static_cast<const USceneComponent*>(HitBoxMesh);
+	if (!Comp) return -999.f;
 
-	const FVector CenterLocal  = (LocalMin + LocalMax) * 0.5f;
-	const FVector ExtentLocal  = (LocalMax - LocalMin) * 0.5f;
-	const float   SafeExtentZ  = FMath::Max(ExtentLocal.Z, 1e-6f); // 0 나눗셈 보호
+	const float centerZ = Comp->GetComponentLocation().Z;
+	const float ballZ   = Ball->GetActorLocation().Z;
+	const float deltaZ  = ballZ - centerZ;             // +면 위, -면 아래
 
-	// 3) 배트 로컬 Y축 기준 좌우 비율 (-1~1)
-	const float Height = (BallLocal.Y - CenterLocal.Y) / SafeExtentZ;
+	constexpr float kHalfHeight = 40.f;                // 허용 범위: -40 ~ +40
 
-	// 4) 바운드 밖이면 -2, 안이면 -1~1 반환
-	return (Height < -1.f || Height > 1.f) ? -2.f : Height;
+	if (FMath::Abs(deltaZ) > kHalfHeight)
+		return -2.f;                                   // 범위 밖
+
+	// 범위 안: -40 -> -1, 0 -> 0, +40 -> +1
+	return deltaZ / kHalfHeight;
 }
+
+
+
+
 
 
 // Called every frame
