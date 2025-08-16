@@ -16,6 +16,11 @@ APitcher::APitcher()
 	if (PitchTypeDataTableObject.Succeeded())
 	{
 		PitchTypeDataTable = PitchTypeDataTableObject.Object;
+	}	
+	ConstructorHelpers::FObjectFinder<UDataTable> SlowBallDTObject(TEXT("/Game/Data/SlowBall.SlowBall"));
+	if (SlowBallDTObject.Succeeded())
+	{
+		SlowBallDataTable = SlowBallDTObject.Object;
 	}
 }
 
@@ -68,17 +73,22 @@ void APitcher::SpawnBall()
 	Ball->AttachToComponent(PitcherSkeletal, AttachRule, FName("RightHandSocket"));
 	Ball->Init(GetRandomBallInfo(), ThrowLocation);
 
-	Batter->SetBallActor(Ball);
+	if (Batter != nullptr)
+	{
+		Batter->SetBallActor(Ball);
+	}
 }
 
 FBallInfo APitcher::GetRandomBallInfo()
 {
-	TArray<FName> RowNames = PitchTypeDataTable->GetRowNames();
+	//TArray<FName> RowNames = PitchTypeDataTable->GetRowNames();
+	TArray<FName> RowNames = SlowBallDataTable->GetRowNames();
 	int32 RandomIndex = FMath::RandRange(0, RowNames.Num() - 1);
 	FName RandomRowName = RowNames[RandomIndex];
 
 	static const FString ContextString(TEXT("GetRandomBallInfo"));
-	FBallInfo* RandomBallInfo = PitchTypeDataTable->FindRow<FBallInfo>(RandomRowName, ContextString, true);
+	//FBallInfo* RandomBallInfo = PitchTypeDataTable->FindRow<FBallInfo>(RandomRowName, ContextString, true);
+	FBallInfo* RandomBallInfo = SlowBallDataTable->FindRow<FBallInfo>(RandomRowName, ContextString, true);
 
 	return *RandomBallInfo;
 }

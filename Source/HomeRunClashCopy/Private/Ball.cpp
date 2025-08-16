@@ -25,6 +25,7 @@ ABall::ABall()
 		BallMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel5, ECR_Overlap);
 		BallMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel4, ECR_Overlap);
 		BallMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECR_Block);
+		BallMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldDynamic, ECR_Block);
 		
 		// Block 이벤트 받기위해 physics만 켜주기
 		BallMesh->SetSimulatePhysics(true);
@@ -72,7 +73,7 @@ void ABall::Tick(float DeltaTime)
 		ElapsedTime += DeltaTime;
 		OnSimulate(ElapsedTime);
 		
-		if (ElapsedTime > 1)
+		if (ElapsedTime > 1.5)
 		{
 			IsSimulate = false;
 		}
@@ -84,6 +85,7 @@ void ABall::Tick(float DeltaTime)
 		CalculateMagnusSimple(Velocity);
 		Velocity = UAirResistanceLibraryFunction::AirResistanceCpp(Velocity, DragCoefficientCurve);
 		UpdateLocation(DeltaTime);
+		UpdateRotation(DeltaTime);
 	}
 }
 
@@ -101,6 +103,7 @@ void ABall::Init(FBallInfo BI, FVector Location)
 	IsSimulate = true;
 
 	Trail->Deactivate();
+	//Trail->Activate(true);
 }
 
 void ABall::SetBallMove()
@@ -130,6 +133,22 @@ void ABall::CalculateMagnusSimple(FVector& Vel)
 void ABall::UpdateLocation(float DeltaTime)
 {
 	SetActorLocation(GetActorLocation() + Velocity * DeltaTime);
+}
+
+void ABall::UpdateRotation(float DeltaTime)
+{
+	if (BallInfo.Rotation.IsZero())
+	{
+		FVector RotAxis = FVector::CrossProduct(FVector::UpVector, Velocity);
+		float Angle = Velocity.Size()/ 2.5f * DeltaTime;
+		FQuat QuatRot(RotAxis, FMath::DegreesToRadians(Angle));
+		AddActorWorldRotation(QuatRot);
+	}
+	else
+	{
+		FRotator Rot = FRotator(BallInfo.Rotation.Y, BallInfo.Rotation.Z, BallInfo.Rotation.X);
+		AddActorWorldRotation(Rot * DeltaTime);
+	}
 }
 
 void ABall::OnSimulate(float ElapTime)
