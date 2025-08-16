@@ -40,6 +40,8 @@ private:
 	
 	UPROPERTY(EditAnywhere, Category = "Data")
 	UDataTable* PitchTypeDataTable;
+	UPROPERTY(EditAnywhere, Category = "Data")
+	UDataTable* SlowBallDataTable;
 
 	UPROPERTY(EditAnywhere)
 	ABaseBallGameMode* Gm;

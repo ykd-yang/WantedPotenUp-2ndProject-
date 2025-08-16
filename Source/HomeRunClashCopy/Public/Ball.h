@@ -62,6 +62,7 @@ private:
 	void CalculateGravity(FVector& Vel);
 	void CalculateMagnusSimple(FVector& Vel);
 	void UpdateLocation(float DeltaTime);
+	void UpdateRotation(float DeltaTime);
 
 	UFUNCTION()
 	void OnSimulate(float ElapTime);
