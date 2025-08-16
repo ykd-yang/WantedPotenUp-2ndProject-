@@ -8,6 +8,7 @@
 #include "EnhancedInputComponent.h"
 #include "HitBox.h"
 #include "Kismet/GameplayStatics.h"
+#include "Blueprint/UserWidget.h"
 
 // Sets default values
 ABatter::ABatter()
@@ -22,11 +23,16 @@ void ABatter::PlayAnimSwing()
 	if (bCanSwing)
 	{
 		PlaySwingMontage();
+		
 	}
 }
 
 void ABatter::ApplySwing()
 {
+	if (bCanSwing)
+	{
+		PlaySwingMontage();
+	}
 	if (BallActor != nullptr)
 	{
 		float Timing =MyHitBox->CheckTiming(BallActor);
@@ -61,12 +67,25 @@ void ABatter::BeginPlay()
 	APlayerController* pc = GetWorld()->GetFirstPlayerController();
 	UEnhancedInputLocalPlayerSubsystem* SubSy = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(pc->GetLocalPlayer());
 	SubSy->AddMappingContext(playerContext,0);
+	if (AimWidgetClass)
+	{
+		
+		AimWidgetInstance = CreateWidget<UUserWidget>(GetWorld(), AimWidgetClass);
+
+		
+		if (AimWidgetInstance)
+		{
+			AimWidgetInstance->AddToViewport();
+		}
+	}
 }
 
 // Called every frame
 void ABatter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	
+	
 
 }
 
@@ -79,7 +98,7 @@ void ABatter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
     
     if (input)
     {
-    	input -> BindAction(IA_Swing,ETriggerEvent::Triggered,this,&ABatter::PlayAnimSwing);
+    	input -> BindAction(IA_Swing,ETriggerEvent::Triggered,this,&ABatter::ApplySwing);
     }
 
 }

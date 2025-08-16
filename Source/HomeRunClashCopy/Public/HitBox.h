@@ -36,6 +36,11 @@ public:
 	FVector CamLoc;
 	FRotator CamRot;
 	FVector CamFwd;
+
+	UPROPERTY(EditAnywhere, Category = "UI")
+	TSubclassOf<class UUserWidget> AimWidgetClass;
+	UPROPERTY(EditAnywhere,Category = "UI")
+	class UUserWidget* AimWidget;
 	
 	float DepthOffset;
 	FVector Plane;

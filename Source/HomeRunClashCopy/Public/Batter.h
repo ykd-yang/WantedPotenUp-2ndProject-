@@ -26,6 +26,12 @@ public:
 	bool bCanSwing = true;
 	class ABall* BallActor;
 	
+	UPROPERTY(EditAnywhere, Category = "UI")
+	TSubclassOf<class UUserWidget> AimWidgetClass;
+
+	
+	UPROPERTY()
+	class UUserWidget* AimWidgetInstance;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Animation")
 	class UAnimMontage* SwingMontage;

@@ -4,6 +4,8 @@
 #include "HitBox.h"
 #include "Ball.h"
 #include "StrikeZone.h"
+#include "Blueprint/UserWidget.h"
+#include "Blueprint/WidgetLayoutLibrary.h"
 #include "Components/BoxComponent.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -48,6 +50,15 @@ AHitBox::AHitBox()
 void AHitBox::BeginPlay()
 {
 	Super::BeginPlay();
+	if (AimWidgetClass)
+	{
+		// 위젯을 생성하고 변수에 저장한 뒤 화면에 추가합니다.
+		AimWidget = CreateWidget<UUserWidget>(GetWorld(), AimWidgetClass);
+		if (AimWidget)
+		{
+			AimWidget->AddToViewport();
+		}
+	}
 	GetWorld() -> GetFirstPlayerController() ->SetShowMouseCursor(true);
 	//StrikeZoneActor = Cast<AStrikeZone>(UGameplayStatics::GetActorOfClass(GetWorld(),AStrikeZone::StaticClass()));
 	
@@ -78,24 +89,51 @@ void AHitBox::InitCursorPlane()
 
 void AHitBox::RecognizeCursorInPlane()
 {
-	APlayerController* PlayerController = GetWorld() ->GetFirstPlayerController();
-	if (PlayerController)
-	{
-		ECollisionChannel TraceChannel = ECC_GameTraceChannel1;
-		FHitResult HitResult;
-		bool BHit = PlayerController->GetHitResultUnderCursorByChannel
-		( UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel1),true,HitResult);
+    APlayerController* PC = GetWorld()->GetFirstPlayerController();
+    if (!PC) return;
 
-		if (BHit)
-		{
-			FVector CursorImpactPoint = HitResult.ImpactPoint;
-			FVector ToPlane = CursorImpactPoint - Plane;
-			float Depth = FVector::DotProduct(ToPlane,CamFwd);
-			FVector Fixed2D = CursorImpactPoint-Depth*CamFwd;
-			AimRoot->SetWorldLocation(Fixed2D);
-		}
-		
-	}
+    // 0) 마우스 화면 좌표 → 월드 레이
+    float MX, MY;
+    if (!PC->GetMousePosition(MX, MY)) return;
+
+    FVector RayOrigin, RayDir;
+    PC->DeprojectScreenPositionToWorld(MX, MY, RayOrigin, RayDir);
+
+    // 1) "투영할 평면"을 박스 기준으로 정의
+    //    - 정중앙 평면: 박스 중심 & 박스 Forward 를 노멀로 사용
+    //    - 앞면에 딱 붙이고 싶다면 FaceCenter = Center + Forward * Extent.X 로 변경
+    const FVector Center     = HitBoxMesh->GetComponentLocation();
+    const FVector PlaneN     = HitBoxMesh->GetForwardVector();   // 박스가 바라보는 방향(노멀)
+    const FVector PlanePoint = Center;                           // 정중앙 평면
+
+    // 2) 레이-평면 교점
+    const float denom = FVector::DotProduct(PlaneN, RayDir);
+    if (FMath::IsNearlyZero(denom)) return;      // 평행
+
+    const float t = FVector::DotProduct(PlaneN, (PlanePoint - RayOrigin)) / denom;
+    if (t < 0.f) return;                          // 뒤쪽
+
+    FVector HitOnPlane = RayOrigin + t * RayDir;
+
+  
+
+    // 4) 3D 위치 적용
+    AimRoot->SetWorldLocation(HitOnPlane);
+
+    // 5) 위젯은 DPI 보정 포함 좌표로 갱신
+    if (AimWidget)
+    {
+        FVector2D WidgetPos;
+        if (UWidgetLayoutLibrary::ProjectWorldLocationToWidgetPosition(PC, HitOnPlane, WidgetPos, false))
+        {
+            static const FName Fn = TEXT("UpdateAimPosition");
+            if (UFunction* F = AimWidget->FindFunction(Fn))
+            {
+                struct { FVector2D ScreenPosition; } Params{ WidgetPos };
+                AimWidget->ProcessEvent(F, &Params);
+            }
+        }
+    }
 }
 
 void AHitBox::ApplyHit(float Timing, float HeightBat, float SideBat,class ABall* ball)
@@ -111,71 +149,95 @@ void AHitBox::ApplyHit(float Timing, float HeightBat, float SideBat,class ABall*
 		FVector FinalSpeed = NewSpeed*PowerAccuarcy*5000;//5000은 파워값!
 		ball->SetActorRotation(FRotator(0,0,0));
 		ball->SetBallHit(FinalSpeed);
+		UE_LOG(LogTemp, Warning, TEXT("Debug Values -> Timing: %f, HeightBat: %f, SideBat: %f"), Timing, HeightBat, SideBat);
 	}
 	
 	return;
 	
 }
 
-float AHitBox::CheckTiming(class ABall* Ball)
+float AHitBox::CheckTiming(ABall* Ball)
 {
-	if (Ball != nullptr && StrikeZoneActor != nullptr)
-	{
-		//return StrikeZoneActor->GetRatioInStrikeZone(Ball);
-		return 0;
-	}
-	return -2;
+	if (!Ball || !HitBoxMesh) return -999.f; // 방어
+
+	// 1) 배트 기준 중심/반경 구하기
+	const FTransform BoxXform = HitBoxMesh->GetComponentTransform();
+	FVector LocalMin, LocalMax;
+	HitBoxMesh->GetLocalBounds(LocalMin, LocalMax);
+
+	const FVector CenterLocal = (LocalMin + LocalMax) * 0.5f;
+	const FVector ExtentLocal = (LocalMax - LocalMin) * 0.5f;
+	const FVector AbsScale    = BoxXform.GetScale3D().GetAbs();
+
+	const FVector CenterW = BoxXform.TransformPosition(CenterLocal);
+	const float   ExtentX_W = FMath::Max(ExtentLocal.X * AbsScale.X, 1e-6f);
+	const FVector AxisX = HitBoxMesh->GetForwardVector(); // 배트의 로컬 X축(타이밍 축)
+
+	// 2) 공 위치를 배트 중심 기준으로 투영
+	const FVector ToBallW = Ball->GetActorLocation() - CenterW;
+	const float offsetX   = FVector::DotProduct(ToBallW, AxisX);
+
+	// 3) 비율 계산
+	const float ratio = offsetX / ExtentX_W;
+
+	// 4) 로그 출력
+	const bool bInside = (FMath::Abs(ratio) <= 1.f);
+	const float overrun = FMath::Max(0.f, FMath::Abs(offsetX) - ExtentX_W);
+
+	UE_LOG(LogTemp, Log,
+		TEXT("[CheckTiming] offset=%.2fcm, halfExtent=%.2fcm, ratio=%.3f, %s, overrun=%.2fcm"),
+		offsetX, ExtentX_W, ratio,
+		bInside ? TEXT("INSIDE") : TEXT("OUTSIDE"),
+		overrun);
+
+	// 5) 단순히 ratio를 리턴 (밖이어도 그대로 반환)
+	return -1;
 }
+
+
+
 float AHitBox::CheckSide(class ABall* Ball)
 {
-	FTransform BallTransform = Ball->GetActorTransform();
-	FTransform StrikeZoneTransform = HitBoxMesh->GetComponentTransform();
-	const FVector LocalPositionInBox = StrikeZoneTransform.InverseTransformPosition(BallTransform.GetLocation());
-	//1.큐브 Extent
+	// 1) 공의 월드 위치를 배트(히트박스) 로컬로 변환
+	const FTransform BoxXform = HitBoxMesh->GetComponentTransform();
+	const FVector   BallLocal = BoxXform.InverseTransformPosition(Ball->GetActorLocation());
+
+	// 2) 히트박스의 로컬 바운드(min/max) 얻기  ← 올바른 API 사용
 	FVector LocalMin, LocalMax;
 	HitBoxMesh->GetLocalBounds(LocalMin, LocalMax);
-	FVector CenterLocal = (LocalMin+LocalMax)*0.5f;
-	FVector ExtentLocal = (LocalMax-LocalMin)*0.5f; //half
-	FVector LocalCenter = LocalPositionInBox - CenterLocal;
-	const float SafeEx = FMath::Max(ExtentLocal.Y, 1e-6f);
 
-	
-	float Side= (LocalPositionInBox.Y - CenterLocal.Y) / SafeEx;
-	if (Side>1 || Side<-1)
-	{
-		return 0;
-	}
-	Side = FMath::Clamp(Side,-1,1);
-	
-	//return Side;
-	return 0;
+	const FVector CenterLocal  = (LocalMin + LocalMax) * 0.5f;
+	const FVector ExtentLocal  = (LocalMax - LocalMin) * 0.5f;
+	const float   SafeExtentY  = FMath::Max(ExtentLocal.Y, 1e-6f); // 0 나눗셈 보호
+
+	// 3) 배트 로컬 Y축 기준 좌우 비율 (-1~1)
+	const float Side = (BallLocal.Y - CenterLocal.Y) / SafeExtentY;
+
+	// 4) 바운드 밖이면 -2, 안이면 -1~1 반환
+	return (Side < -1.f || Side > 1.f) ? -2.f : Side;
 }
+
 float AHitBox::CheckHeight(class ABall* Ball)
 {
-	
-	FTransform BallTransform = Ball->GetActorTransform();
-	FTransform StrikeZoneTransform = HitBoxMesh->GetComponentTransform();
-	const FVector LocalPositionInBox = StrikeZoneTransform.InverseTransformPosition(BallTransform.GetLocation());
-	//1.큐브 Extent
+	// 1) 공의 월드 위치를 배트(히트박스) 로컬로 변환
+	const FTransform BoxXform = HitBoxMesh->GetComponentTransform();
+	const FVector   BallLocal = BoxXform.InverseTransformPosition(Ball->GetActorLocation());
+
+	// 2) 히트박스의 로컬 바운드(min/max) 얻기  ← 올바른 API 사용
 	FVector LocalMin, LocalMax;
 	HitBoxMesh->GetLocalBounds(LocalMin, LocalMax);
-	FVector CenterLocal = (LocalMin+LocalMax)*0.5f;
-	FVector ExtentLocal = (LocalMax-LocalMin)*0.5f; //half
-	FVector LocalCenter = LocalPositionInBox - CenterLocal;
-	const float SafeEx = FMath::Max(ExtentLocal.Z, 1e-6f);
 
-	// 4) 로컬 X축 기준 정규화
-	float Height= (LocalPositionInBox.Z - CenterLocal.Z) / SafeEx;
-	if (Height>1 || Height<-1)
-	{
-		//return -2;
-		return 0;
-	}
-	Height = FMath::Clamp(Height,-1,1);
-	
-	//return Height;
-	return 0;
+	const FVector CenterLocal  = (LocalMin + LocalMax) * 0.5f;
+	const FVector ExtentLocal  = (LocalMax - LocalMin) * 0.5f;
+	const float   SafeExtentZ  = FMath::Max(ExtentLocal.Z, 1e-6f); // 0 나눗셈 보호
+
+	// 3) 배트 로컬 Y축 기준 좌우 비율 (-1~1)
+	const float Height = (BallLocal.Y - CenterLocal.Y) / SafeExtentZ;
+
+	// 4) 바운드 밖이면 -2, 안이면 -1~1 반환
+	return (Height < -1.f || Height > 1.f) ? -2.f : Height;
 }
+
 
 // Called every frame
 void AHitBox::Tick(float DeltaTime)
