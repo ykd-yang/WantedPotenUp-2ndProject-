@@ -79,6 +79,7 @@ private:
 
 public:
 	bool didBallFall = false;
+	bool isHomerun;
 	// hit: -1 ~ 1 or miss: -2
 	float BatterHitDirection;
 	

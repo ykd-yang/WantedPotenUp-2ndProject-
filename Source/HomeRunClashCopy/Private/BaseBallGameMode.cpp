@@ -156,7 +156,7 @@ void ABaseBallGameMode::OnBallHitTick()
 	}
 	else if (!InGameWidget->isHomerunStateDisplaying)
 	{
-		InGameWidget->DisplayHomerunState(true);	// !!홈런이냐 아니냐 -> 땅이냐 벽이냐
+		InGameWidget->DisplayHomerunState(isHomerun);	// !!홈런이냐 아니냐 -> 땅이냐 벽이냐
 	}
 }
 
