@@ -1,10 +1,12 @@
-// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
+
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
+#include "BallInfo.h"
 #include "BaseBallGameMode.generated.h"
+
 
 
 enum class EGameModeState : uint8
@@ -21,6 +23,7 @@ enum class EGameModeState : uint8
  */
 
 class APitcher;
+class UInGameUI;
 
 UCLASS()
 class HOMERUNCLASHCOPY_API ABaseBallGameMode : public AGameModeBase
@@ -41,18 +44,23 @@ public:
 	virtual void Tick(float DeltaSeconds) override;
 	void ChangeState(EGameModeState NewState);
 
+	// InGame UI
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="UI")
-	TSubclassOf<UUserWidget> UInGameUI;
-	UPROPERTY()
-	UUserWidget* GlobalWidget;
+	TSubclassOf<UInGameUI> InGameUI;
+	UPROPERTY() 
+	TObjectPtr<UInGameUI> InGameWidget;
 
+	// EBallType to String
+	UFUNCTION()
+	FString BallTypeToString(EBallType BT);
+	
 private:
 	// Tick
-	void OnStart();
-	void OnThrow();
-	void OnBallHit();
-	void OnBallMiss();
-	void OnEnd();
+	void OnStartTick();
+	void OnThrowTick();
+	void OnBallHitTick();
+	void OnBallMissTick();
+	void OnEndTick();
 
 	//OnState Enter
 	void OnStartEnter();
@@ -70,7 +78,13 @@ private:
 
 
 public:
+	bool didBallFall = false;
+	// hit: -1 ~ 1 or miss: -2
+	float BatterHitDirection;
+	
 	// Variables for InGameUI
 	int32 RemainingBalls = 11;
 	int32 HomerunsForWin = 6;
+
+	EBallType BallType;
 };

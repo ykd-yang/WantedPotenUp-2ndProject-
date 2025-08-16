@@ -151,7 +151,10 @@ void AHitBox::ApplyHit(float Timing, float HeightBat, float SideBat,class ABall*
 		ball->SetBallHit(FinalSpeed);
 		UE_LOG(LogTemp, Warning, TEXT("Debug Values -> Timing: %f, HeightBat: %f, SideBat: %f"), Timing, HeightBat, SideBat);
 	}
-	
+	else
+	{
+		
+	}
 	return;
 	
 }
