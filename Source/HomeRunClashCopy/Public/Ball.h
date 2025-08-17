@@ -38,6 +38,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UCurveFloat* DragCoefficientCurve;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	ABaseBallGameMode* Gm;
 
 private:
 	UPROPERTY(EditAnywhere)
@@ -52,6 +55,7 @@ private:
 	FVector SimulVelocity = FVector(0.0f, 0.0f, 0.0f);
 	float ElapsedTime = 0.0f;
 	bool IsSimulate = false;
+	bool IsFall = false;
 
 public:
 	void Init(FBallInfo BI, FVector Location);

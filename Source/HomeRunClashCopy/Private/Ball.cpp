@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 #include "Ball.h"
 #include "AirResistanceLibraryFunction.h"
+#include "BaseBallGameMode.h"
 #include "Engine/EngineTypes.h"
 #include "Components/PrimitiveComponent.h"
 #include "Indicator.h"
@@ -59,8 +60,14 @@ ABall::ABall()
 void ABall::BeginPlay()
 {
 	Super::BeginPlay();
-
+	
 	BallMesh->OnComponentHit.AddDynamic(this, &ABall::OnHit);
+
+	Gm = Cast<ABaseBallGameMode>(GetWorld()->GetAuthGameMode());
+	if (Gm == nullptr)
+	{	
+		UE_LOG(LogTemp, Warning, TEXT("GameMode is null"));
+	}
 }
 
 // Called every frame
@@ -191,6 +198,12 @@ void ABall::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveCo
 	FVector NormalImpulse, const FHitResult& Hit)
 {
 	// if 지면인지 확인
+	if (IsFall == false)
+	{
+		IsFall = true;
+		//Gm->
+	}
+	
 	FVector ReflectVec = Velocity -2 * FVector::DotProduct(Velocity, Hit.Normal) * Hit.Normal;
 	Velocity = ReflectVec * 0.7f;
 }
