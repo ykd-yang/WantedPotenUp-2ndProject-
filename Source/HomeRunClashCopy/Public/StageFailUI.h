@@ -4,14 +4,14 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "WBP_StageFailUI.generated.h"
+#include "StageFailUI.generated.h"
 
 class UButton;
 /**
  * 
  */
 UCLASS()
-class HOMERUNCLASHCOPY_API UWBP_StageFailUI : public UUserWidget
+class HOMERUNCLASHCOPY_API UStageFailUI : public UUserWidget
 {
 	GENERATED_BODY()
 

@@ -96,8 +96,7 @@ public:
 	bool isJudgementDisplaying;
 	bool isHomerunStateDisplaying;
 	
-	FTimerHandle TimerHandle;
-	float DisplayTime = 3.0f;	// UI display time
+	float DisplayTime = 2.0f;	// UI display time
 	
 
 };

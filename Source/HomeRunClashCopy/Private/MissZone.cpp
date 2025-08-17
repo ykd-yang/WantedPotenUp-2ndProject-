@@ -6,6 +6,7 @@
 #include "Ball.h"
 #include "BaseBallGameMode.h"
 #include "Components/BoxComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 AMissZone::AMissZone()
@@ -13,6 +14,8 @@ AMissZone::AMissZone()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	MissZone = CreateDefaultSubobject<UBoxComponent>(TEXT("MissZone"));
+	SetRootComponent(MissZone);
 }
 
 // Called when the game starts or when spawned
@@ -36,9 +39,11 @@ void AMissZone::OnOverlapMissZone(UPrimitiveComponent* OverlappedComp, AActor* O
 {
 	if (OtherActor && OtherActor->IsA(ABall::StaticClass()))
 	{
-		if (ABaseBallGameMode* GameMode = Cast<ABaseBallGameMode>(GetWorld()->GetAuthGameMode()))
+		AGameModeBase* GameModeBase = UGameplayStatics::GetGameMode(this);
+		ABaseBallGameMode* MyGameMode = Cast<ABaseBallGameMode>(GameModeBase);
+		if (MyGameMode)
 		{
-			GameMode->ChangeState(EGameModeState::BallMiss);
+			MyGameMode->ChangeState(EGameModeState::BallMiss);
 		}
 	}
 }

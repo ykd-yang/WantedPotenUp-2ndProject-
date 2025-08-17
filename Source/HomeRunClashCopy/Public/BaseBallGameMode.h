@@ -9,6 +9,11 @@
 #include "BaseBallGameMode.generated.h"
 
 
+class UStageFailUI;
+class UStageClearUI;
+class UInGameUI;
+class APitcher;
+
 
 enum class EGameModeState : uint8
 {
@@ -23,8 +28,7 @@ enum class EGameModeState : uint8
  * 
  */
 
-class APitcher;
-class UInGameUI;
+
 
 UCLASS()
 class HOMERUNCLASHCOPY_API ABaseBallGameMode : public AGameModeBase
@@ -52,14 +56,14 @@ public:
 	TObjectPtr<UInGameUI> InGameUI;
 	// StageClear UI
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="UI")
-	TSubclassOf<UUserWidget> StageClearUIClass;
+	TSubclassOf<UStageClearUI> StageClearUIClass;
 	UPROPERTY()
-	TObjectPtr<UUserWidget> StageClearUI;
+	TObjectPtr<UStageClearUI> StageClearUI;
 	// StageFail UI
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="UI")
-	TSubclassOf<UUserWidget> StageFailUIClass;
+	TSubclassOf<UStageFailUI> StageFailUIClass;
 	UPROPERTY()
-	TObjectPtr<UUserWidget> StageFailUI;
+	TObjectPtr<UStageFailUI> StageFailUI;
 	
 	// EBallType to String
 	UFUNCTION()
@@ -103,4 +107,5 @@ public:
 	int32 HomerunsForWin = 6; 
 	
 	ABall* Ball;
+	EBallType BallType;
 };

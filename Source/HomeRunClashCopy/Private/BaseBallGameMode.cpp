@@ -6,6 +6,8 @@
 #include "Blueprint/UserWidget.h"
 #include "Kismet/GameplayStatics.h"
 #include "InGameUI.h"
+#include "StageClearUI.h"
+#include "StageFailUI.h"
 #include "Components/Image.h"
 
 
@@ -22,7 +24,7 @@ void ABaseBallGameMode::BeginPlay()
 	// Create Widget
 	if (nullptr != InGameUIClass)
 	{
-		InGameUI = CreateWidget<class UInGameUI>(GetWorld(), InGameUIClass);
+		InGameUI = CreateWidget<UInGameUI>(GetWorld(), InGameUIClass);
 		if (nullptr != InGameUI)
 		{
 			InGameUI->AddToViewport();	// Display Widget
@@ -204,7 +206,8 @@ void ABaseBallGameMode::OnBallHitEnter()
 {
 	// 1. 타격시 성공
 	// 2. 공의 정보, 타자에서!!공의 방향, 타자에서!!타격 판정, tick에서 비거리 표시
-	InGameUI->DisplayBallInfo(BallTypeToString(Ball->BallInfo.BallType));
+	BallType = Ball->BallInfo.BallType;
+	InGameUI->DisplayBallInfo("BallTypeToString(BallType)");
 }
 
 void ABaseBallGameMode::OnBallMissEnter()
@@ -215,12 +218,14 @@ void ABaseBallGameMode::OnBallMissEnter()
 	{
 		InGameUI->DisplayMiss();
 		InGameUI->DisplayBallHitDirection(-2);
-		InGameUI->DisplayBallInfo(BallTypeToString(Ball->BallInfo.BallType));	// 3. 공의 정보와 방향이 사라지면  4. 다시 Throw State
+		//BallType = Ball->BallInfo.BallType;
+		InGameUI->DisplayBallInfo("BallTypeToString(BallType)");	// 3. 공의 정보와 방향이 사라지면  4. 다시 Throw State
 	}
 	else	// 헛스윙 시, 바로 !!타자에서 Miss 표시
 	{
 		InGameUI->DisplayBallHitDirection(-2);
-		InGameUI->DisplayBallInfo(BallTypeToString(Ball->BallInfo.BallType));	// 3. 공의 정보와 방향이 사라지면  4. 다시 Throw State
+		//BallType = Ball->BallInfo.BallType;
+		InGameUI->DisplayBallInfo("BallTypeToString(BallType)");	// 3. 공의 정보와 방향이 사라지면  4. 다시 Throw State
 	}
 }
 
@@ -237,7 +242,7 @@ void ABaseBallGameMode::OnEndEnter()
 		// 새로운 StageClearUI 생성
 		if (StageClearUIClass)
 		{
-			StageClearUI = CreateWidget<UUserWidget>(GetWorld(), StageClearUIClass);
+			StageClearUI = CreateWidget<UStageClearUI>(GetWorld(), StageClearUIClass);
 			if (StageClearUI)
 			{
 				StageClearUI->AddToViewport();
@@ -264,7 +269,7 @@ void ABaseBallGameMode::OnEndEnter()
 		// 새로운 StageClearUI 생성
 		if (StageFailUIClass)
 		{
-			StageFailUI = CreateWidget<UUserWidget>(GetWorld(), StageFailUIClass);
+			StageFailUI = CreateWidget<UStageFailUI>(GetWorld(), StageFailUIClass);
 			if (StageFailUI)
 			{
 				StageFailUI->AddToViewport();
