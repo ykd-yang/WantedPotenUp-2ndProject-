@@ -22,9 +22,12 @@ public:
 	class UInputMappingContext * playerContext;
 	void PlayAnimSwing();
 	UFUNCTION(BlueprintCallable)
-	void ApplySwing();
+	bool ApplySwing();
 	bool bCanSwing = true;
 	class ABall* BallActor;
+
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	bool bIsHiting =false;
 	
 	UPROPERTY(EditAnywhere, Category = "UI")
 	TSubclassOf<class UUserWidget> AimWidgetClass;

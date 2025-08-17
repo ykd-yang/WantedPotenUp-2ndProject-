@@ -27,7 +27,7 @@ void ABatter::PlayAnimSwing()
 	}
 }
 
-void ABatter::ApplySwing()
+bool ABatter::ApplySwing()
 {
 	
 	if (BallActor != nullptr)
@@ -36,10 +36,11 @@ void ABatter::ApplySwing()
 		float Timing =MyHitBox->CheckTiming(BallActor);
 		float Height = MyHitBox->CheckHeight(BallActor);
 		float Side = MyHitBox->CheckSide(BallActor);
-		MyHitBox-> ApplyHit(Timing,Height,Side,BallActor);
 		UE_LOG(LogTemp, Warning, TEXT("Timing: %f, HeightBat: %f, SideBat: %f, Ball Address: %p"), Timing, Height, Side, BallActor);
+		return MyHitBox-> ApplyHit(Timing,Height,Side,BallActor);
+		
 	}
-	
+	return false;
 }
 
 void ABatter::PlaySwingMontage()

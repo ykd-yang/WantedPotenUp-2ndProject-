@@ -3,6 +3,8 @@
 
 #include "HitBox.h"
 #include "Ball.h"
+#include "BaseBallGameMode.h"
+#include "InGameUI.h"
 #include "StrikeZone.h"
 #include "Blueprint/UserWidget.h"
 #include "Blueprint/WidgetLayoutLibrary.h"
@@ -136,26 +138,35 @@ void AHitBox::RecognizeCursorInPlane()
     }
 }
 
-void AHitBox::ApplyHit(float Timing, float HeightBat, float SideBat,class ABall* ball)
+bool AHitBox::ApplyHit(float Timing, float HeightBat, float SideBat,class ABall* ball)
 {
 	
 	if (Timing >-2 && HeightBat >-2 && SideBat >-2)
 	{
 		float BallDir = FMath::Lerp(4.5,-4.5,(Timing+1)/2); //당겨치기,정타,밀어치기의 비율
-		float BallAngle = FMath::Lerp(5,-5,(HeightBat+1)/2); //높이
+		float BallAngle = FMath::Lerp(5,2,(HeightBat+1)/2); //높이
 		float PowerAccuarcy = 1-FMath::Abs(SideBat);//정확도 얼마나 배트의 중심에 맞았는가?
+		PowerAccuarcy = FMath::Max(PowerAccuarcy,0.3f);
 		FVector NewSpeed = {-1.f,BallDir,BallAngle};
 		NewSpeed.Normalize();
 		FVector FinalSpeed = NewSpeed*PowerAccuarcy*5000;//5000은 파워값!
 		ball->SetActorRotation(FRotator(0,0,0));
 		ball->SetBallHit(FinalSpeed);
 		UE_LOG(LogTemp, Warning, TEXT("Debug Values -> Timing: %f, HeightBat: %f, SideBat: %f"), Timing, HeightBat, SideBat);
+		AGameModeBase* GameModeBase = UGameplayStatics::GetGameMode(this);
+		ABaseBallGameMode* MyGameMode = Cast<ABaseBallGameMode>(GameModeBase);
+		if (MyGameMode)
+		{
+			MyGameMode->InGameUI->DisplayBallHitDirection(Timing);
+		}
+		
+		return true;
 	}
 	else
 	{
-		
+		return false;
 	}
-	return;
+	
 	
 }
 

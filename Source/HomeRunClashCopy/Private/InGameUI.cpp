@@ -55,7 +55,7 @@ void UInGameUI::DeductRemainingBalls()
 	RemainingBallText->SetText(FText::AsNumber(RemainingBallsInt));	// Deduct remaining balls.
 	
 	// Stage failed. (no more remaining balls)
-	if (GameMode->RemainingBalls <= 0 && GameMode->HomerunsForWin > SuccessfulHomerun)
+	if (RemainingBallsInt <= 0 && GameMode->HomerunsForWin > SuccessfulHomerun)
 	{
 		IsStageCleared = false;
 		GameMode->ChangeState(EGameModeState::End);
@@ -109,6 +109,7 @@ void UInGameUI::DisplayBallHitDirection(float BallHitDirection)
 		// Display Ball Direction
 		HitDirectionOverlay->SetVisibility(ESlateVisibility::Visible);
 		GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &UInGameUI::HideBallHitDirection, DisplayTime, false);
+		DeductRemainingBalls();
 		return;
 	}
 	float PositionX = FMath::GetMappedRangeValueClamped(FVector2D(-1.0f, 1.0f),FVector2D(-130.0f, 130.0f), BallHitDirection);	// Position X: -130 ~ 130
@@ -130,14 +131,15 @@ void UInGameUI::HideBallHitDirection()
 
 
 // Display Ball Judgement UI
-void UInGameUI::DisplayBallJudgement(int32 Judgement)	
+void UInGameUI::DisplayBallJudgement(float Judgement)	
 {
 	isJudgementDisplaying = true;
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &UInGameUI::HideBallJudgement, DisplayTime, false);
 }
 
 void UInGameUI::HideBallJudgement()
 {
-	
+	MissImage->SetVisibility(ESlateVisibility::Hidden);	// 변경 필요
 	isJudgementDisplaying = false;
 }
 // Display Miss UI

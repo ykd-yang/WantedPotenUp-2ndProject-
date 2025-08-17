@@ -46,10 +46,20 @@ public:
 
 	// InGame UI
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="UI")
-	TSubclassOf<UInGameUI> InGameUI;
-	UPROPERTY() 
-	TObjectPtr<UInGameUI> InGameWidget;
-
+	TSubclassOf<UInGameUI> InGameUIClass;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TObjectPtr<UInGameUI> InGameUI;
+	// StageClear UI
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="UI")
+	TSubclassOf<UUserWidget> StageClearUIClass;
+	UPROPERTY()
+	TObjectPtr<UUserWidget> StageClearUI;
+	// StageFail UI
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="UI")
+	TSubclassOf<UUserWidget> StageFailUIClass;
+	UPROPERTY()
+	TObjectPtr<UUserWidget> StageFailUI;
+	
 	// EBallType to String
 	UFUNCTION()
 	FString BallTypeToString(EBallType BT);
@@ -79,6 +89,7 @@ private:
 
 public:
 	bool didBallFall = false;
+	bool isHomerun;
 	// hit: -1 ~ 1 or miss: -2
 	float BatterHitDirection;
 	
