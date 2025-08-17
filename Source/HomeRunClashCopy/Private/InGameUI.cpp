@@ -55,7 +55,7 @@ void UInGameUI::DeductRemainingBalls()
 	RemainingBallText->SetText(FText::AsNumber(RemainingBallsInt));	// Deduct remaining balls.
 	
 	// Stage failed. (no more remaining balls)
-	if (GameMode->RemainingBalls <= 0 && GameMode->HomerunsForWin > SuccessfulHomerun)
+	if (RemainingBallsInt <= 0 && GameMode->HomerunsForWin > SuccessfulHomerun)
 	{
 		IsStageCleared = false;
 		GameMode->ChangeState(EGameModeState::End);

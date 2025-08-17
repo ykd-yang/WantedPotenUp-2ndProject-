@@ -46,10 +46,20 @@ public:
 
 	// InGame UI
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="UI")
-	TSubclassOf<UInGameUI> InGameUI;
+	TSubclassOf<UInGameUI> InGameUIClass;
 	UPROPERTY() 
-	TObjectPtr<UInGameUI> InGameWidget;
-
+	TObjectPtr<UInGameUI> InGameUI;
+	// StageClear UI
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="UI")
+	TSubclassOf<UUserWidget> StageClearUIClass;
+	UPROPERTY()
+	TObjectPtr<UUserWidget> StageClearUI;
+	// StageFail UI
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="UI")
+	TSubclassOf<UUserWidget> StageFailUIClass;
+	UPROPERTY()
+	TObjectPtr<UUserWidget> StageFailUI;
+	
 	// EBallType to String
 	UFUNCTION()
 	FString BallTypeToString(EBallType BT);
