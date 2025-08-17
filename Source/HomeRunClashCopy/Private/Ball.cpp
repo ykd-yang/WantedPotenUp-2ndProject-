@@ -27,6 +27,8 @@ ABall::ABall()
 		BallMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel4, ECR_Overlap);
 		BallMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECR_Block);
 		BallMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldDynamic, ECR_Block);
+		BallMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel6, ECR_Block); //homerun
+		BallMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel7, ECR_Block); //ground
 		
 		// Block 이벤트 받기위해 physics만 켜주기
 		BallMesh->SetSimulatePhysics(true);
@@ -201,7 +203,20 @@ void ABall::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveCo
 	if (IsFall == false)
 	{
 		IsFall = true;
-		//Gm->
+		BallInfo.Rotation = FVector(0, 0, 0);
+		ECollisionChannel Channel = Hit.GetComponent()->GetCollisionObjectType();
+		if (Channel == ECC_GameTraceChannel6)
+		{
+			Gm->isHomerun = true;
+			UE_LOG(LogTemp, Warning, TEXT("HomeRun HIT"));
+		}
+		else if (Channel == ECC_GameTraceChannel7)
+		{
+			Gm->isHomerun = false;
+			UE_LOG(LogTemp, Warning, TEXT("Ground HIT"));
+		}
+
+		Gm->didBallFall = true;
 	}
 	
 	FVector ReflectVec = Velocity -2 * FVector::DotProduct(Velocity, Hit.Normal) * Hit.Normal;

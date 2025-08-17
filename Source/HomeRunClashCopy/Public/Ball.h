@@ -7,6 +7,7 @@
 #include "GameFramework/Actor.h"
 #include "Ball.generated.h"
 
+class ABaseBallGameMode;
 class UNiagaraComponent;
 
 UCLASS()
