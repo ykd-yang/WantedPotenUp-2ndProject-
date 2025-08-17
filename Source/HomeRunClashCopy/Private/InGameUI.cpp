@@ -89,8 +89,8 @@ void UInGameUI::DisplayBallInfo(FString BallType)
 	
 	BallInfoOverlay->SetVisibility(ESlateVisibility::Visible);
 	PlayAnimation(BallInfoAnimation,0.f,1, EUMGSequencePlayMode::Forward,1.f);
-
-	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &UInGameUI::HideBallInfo, DisplayTime, false);
+	FTimerHandle BallInfoTimer;
+	GetWorld()->GetTimerManager().SetTimer(BallInfoTimer, this, &UInGameUI::HideBallInfo, DisplayTime, false);
 }
 // Hide Ball Info
 void UInGameUI::HideBallInfo()
@@ -103,12 +103,13 @@ void UInGameUI::HideBallInfo()
 // Display Ball Direction and Indicator
 void UInGameUI::DisplayBallHitDirection(float BallHitDirection)
 {
+	FTimerHandle HitDirectionTimer;
 	// No Ball Direction Input -> Display Only HitDirection
 	if (-1 > BallHitDirection)
 	{
 		// Display Ball Direction
 		HitDirectionOverlay->SetVisibility(ESlateVisibility::Visible);
-		GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &UInGameUI::HideBallHitDirection, DisplayTime, false);
+		GetWorld()->GetTimerManager().SetTimer(HitDirectionTimer, this, &UInGameUI::HideBallHitDirection, DisplayTime, false);
 		DeductRemainingBalls();
 		return;
 	}
@@ -120,7 +121,8 @@ void UInGameUI::DisplayBallHitDirection(float BallHitDirection)
 	// Display Ball Direction & Indicator
 	HitIndicatorUI->SetVisibility(ESlateVisibility::Visible);
 	HitDirectionOverlay->SetVisibility(ESlateVisibility::Visible);
-	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &UInGameUI::HideBallHitDirection, DisplayTime, false);
+	GetWorld()->GetTimerManager().SetTimer(HitDirectionTimer, this, &UInGameUI::HideBallHitDirection, DisplayTime, false);
+	DeductRemainingBalls();
 }
 // Hide Ball Direction and Indicator
 void UInGameUI::HideBallHitDirection()
@@ -134,7 +136,8 @@ void UInGameUI::HideBallHitDirection()
 void UInGameUI::DisplayBallJudgement(float Judgement)	
 {
 	isJudgementDisplaying = true;
-	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &UInGameUI::HideBallJudgement, DisplayTime, false);
+	FTimerHandle JudgementTimer;
+	GetWorld()->GetTimerManager().SetTimer(JudgementTimer, this, &UInGameUI::HideBallJudgement, DisplayTime, false);
 }
 
 void UInGameUI::HideBallJudgement()
@@ -145,8 +148,12 @@ void UInGameUI::HideBallJudgement()
 // Display Miss UI
 void UInGameUI::DisplayMiss()
 {
-	MissImage->SetVisibility(ESlateVisibility::Visible);
-	GetWorld()->GetTimerManager().SetTimer(TimerHandle,[this](){MissImage->SetVisibility(ESlateVisibility::Hidden);},DisplayTime,false);
+	if (ESlateVisibility::Hidden == MissImage->GetVisibility())
+	{
+		MissImage->SetVisibility(ESlateVisibility::Visible);
+		FTimerHandle MissTimer;
+		GetWorld()->GetTimerManager().SetTimer(MissTimer,[this](){MissImage->SetVisibility(ESlateVisibility::Hidden);},DisplayTime,false);
+	}
 }
 
 
@@ -160,17 +167,18 @@ void UInGameUI::UpdateBallDistance(float Distance)
 // Display Homerun State
 void UInGameUI::DisplayHomerunState(bool Homerun)
 {
+	FTimerHandle HomerunStateTimer;
 	isHomerunStateDisplaying = true;
 	if (Homerun)	// Display Homerun
 	{
 		HitIndicatorUI->SetVisibility(ESlateVisibility::Visible);
-		GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &UInGameUI::HideHomerunState, DisplayTime, false);
+		GetWorld()->GetTimerManager().SetTimer(HomerunStateTimer, this, &UInGameUI::HideHomerunState, DisplayTime, false);
 
 	}
 	else	// Display Hit
 	{
 		HitIndicatorUI->SetVisibility(ESlateVisibility::Visible);
-		GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &UInGameUI::HideHomerunState, DisplayTime, false);
+		GetWorld()->GetTimerManager().SetTimer(HomerunStateTimer, this, &UInGameUI::HideHomerunState, DisplayTime, false);
 
 	}
 }
@@ -181,6 +189,7 @@ void UInGameUI::HideHomerunState()
 	HitIndicatorUI->SetVisibility(ESlateVisibility::Hidden);
 	UpdateSuccessfulHomerun();
 	DeductRemainingBalls();
-	GetWorld()->GetTimerManager().SetTimer(TimerHandle,[this](){GameMode->ChangeState(EGameModeState::Throw);},1,false);
+	FTimerHandle HideHomerunStateTimer;
+	GetWorld()->GetTimerManager().SetTimer(HideHomerunStateTimer,[this](){GameMode->ChangeState(EGameModeState::Throw);},1,false);
 }
 
