@@ -77,6 +77,11 @@ void APitcher::SpawnBall()
 	{
 		Batter->SetBallActor(Ball);
 	}
+	
+	if(Gm != nullptr)
+	{
+		Gm->GiveBallToGameMode(Ball);
+	}
 }
 
 FBallInfo APitcher::GetRandomBallInfo()
