@@ -19,12 +19,12 @@ void ABaseBallGameMode::BeginPlay()
 	Super::BeginPlay();
 
 	// Create Widget
-	if (nullptr != InGameUI)
+	if (nullptr != InGameUIClass)
 	{
-		InGameWidget = CreateWidget<class UInGameUI>(GetWorld(), InGameUI);
-		if (nullptr != InGameWidget)
+		InGameUI = CreateWidget<class UInGameUI>(GetWorld(), InGameUIClass);
+		if (nullptr != InGameUI)
 		{
-			InGameWidget->AddToViewport();	// Display Widget
+			InGameUI->AddToViewport();	// Display Widget
 		}
 	}
 
@@ -149,14 +149,14 @@ void ABaseBallGameMode::OnBallHitTick()
 	//비거리 표시
 	if (!didBallFall)	// !!공이 배트 이외의 물체를 닿았냐
 		{
-			InGameWidget->UpdateBallDistance(5);	// !!strikezone location, ball location length
+			InGameUI->UpdateBallDistance(5);	// !!strikezone location, ball location length
 		}
-	else if (InGameWidget->isJudgementDisplaying)	// 만약 판정UI가 남아 있다면 사라진 후에 표시
+	else if (InGameUI->isJudgementDisplaying)	// 만약 판정UI가 남아 있다면 사라진 후에 표시
 	{
 	}
-	else if (!InGameWidget->isHomerunStateDisplaying)
+	else if (!InGameUI->isHomerunStateDisplaying)
 	{
-		InGameWidget->DisplayHomerunState(isHomerun);	// !!홈런이냐 아니냐 -> 땅이냐 벽이냐
+		InGameUI->DisplayHomerunState(isHomerun);	// !!홈런이냐 아니냐 -> 땅이냐 벽이냐
 	}
 }
 
@@ -186,7 +186,7 @@ void ABaseBallGameMode::OnStartEnter()
 
 void ABaseBallGameMode::OnThrowEnter()
 {
-	InGameWidget->isHomerunStateDisplaying = false;
+	InGameUI->isHomerunStateDisplaying = false;
 	// 카메라 원상복귀
 	
 	// 	1.공을 던진다 + 공의 정보를 가져온다
@@ -197,35 +197,81 @@ void ABaseBallGameMode::OnBallHitEnter()
 {
 	// 1. 타격시 성공
 	// 2. 공의 정보, 타자에서!!공의 방향, 타자에서!!타격 판정, tick에서 비거리 표시
-	InGameWidget->DisplayBallInfo(BallTypeToString(BallType));
+	InGameUI->DisplayBallInfo(BallTypeToString(BallType));
 }
 
 void ABaseBallGameMode::OnBallMissEnter()
 {
 	// 1. 공이 지나간다
 	// 2. 지나간 후 남은 공갯수 차감, 공의 정보, 공의 방향, Miss표시(먼저 사라짐)
-	if (ESlateVisibility::Visible != InGameWidget->MissImage->GetVisibility())
+	if (ESlateVisibility::Visible != InGameUI->MissImage->GetVisibility())
 	{
-		InGameWidget->DisplayMiss();
-		InGameWidget->DisplayBallHitDirection(-2);
-		InGameWidget->DisplayBallInfo(BallTypeToString(BallType));	// 3. 공의 정보와 방향이 사라지면  4. 다시 Throw State
+		InGameUI->DisplayMiss();
+		InGameUI->DisplayBallHitDirection(-2);
+		InGameUI->DisplayBallInfo(BallTypeToString(BallType));	// 3. 공의 정보와 방향이 사라지면  4. 다시 Throw State
 	}
 	else	// 헛스윙 시, 바로 !!타자에서 Miss 표시
 	{
-		InGameWidget->DisplayBallHitDirection(-2);
-		InGameWidget->DisplayBallInfo(BallTypeToString(BallType));	// 3. 공의 정보와 방향이 사라지면  4. 다시 Throw State
+		InGameUI->DisplayBallHitDirection(-2);
+		InGameUI->DisplayBallInfo(BallTypeToString(BallType));	// 3. 공의 정보와 방향이 사라지면  4. 다시 Throw State
 	}
 }
 
 void ABaseBallGameMode::OnEndEnter()
 {
-	if (InGameWidget->IsStageCleared)	// 스테이지 클리어 시
+	if (InGameUI->IsStageCleared)	// 스테이지 클리어 시
 	{
-		
+		// 기존 UI 제거
+		if (InGameUI)
+		{
+			InGameUI->RemoveFromParent();
+			InGameUI = nullptr;
+		}
+		// 새로운 StageClearUI 생성
+		if (StageClearUIClass)
+		{
+			StageClearUI = CreateWidget<UUserWidget>(GetWorld(), StageClearUIClass);
+			if (StageClearUI)
+			{
+				StageClearUI->AddToViewport();
+			}
+		}
+		// 마우스 커서 활성화
+		if (APlayerController* PlayerController = GetWorld()->GetFirstPlayerController())
+		{
+			PlayerController->bShowMouseCursor = true;	// 마우스 커서 보이게
+			FInputModeUIOnly InputMode;
+			InputMode.SetWidgetToFocus(nullptr);
+			InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+			PlayerController->SetInputMode(InputMode);	// UI 모드로 입력 전환
+		}
 	}
 	else	// 스테이지 실패 시
 	{
-		
+		// 기존 UI 제거
+		if (InGameUI)
+		{
+			InGameUI->RemoveFromParent();
+			InGameUI = nullptr;
+		}
+		// 새로운 StageClearUI 생성
+		if (StageFailUIClass)
+		{
+			StageFailUI = CreateWidget<UUserWidget>(GetWorld(), StageFailUIClass);
+			if (StageFailUI)
+			{
+				StageFailUI->AddToViewport();
+			}
+		}
+		// 마우스 커서 활성화
+		if (APlayerController* PlayerController = GetWorld()->GetFirstPlayerController())
+		{
+			PlayerController->bShowMouseCursor = true;	// 마우스 커서 보이게
+			FInputModeUIOnly InputMode;
+			InputMode.SetWidgetToFocus(nullptr);
+			InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+			PlayerController->SetInputMode(InputMode);	// UI 모드로 입력 전환
+		}
 	}
 }
 
