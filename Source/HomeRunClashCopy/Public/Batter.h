@@ -22,7 +22,7 @@ public:
 	class UInputMappingContext * playerContext;
 	void PlayAnimSwing();
 	UFUNCTION(BlueprintCallable)
-	void ApplySwing();
+	bool ApplySwing();
 	bool bCanSwing = true;
 	class ABall* BallActor;
 	

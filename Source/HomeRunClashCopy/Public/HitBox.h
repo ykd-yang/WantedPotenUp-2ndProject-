@@ -49,7 +49,7 @@ public:
 	float CheckTiming(class ABall* Ball);
 	float CheckHeight(class ABall* Ball);
 	float CheckSide(class ABall* Ball);
-	void ApplyHit(float Timing, float HeightBat, float SideBat, class ABall* ball);
+	bool ApplyHit(float Timing, float HeightBat, float SideBat, class ABall* ball);
 	
 protected:
 	// Called when the game starts or when spawned
