@@ -8,6 +8,7 @@
 #include "InGameUI.h"
 #include "Components/Image.h"
 
+
 ABaseBallGameMode::ABaseBallGameMode()
 {
 	State = EGameModeState::None;
@@ -118,7 +119,7 @@ void ABaseBallGameMode::ChangeState(EGameModeState NewState)
 
 FString ABaseBallGameMode::BallTypeToString(EBallType BT)
 {
-	switch(BallType)
+	switch(BT)
 	{
 	case EBallType::Straight:  return TEXT("4FSB");
 	case EBallType::Curve:     return TEXT("CB");
@@ -128,6 +129,11 @@ FString ABaseBallGameMode::BallTypeToString(EBallType BT)
 	case EBallType::Knuckle:   return TEXT("KN");
 	default: return TEXT("Unknown");
 	}
+}
+
+void ABaseBallGameMode::GiveBallToGameMode(ABall* NewBall)
+{
+	Ball = NewBall;
 }
 
 //On Tick
@@ -191,13 +197,14 @@ void ABaseBallGameMode::OnThrowEnter()
 	
 	// 	1.공을 던진다 + 공의 정보를 가져온다
 	Pitcher->ThrowTrigger();
+	
 }
 
 void ABaseBallGameMode::OnBallHitEnter()
 {
 	// 1. 타격시 성공
 	// 2. 공의 정보, 타자에서!!공의 방향, 타자에서!!타격 판정, tick에서 비거리 표시
-	InGameUI->DisplayBallInfo(BallTypeToString(BallType));
+	InGameUI->DisplayBallInfo(BallTypeToString(Ball->BallInfo.BallType));
 }
 
 void ABaseBallGameMode::OnBallMissEnter()
@@ -208,12 +215,12 @@ void ABaseBallGameMode::OnBallMissEnter()
 	{
 		InGameUI->DisplayMiss();
 		InGameUI->DisplayBallHitDirection(-2);
-		InGameUI->DisplayBallInfo(BallTypeToString(BallType));	// 3. 공의 정보와 방향이 사라지면  4. 다시 Throw State
+		InGameUI->DisplayBallInfo(BallTypeToString(Ball->BallInfo.BallType));	// 3. 공의 정보와 방향이 사라지면  4. 다시 Throw State
 	}
 	else	// 헛스윙 시, 바로 !!타자에서 Miss 표시
 	{
 		InGameUI->DisplayBallHitDirection(-2);
-		InGameUI->DisplayBallInfo(BallTypeToString(BallType));	// 3. 공의 정보와 방향이 사라지면  4. 다시 Throw State
+		InGameUI->DisplayBallInfo(BallTypeToString(Ball->BallInfo.BallType));	// 3. 공의 정보와 방향이 사라지면  4. 다시 Throw State
 	}
 }
 

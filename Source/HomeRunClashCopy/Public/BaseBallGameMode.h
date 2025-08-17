@@ -3,6 +3,7 @@
 
 
 #include "CoreMinimal.h"
+#include "Ball.h"
 #include "GameFramework/GameModeBase.h"
 #include "BallInfo.h"
 #include "BaseBallGameMode.generated.h"
@@ -63,6 +64,10 @@ public:
 	// EBallType to String
 	UFUNCTION()
 	FString BallTypeToString(EBallType BT);
+
+	// 
+	UFUNCTION()
+	void GiveBallToGameMode(ABall* NewBall);
 	
 private:
 	// Tick
@@ -95,7 +100,7 @@ public:
 	
 	// Variables for InGameUI
 	int32 RemainingBalls = 11;
-	int32 HomerunsForWin = 6;
-
-	EBallType BallType;
+	int32 HomerunsForWin = 6; 
+	
+	ABall* Ball;
 };
