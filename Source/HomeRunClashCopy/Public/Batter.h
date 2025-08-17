@@ -23,6 +23,8 @@ public:
 	void PlayAnimSwing();
 	UFUNCTION(BlueprintCallable)
 	bool ApplySwing();
+	UFUNCTION(BlueprintCallable)
+	bool ApplySwingReal();
 	bool bCanSwing = true;
 	class ABall* BallActor;
 

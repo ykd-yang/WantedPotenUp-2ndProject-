@@ -243,110 +243,106 @@ float AHitBox::CheckHeight(ABall* Ball)
 	// 범위 안: -40 -> -1, 0 -> 0, +40 -> +1
 	return deltaZ / kHalfHeight;
 }
+
 bool AHitBox::ApplyHitReal(float Timing, float HeightBat, float SideBat, ABall* Ball)
 {
-	  if (!Ball) return false;
+    if (!Ball) return false;
+    if (Timing <= -1.9f || HeightBat <= -1.9f || SideBat <= -1.9f) return false;
 
-    // 입력값 유효성 체크
-    if (Timing <= -2.f || HeightBat <= -2.f || SideBat <= -2.f)
-        return false;
+    // ==== 튜닝 파라미터 ====
+    const float mBall          = 0.145f;   // kg, 스케일용
+    const float PowerBase      = 3000.f;   // 전체 파워 스케일(크면 더 멀리/빨리)
+    const float MinAccFloor    = 0.40f;    // 정확도 하한
+    const float MaxYawDeg      = 35.f;     // 타이밍에 따른 좌/우 최대 각
+    const float MinPitchDeg    = 16.f;     // 최소 발사각(지상타 방지)
+    const float MaxPitchDeg    = 65.f;     // 최대 발사각(너무 뜨는 것 방지)
+    const float VminClamp      = 1600.f;   // 속도 하한
+    const float VmaxClamp      = 5000.f;   // 속도 상한
 
-    // ─────────────────────────────────────────────────────────────
-    // ① 히트박스 박스면 기준으로 충돌 노멀 추정 (ApplyHit 내부 람다)
-    //    - 공의 월드 위치를 히트박스 로컬로 변환
-    //    - 로컬 바운드로 정규화 좌표를 만들고, 절댓값이 가장 큰 축 = 닿은 면
-    //    - 그 면의 +/−축 방향을 노멀로 선택 후 월드로 변환
-    // ─────────────────────────────────────────────────────────────
-    auto ComputeImpactNormalFromBoxFace = [](UStaticMeshComponent* BoxMesh, const FVector& BallWorldPos) -> FVector
+    // ==== 1) 입력 → 파워/방향 성분 ====
+    // 파워 정확도: 사이드가 0일수록 강함
+    float Accuracy = 1.f - FMath::Abs(FMath::Clamp(SideBat, -1.f, 1.f));
+    Accuracy = FMath::Max(Accuracy, MinAccFloor);
+
+    const float Power    = PowerBase;                 // 파워는 고정 스케일
+    const float Xcomp    = -Power * Accuracy;         // ✅ 항상 –X로 강제 (앞으로 뻗는 힘)
+    const float BallDir  = FMath::Lerp(4.5f, -4.5f, (Timing + 1.f) * 0.5f);   // 좌/우 분산
+    const float BallAng  = FMath::Lerp(5.f,   2.f,  (HeightBat + 1.f) * 0.5f); // 높이 분산
+
+    // 타이밍을 좌/우 각도로만 쓰고, 그 각도에 비례해 Y 성분 스케일
+    const float yawDeg   = FMath::Clamp(Timing, -1.f, 1.f) * MaxYawDeg;
+    const float yawScale = FMath::Cos(FMath::DegreesToRadians(FMath::Abs(yawDeg))); // 좌/우 꺾일수록 전진이 줄어드는 효과 보정
+    const float Ycomp    = BallDir * Power * Accuracy * yawScale;
+
+    // 높이 성분: HeightBat 기반 분산 → 아래에서 발사각 보정으로 최종 확정
+    float Zcomp = BallAng * Power * Accuracy;
+
+    // 원하는 "목표 속도" 초기값(규칙 반영)
+    FVector Vtarget(Xcomp, Ycomp, Zcomp);
+
+    // ==== 2) 발사각 강제(지상타 방지/너무 뜨는 것 방지) ====
     {
-        if (!BoxMesh) return FVector::ForwardVector; // fallback
+        const float flatMag = FVector(Vtarget.X, Vtarget.Y, 0.f).Size();
+        float up = Vtarget.Z;
 
-        const FTransform T = BoxMesh->GetComponentTransform();
+        // 최소/최대 발사각 범위로 Z 성분 조정
+        const float minUp = flatMag * FMath::Tan(FMath::DegreesToRadians(MinPitchDeg));
+        const float maxUp = flatMag * FMath::Tan(FMath::DegreesToRadians(MaxPitchDeg));
+        if (up <  minUp) up =  minUp;
+        if (up >  maxUp) up =  maxUp;
 
-        // 로컬 위치
-        const FVector pLocal = T.InverseTransformPosition(BallWorldPos);
+        Vtarget.Z = up;
+    }
 
-        // 로컬 바운드
-        FVector localMin(0), localMax(0);
-        BoxMesh->GetLocalBounds(localMin, localMax);
-
-        const FVector center = (localMin + localMax) * 0.5f;
-        const FVector extent = (localMax - localMin) * 0.5f;
-
-        // 중심 기준 위치
-        const FVector q = (pLocal - center);
-
-        // 각 축을 바운드로 정규화 (0-division 방지)
-        const float qx = (extent.X > KINDA_SMALL_NUMBER) ? (q.X / extent.X) : 0.f;
-        const float qy = (extent.Y > KINDA_SMALL_NUMBER) ? (q.Y / extent.Y) : 0.f;
-        const float qz = (extent.Z > KINDA_SMALL_NUMBER) ? (q.Z / extent.Z) : 0.f;
-
-        // 절대값이 가장 큰 축을 고름
-        int axis = 0;
-        float a0 = FMath::Abs(qx);
-        float a1 = FMath::Abs(qy);
-        float a2 = FMath::Abs(qz);
-        if (a1 > a0) { axis = 1; a0 = a1; }
-        if (a2 > a0) { axis = 2; /*a0 = a2;*/ }
-
-        // 그 축의 부호로 면의 방향 결정
-        FVector nLocal(0,0,0);
-        if (axis == 0) nLocal.X = FMath::Sign(qx);
-        else if (axis == 1) nLocal.Y = FMath::Sign(qy);
-        else                nLocal.Z = FMath::Sign(qz);
-
-        // 스케일 무시하고 월드로 변환 → 정규화
-        return T.TransformVectorNoScale(nLocal).GetSafeNormal();
-    };
-
-    const FVector ImpactNormal = ComputeImpactNormalFromBoxFace(HitBoxMesh, Ball->GetActorLocation());
-    const FVector n = ImpactNormal.IsNearlyZero() ? FVector::ForwardVector : ImpactNormal;
-
-    // ─────────────────────────────────────────────────────────────
-    //    - Timing → Yaw 편향, HeightBat → Pitch 편향
-    //    - SideBat → 정확도(스피드 스케일)
-    // ─────────────────────────────────────────────────────────────
-    const float BallDir     = FMath::Lerp(4.5f, -4.5f, (Timing + 1.f) * 0.5f);  // 좌우 비율
-    const float BallAngle   = FMath::Lerp(5.f,   2.f,  (HeightBat + 1.f)*0.5f); // 높이 비율
-    float PowerAccuracy     = 1.f - FMath::Abs(SideBat);
-    PowerAccuracy           = FMath::Max(PowerAccuracy, 0.3f); // 최소 정확도 바닥
-
-    // 기본 발사 방향 벡터 → 정규화
-    FVector NewDir = FVector(-1.f, BallDir, BallAngle).GetSafeNormal();
-
-    // (선택) 면 노멀 방향으로 살짝 가중을 주어 반사 느낌 추가하고 싶으면 주석 해제
-    // NewDir = (NewDir + 0.20f * n).GetSafeNormal();
-
-    const float Power = 5000.f; // 파워값
-    const FVector FinalSpeed = NewDir * (PowerAccuracy * Power);
-
-    // ─────────────────────────────────────────────────────────────
-    // ③ 공에 최종 적용
-    // ─────────────────────────────────────────────────────────────
-    Ball->SetActorRotation(FRotator::ZeroRotator);
-    Ball->SetBallHit(FinalSpeed);
-
-    UE_LOG(LogTemp, Warning, TEXT("Hit Debug -> T:%f H:%f S:%f | Acc:%f | Dir:%s | n:%s"),
-        Timing, HeightBat, SideBat, PowerAccuracy,
-        *NewDir.ToString(), *n.ToString());
-
-    if (ABaseBallGameMode* GM = Cast<ABaseBallGameMode>(UGameplayStatics::GetGameMode(this)))
+    // ==== 3) 최종 속도 크기 클램프 (방향 보존) ====
     {
-        if (GM->InGameUI)
+        const float spd = Vtarget.Size();
+        if (spd > KINDA_SMALL_NUMBER)
         {
-            GM->InGameUI->DisplayBallHitDirection(Timing);
+            const float clamped = FMath::Clamp(spd, VminClamp, VmaxClamp);
+            Vtarget = Vtarget * (clamped / spd);
+        }
+        else
+        {
+            // 혹시 0에 수렴하면 안전한 전진값 부여
+            Vtarget = FVector(-1.f, 0.f, 0.f) * VminClamp;
         }
     }
 
+    // ==== 4) 역학 적용: 충격량–운동량 정리로 "Vout" 산출 ====
+    //   J = m (Vout - Vin)  →  Vout = Vin + J/m
+    // 여기서는 "게임 의도에 맞춘 목표 속도 Vtarget"이 되도록 필요한 J를 계산한 뒤,
+    // 그 결과 Vout = Vin + J/m = Vtarget 으로 사용.
+    const FVector Vin = Ball->GetVelocity();         // 현재 속도(있으면)
+    const FVector dV  = Vtarget - Vin;               // 필요한 속도 변화량
+    const FVector J   = mBall * dV;                  // 필요한 충격량(로깅/분석용)
+
+    // 최종 속도는 역학으로 산출한 결과(=Vtarget)로 사용
+    FVector Vout = Vin + J / mBall; // 수학적으로 Vtarget
+
+    // 혹시라도 수치 오차로 X가 양수가 되면 재강제
+    if (Vout.X > 0.f) Vout.X = -FMath::Abs(Vout.X);
+
+    // 마지막 안전장치: 방향 보존 + 크기 재확정
+    {
+        const float Spd = FMath::Clamp(Vout.Size(), VminClamp, VmaxClamp);
+        Vout = Vout.GetSafeNormal() * Spd;
+    }
+
+    // ==== 5) 적용 ====
+    Ball->SetActorRotation(FRotator::ZeroRotator);
+    Ball->SetBallHit(Vout);
+
+    UE_LOG(LogTemp, Warning,
+        TEXT("ApplyHitReal -> T:%f H:%f S:%f | Acc:%f | Power:%f | Vin:%s Vout:%s | J:%s"),
+        Timing, HeightBat, SideBat, Accuracy, Power, *Vin.ToString(), *Vout.ToString(), *J.ToString());
+
+    if (ABaseBallGameMode* GM = Cast<ABaseBallGameMode>(UGameplayStatics::GetGameMode(this)))
+    {
+        if (GM->InGameUI) GM->InGameUI->DisplayBallHitDirection(Timing);
+    }
     return true;
-    
-
-  
 }
-
-
-
-
 
 
 
