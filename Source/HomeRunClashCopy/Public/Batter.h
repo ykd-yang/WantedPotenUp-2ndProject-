@@ -25,6 +25,9 @@ public:
 	bool ApplySwing();
 	bool bCanSwing = true;
 	class ABall* BallActor;
+
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	bool bIsHiting =false;
 	
 	UPROPERTY(EditAnywhere, Category = "UI")
 	TSubclassOf<class UUserWidget> AimWidgetClass;

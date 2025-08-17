@@ -47,7 +47,7 @@ public:
 	// InGame UI
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="UI")
 	TSubclassOf<UInGameUI> InGameUIClass;
-	UPROPERTY() 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TObjectPtr<UInGameUI> InGameUI;
 	// StageClear UI
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="UI")
