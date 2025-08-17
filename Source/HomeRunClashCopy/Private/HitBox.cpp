@@ -3,6 +3,8 @@
 
 #include "HitBox.h"
 #include "Ball.h"
+#include "BaseBallGameMode.h"
+#include "InGameUI.h"
 #include "StrikeZone.h"
 #include "Blueprint/UserWidget.h"
 #include "Blueprint/WidgetLayoutLibrary.h"
@@ -151,6 +153,13 @@ bool AHitBox::ApplyHit(float Timing, float HeightBat, float SideBat,class ABall*
 		ball->SetActorRotation(FRotator(0,0,0));
 		ball->SetBallHit(FinalSpeed);
 		UE_LOG(LogTemp, Warning, TEXT("Debug Values -> Timing: %f, HeightBat: %f, SideBat: %f"), Timing, HeightBat, SideBat);
+		AGameModeBase* GameModeBase = UGameplayStatics::GetGameMode(this);
+		ABaseBallGameMode* MyGameMode = Cast<ABaseBallGameMode>(GameModeBase);
+		if (MyGameMode)
+		{
+			MyGameMode->InGameUI->DisplayBallHitDirection(Timing);
+		}
+		
 		return true;
 	}
 	else
