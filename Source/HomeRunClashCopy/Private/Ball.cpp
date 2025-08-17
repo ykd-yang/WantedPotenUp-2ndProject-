@@ -199,7 +199,7 @@ void ABall::OnSimulate(float ElapTime)
 void ABall::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
 	FVector NormalImpulse, const FHitResult& Hit)
 {
-	// if 지면인지 확인
+	// if 지면 or homruen인지 확인
 	if (IsFall == false)
 	{
 		IsFall = true;
