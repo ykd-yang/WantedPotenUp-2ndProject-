@@ -104,8 +104,8 @@ public:
 	float BatterHitDirection;
 	
 	// Variables for InGameUI
-	int32 RemainingBalls = 11;
-	int32 HomerunsForWin = 6; 
+	int32 RemainingBalls = 12;
+	int32 HomerunsForWin = 5; 
 	
 	ABall* Ball;
 	EBallType BallType;

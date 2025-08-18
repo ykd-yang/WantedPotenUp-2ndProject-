@@ -97,7 +97,6 @@ void UInGameUI::DisplayBallInfo(FString BallType)
 void UInGameUI::HideBallInfo()
 {
 	BallInfoOverlay->SetVisibility(ESlateVisibility::Hidden);
-	GameMode->ChangeState(EGameModeState::Throw);
 }
 
 
@@ -171,13 +170,14 @@ void UInGameUI::DisplayHomerunState(bool Homerun)
 	isHomerunStateDisplaying = true;
 	if (Homerun)	// Display Homerun
 	{
-		HitIndicatorUI->SetVisibility(ESlateVisibility::Visible);
+		HomerunImage->SetVisibility(ESlateVisibility::Visible);
 		GetWorld()->GetTimerManager().SetTimer(HomerunStateTimer, this, &UInGameUI::HideHomerunState, DisplayTime, false);
-
+		UpdateSuccessfulHomerun();
 	}
 	else	// Display Hit
 	{
-		HitIndicatorUI->SetVisibility(ESlateVisibility::Visible);
+		UE_LOG(LogTemp, Warning, TEXT("1234567890"));
+		HitImage->SetVisibility(ESlateVisibility::Visible);
 		GetWorld()->GetTimerManager().SetTimer(HomerunStateTimer, this, &UInGameUI::HideHomerunState, DisplayTime, false);
 
 	}
@@ -185,9 +185,8 @@ void UInGameUI::DisplayHomerunState(bool Homerun)
 // Hide Homerun State
 void UInGameUI::HideHomerunState()
 {
-	HitIndicatorUI->SetVisibility(ESlateVisibility::Hidden);
-	HitIndicatorUI->SetVisibility(ESlateVisibility::Hidden);
-	UpdateSuccessfulHomerun();
+	HomerunImage->SetVisibility(ESlateVisibility::Hidden);
+	HitImage->SetVisibility(ESlateVisibility::Hidden);
 	DeductRemainingBalls();
 	FTimerHandle HideHomerunStateTimer;
 	GetWorld()->GetTimerManager().SetTimer(HideHomerunStateTimer,[this](){GameMode->ChangeState(EGameModeState::Throw);},1,false);
