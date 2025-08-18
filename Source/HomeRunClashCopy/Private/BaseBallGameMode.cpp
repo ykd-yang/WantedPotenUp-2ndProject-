@@ -227,7 +227,7 @@ void ABaseBallGameMode::OnBallHitEnter()
 {
 	// 1. 타격시 성공
 	// 2. 공의 정보, 타자에서!!공의 방향, 타자에서!!타격 판정, tick에서 비거리 표시
-	BallType = Ball->BallInfo.BallType;
+	//BallType = Ball->BallInfo.BallType;
 	InGameUI->DisplayBallInfo("BallTypeToString(BallType)");
 }
 
@@ -238,8 +238,11 @@ void ABaseBallGameMode::OnBallMissEnter()
 	if (ESlateVisibility::Visible != InGameUI->MissImage->GetVisibility())
 	{
 		InGameUI->DisplayMiss();
+		InGameUI->DisplayBallHitDirection(-2);
 		//BallType = Ball->BallInfo.BallType;
 		InGameUI->DisplayBallInfo("BallTypeToString(BallType)");	// 3. 공의 정보와 방향이 사라지면  4. 다시 Throw State
+		FTimerHandle MissTimer;
+		GetWorld()->GetTimerManager().SetTimer(MissTimer,[this](){ChangeState(EGameModeState::Throw);},InGameUI->DisplayTime,false);
 	}
 	// else if (ESlateVisibility::Visible == InGameUI->MissImage->GetVisibility())
 	// {
@@ -247,10 +250,11 @@ void ABaseBallGameMode::OnBallMissEnter()
 	// }
 	else	// 헛스윙 시, 바로 !!타자에서 Miss 표시
 	{
-		
 		InGameUI->DisplayBallHitDirection(-2);
 		//BallType = Ball->BallInfo.BallType;
 		InGameUI->DisplayBallInfo("BallTypeToString(BallType)");	// 3. 공의 정보와 방향이 사라지면  4. 다시 Throw State
+		FTimerHandle MissTimer;
+		GetWorld()->GetTimerManager().SetTimer(MissTimer,[this](){ChangeState(EGameModeState::Throw);},InGameUI->DisplayTime,false);
 	}
 }
 
