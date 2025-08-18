@@ -165,7 +165,7 @@ void UInGameUI::UpdateBallDistance(float Distance)
 // Display Homerun State
 void UInGameUI::DisplayHomerunState(bool Homerun)
 {
-	if (ESlateVisibility::Hidden == HomerunImage->GetVisibility() || ESlateVisibility::Hidden == HitImage->GetVisibility())
+	if (ESlateVisibility::Visible != HomerunImage->GetVisibility() && ESlateVisibility::Visible != HitImage->GetVisibility())
 	{
 		FTimerHandle HomerunStateTimer;
 		isHomerunStateDisplaying = true;
