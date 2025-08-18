@@ -151,7 +151,6 @@ void UInGameUI::DisplayMiss()
 		MissImage->SetVisibility(ESlateVisibility::Visible);
 		FTimerHandle MissTimer;
 		GetWorld()->GetTimerManager().SetTimer(MissTimer,[this](){MissImage->SetVisibility(ESlateVisibility::Hidden);},DisplayTime,false);
-		DeductRemainingBalls();
 	}
 }
 

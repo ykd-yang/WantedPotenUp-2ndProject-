@@ -215,11 +215,15 @@ void ABaseBallGameMode::OnStartEnter()
 
 void ABaseBallGameMode::OnThrowEnter()
 {
-	InGameUI->isHomerunStateDisplaying = false;
-	// 카메라 원상복귀
+	if (nullptr != InGameUI)
+	{
+		InGameUI->isHomerunStateDisplaying = false;
+		// 카메라 원상복귀
+		
+		// 	1.공을 던진다 + 공의 정보를 가져온다
+		Pitcher->ThrowTrigger();
+	}
 	
-	// 	1.공을 던진다 + 공의 정보를 가져온다
-	Pitcher->ThrowTrigger();
 	
 }
 
@@ -237,12 +241,14 @@ void ABaseBallGameMode::OnBallMissEnter()
 	// 2. 지나간 후 남은 공갯수 차감, 공의 정보, 공의 방향, Miss표시(먼저 사라짐)
 	if (ESlateVisibility::Visible != InGameUI->MissImage->GetVisibility())
 	{
+		UE_LOG(LogTemp, Warning, TEXT("Miss"));
 		InGameUI->DisplayMiss();
 		InGameUI->DisplayBallHitDirection(-2);
 		//BallType = Ball->BallInfo.BallType;
 		InGameUI->DisplayBallInfo("BallTypeToString(BallType)");	// 3. 공의 정보와 방향이 사라지면  4. 다시 Throw State
 		FTimerHandle MissTimer;
 		GetWorld()->GetTimerManager().SetTimer(MissTimer,[this](){ChangeState(EGameModeState::Throw);},InGameUI->DisplayTime,false);
+		InGameUI->DeductRemainingBalls();
 	}
 	// else if (ESlateVisibility::Visible == InGameUI->MissImage->GetVisibility())
 	// {
@@ -250,11 +256,13 @@ void ABaseBallGameMode::OnBallMissEnter()
 	// }
 	else	// 헛스윙 시, 바로 !!타자에서 Miss 표시
 	{
+		UE_LOG(LogTemp, Warning, TEXT("헛스윙 Miss"));
 		InGameUI->DisplayBallHitDirection(-2);
 		//BallType = Ball->BallInfo.BallType;
 		InGameUI->DisplayBallInfo("BallTypeToString(BallType)");	// 3. 공의 정보와 방향이 사라지면  4. 다시 Throw State
 		FTimerHandle MissTimer;
 		GetWorld()->GetTimerManager().SetTimer(MissTimer,[this](){ChangeState(EGameModeState::Throw);},InGameUI->DisplayTime,false);
+		InGameUI->DeductRemainingBalls();
 	}
 }
 
