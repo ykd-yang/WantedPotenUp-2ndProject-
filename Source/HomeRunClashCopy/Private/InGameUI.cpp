@@ -34,6 +34,7 @@ void UInGameUI::NativeConstruct()
 void UInGameUI::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
 	Super::NativeTick(MyGeometry, InDeltaTime);
+
 }
 
 
@@ -110,7 +111,6 @@ void UInGameUI::DisplayBallHitDirection(float BallHitDirection)
 		// Display Ball Direction
 		HitDirectionOverlay->SetVisibility(ESlateVisibility::Visible);
 		GetWorld()->GetTimerManager().SetTimer(HitDirectionTimer, this, &UInGameUI::HideBallHitDirection, DisplayTime, false);
-		DeductRemainingBalls();
 		return;
 	}
 	float PositionX = FMath::GetMappedRangeValueClamped(FVector2D(-1.0f, 1.0f),FVector2D(-130.0f, 130.0f), BallHitDirection);	// Position X: -130 ~ 130
@@ -122,7 +122,6 @@ void UInGameUI::DisplayBallHitDirection(float BallHitDirection)
 	HitIndicatorUI->SetVisibility(ESlateVisibility::Visible);
 	HitDirectionOverlay->SetVisibility(ESlateVisibility::Visible);
 	GetWorld()->GetTimerManager().SetTimer(HitDirectionTimer, this, &UInGameUI::HideBallHitDirection, DisplayTime, false);
-	DeductRemainingBalls();
 }
 // Hide Ball Direction and Indicator
 void UInGameUI::HideBallHitDirection()
@@ -153,6 +152,7 @@ void UInGameUI::DisplayMiss()
 		MissImage->SetVisibility(ESlateVisibility::Visible);
 		FTimerHandle MissTimer;
 		GetWorld()->GetTimerManager().SetTimer(MissTimer,[this](){MissImage->SetVisibility(ESlateVisibility::Hidden);},DisplayTime,false);
+		DeductRemainingBalls();
 	}
 }
 

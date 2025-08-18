@@ -20,7 +20,7 @@ ABaseBallGameMode::ABaseBallGameMode()
 void ABaseBallGameMode::BeginPlay()
 {
 	Super::BeginPlay();
-
+	
 	// Create Widget
 	if (nullptr != InGameUIClass)
 	{
@@ -48,10 +48,27 @@ void ABaseBallGameMode::BeginPlay()
 void ABaseBallGameMode::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
+	UE_LOG(LogTemp, Warning, TEXT("123"));
+	
+	
 
+		UEnum* EnumPtr = FindObject<UEnum>(ANY_PACKAGE, TEXT("EGameModeState"), true);
+
+			FString DisplayString = EnumPtr->GetDisplayNameTextByValue((int64)State).ToString();
+			GEngine->AddOnScreenDebugMessage(
+				-1, 
+				2.0f, 
+				FColor::Yellow,
+				FString::Printf(TEXT("%s"), *DisplayString) // <-- 여기서 * 사용
+			);
+			UE_LOG(LogTemp, Warning, TEXT("123"), *DisplayString);
+		
+	
+	
 	switch (State)
 	{
 		case EGameModeState::Start:
+			
 			OnStartTick();
 			break;
 		case EGameModeState::Throw:
@@ -73,6 +90,7 @@ void ABaseBallGameMode::Tick(float DeltaSeconds)
 
 void ABaseBallGameMode::ChangeState(EGameModeState NewState)
 {
+	UE_LOG(LogTemp, Warning, TEXT("123"));
 	if (State == NewState)
 		return;
 	switch (State)
@@ -220,12 +238,16 @@ void ABaseBallGameMode::OnBallMissEnter()
 	if (ESlateVisibility::Visible != InGameUI->MissImage->GetVisibility())
 	{
 		InGameUI->DisplayMiss();
-		InGameUI->DisplayBallHitDirection(-2);
 		//BallType = Ball->BallInfo.BallType;
 		InGameUI->DisplayBallInfo("BallTypeToString(BallType)");	// 3. 공의 정보와 방향이 사라지면  4. 다시 Throw State
 	}
+	// else if (ESlateVisibility::Visible == InGameUI->MissImage->GetVisibility())
+	// {
+	// 	
+	// }
 	else	// 헛스윙 시, 바로 !!타자에서 Miss 표시
 	{
+		
 		InGameUI->DisplayBallHitDirection(-2);
 		//BallType = Ball->BallInfo.BallType;
 		InGameUI->DisplayBallInfo("BallTypeToString(BallType)");	// 3. 공의 정보와 방향이 사라지면  4. 다시 Throw State

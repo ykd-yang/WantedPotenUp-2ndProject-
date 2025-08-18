@@ -14,7 +14,7 @@ class UStageClearUI;
 class UInGameUI;
 class APitcher;
 
-
+UENUM(BlueprintType)
 enum class EGameModeState : uint8
 {
 	None		UMETA(DisplayName = "None"),
@@ -47,6 +47,7 @@ private:
 public:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaSeconds) override;
+	UFUNCTION(BlueprintCallable)
 	void ChangeState(EGameModeState NewState);
 
 	// InGame UI
