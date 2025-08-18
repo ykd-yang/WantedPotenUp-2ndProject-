@@ -169,8 +169,8 @@ void ABall::OnSimulate(float ElapTime)
 	SimulLocation = PrevLocation + SimulVelocity * GetWorld()->GetDeltaSeconds();
 
 	//Debug Line
-	DrawDebugLine(GetWorld(), PrevLocation, SimulLocation, FColor::Red,
-		false, 1.f, 0, 5);
+	// DrawDebugLine(GetWorld(), PrevLocation, SimulLocation, FColor::Red,
+	// 	false, 1.f, 0, 5);
 
 	FHitResult HitResult;
 	bool Hit = GetWorld()->LineTraceSingleByChannel(
