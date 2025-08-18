@@ -54,12 +54,12 @@ void APitcher::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	//for Test
-	testT+=DeltaTime;
-	if (testT > 5.f)	
-	{
-		ThrowTrigger();
-		testT = 0.f;
-	}
+	// testT+=DeltaTime;
+	// if (testT > 5.f)	
+	// {
+	// 	ThrowTrigger();
+	// 	testT = 0.f;
+	// }
 }
 
 void APitcher::SpawnBall()

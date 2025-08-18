@@ -189,6 +189,9 @@ void ABaseBallGameMode::OnStartEnter()
 	// 4. GoUI 표시
 	
 	// 5. 몇초 뒤 Throw State
+	FTimerHandle StartTimer;
+	GetWorld()->GetTimerManager().SetTimer(StartTimer,[this](){ChangeState(EGameModeState::Throw);},5,false);
+
 	
 }
 

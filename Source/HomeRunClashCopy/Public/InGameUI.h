@@ -96,7 +96,7 @@ public:
 	bool isJudgementDisplaying;
 	bool isHomerunStateDisplaying;
 	
-	float DisplayTime = 2.0f;	// UI display time
+	float DisplayTime = 4.0f;	// UI display time
 	
 
 };
