@@ -5,6 +5,7 @@
 #include "Engine/EngineTypes.h"
 #include "Components/PrimitiveComponent.h"
 #include "Indicator.h"
+#include "InGameUI.h"
 #include "NiagaraComponent.h"
 #include "NiagaraFunctionLibrary.h"
 
@@ -226,8 +227,9 @@ void ABall::OnBallHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimiti
 		else if (Channel == ECC_GameTraceChannel7)
 		{
 			Gm->isHomerun = false;
-			
 			UE_LOG(LogTemp, Warning, TEXT("Ground HIT"));
+
+			Gm->InGameUI->DisplayHomerunState(false);
 		}
 
 		Gm->didBallFall = true;
