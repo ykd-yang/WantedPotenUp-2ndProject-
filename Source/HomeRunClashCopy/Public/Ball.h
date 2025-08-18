@@ -73,7 +73,7 @@ private:
 	void OnSimulate(float ElapTime);
 
 	UFUNCTION()
-	void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor,
+	void OnBallHit(UPrimitiveComponent* HitComp, AActor* OtherActor,
 			   UPrimitiveComponent* OtherComp, FVector NormalImpulse,
 			   const FHitResult& Hit);
 };

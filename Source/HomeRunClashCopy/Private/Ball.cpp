@@ -63,7 +63,7 @@ void ABall::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	BallMesh->OnComponentHit.AddDynamic(this, &ABall::OnHit);
+	BallMesh->OnComponentHit.AddDynamic(this, &ABall::OnBallHit);
 
 	Gm = Cast<ABaseBallGameMode>(GetWorld()->GetAuthGameMode());
 	if (Gm == nullptr)
@@ -141,7 +141,11 @@ void ABall::CalculateMagnusSimple(FVector& Vel)
 
 void ABall::UpdateLocation(float DeltaTime)
 {
-	SetActorLocation(GetActorLocation() + Velocity * DeltaTime);
+	FVector NewLoc = GetActorLocation() + Velocity * DeltaTime;
+	if (!NewLoc.ContainsNaN())
+	{
+		SetActorLocation(NewLoc);
+	}
 }
 
 void ABall::UpdateRotation(float DeltaTime)
@@ -149,14 +153,21 @@ void ABall::UpdateRotation(float DeltaTime)
 	if (BallInfo.Rotation.IsZero())
 	{
 		FVector RotAxis = FVector::CrossProduct(FVector::UpVector, Velocity);
+		RotAxis.Normalize();
 		float Angle = Velocity.Size()/ 2.5f * DeltaTime;
 		FQuat QuatRot(RotAxis, FMath::DegreesToRadians(Angle));
-		AddActorWorldRotation(QuatRot);
+		if (!QuatRot.ContainsNaN())
+		{
+			AddActorWorldRotation(QuatRot);
+		}
 	}
 	else
 	{
 		FRotator Rot = FRotator(BallInfo.Rotation.Y, BallInfo.Rotation.Z, BallInfo.Rotation.X);
-		AddActorWorldRotation(Rot * DeltaTime);
+		if (!Rot.ContainsNaN())
+		{
+			AddActorWorldRotation(Rot * DeltaTime);
+		}
 	}
 }
 
@@ -196,7 +207,7 @@ void ABall::OnSimulate(float ElapTime)
 
 
 //바닥에 통통튀는 것
-void ABall::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
+void ABall::OnBallHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
 	FVector NormalImpulse, const FHitResult& Hit)
 {
 	if (Velocity.Size() < 10) return;
@@ -215,6 +226,7 @@ void ABall::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveCo
 		else if (Channel == ECC_GameTraceChannel7)
 		{
 			Gm->isHomerun = false;
+			
 			UE_LOG(LogTemp, Warning, TEXT("Ground HIT"));
 		}
 
