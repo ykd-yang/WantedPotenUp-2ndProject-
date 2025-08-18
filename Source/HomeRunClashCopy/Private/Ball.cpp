@@ -199,6 +199,8 @@ void ABall::OnSimulate(float ElapTime)
 void ABall::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
 	FVector NormalImpulse, const FHitResult& Hit)
 {
+	if (Velocity.Size() < 10) return;
+	
 	// if 지면 or homruen인지 확인
 	if (IsFall == false)
 	{
@@ -220,5 +222,5 @@ void ABall::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveCo
 	}
 	
 	FVector ReflectVec = Velocity -2 * FVector::DotProduct(Velocity, Hit.Normal) * Hit.Normal;
-	Velocity = ReflectVec * 0.7f;
+	Velocity = ReflectVec * 0.35f;
 }

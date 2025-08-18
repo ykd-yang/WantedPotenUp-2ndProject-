@@ -251,7 +251,7 @@ bool AHitBox::ApplyHitReal(float Timing, float HeightBat, float SideBat, ABall* 
 
     // ==== 튜닝 파라미터 ====
     const float mBall          = 0.145f;   // kg, 스케일용
-    const float PowerBase      = 3000.f;   // 전체 파워 스케일(크면 더 멀리/빨리)
+    const float PowerBase      = 1800.f;   // 전체 파워 스케일(크면 더 멀리/빨리)
     const float MinAccFloor    = 0.40f;    // 정확도 하한
     const float MaxYawDeg      = 35.f;     // 타이밍에 따른 좌/우 최대 각
     const float MinPitchDeg    = 16.f;     // 최소 발사각(지상타 방지)

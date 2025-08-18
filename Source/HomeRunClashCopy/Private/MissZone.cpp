@@ -44,6 +44,7 @@ void AMissZone::OnOverlapMissZone(UPrimitiveComponent* OverlappedComp, AActor* O
 		if (MyGameMode)
 		{
 			MyGameMode->ChangeState(EGameModeState::BallMiss);
+			OtherActor->Destroy();
 		}
 	}
 }
