@@ -184,7 +184,7 @@ float AHitBox::CheckTiming(ABall* Ball)
 	const float ballX   = Ball->GetActorLocation().X;
 	const float deltaX  = ballX - centerX;
 
-	constexpr float kHalfTiming=200.f;               
+	constexpr float kHalfTiming=100.f;               
 
 	if (FMath::Abs(deltaX) > kHalfTiming)
 		return -2.f;                                   // 범위 밖
@@ -251,7 +251,7 @@ bool AHitBox::ApplyHitReal(float Timing, float HeightBat, float SideBat, ABall* 
 
     // ==== 튜닝 파라미터 ====
     const float mBall          = 0.145f;   // kg (스케일용)
-    const float PowerBase      = 1800.f;   // 전체 파워 스케일
+    const float PowerBase      = 2000.f;   // 전체 파워 스케일
     const float MinAccFloor    = 0.30f;    // 정확도 하한
     const float MinPitchDeg    = 5.f;      // 최소 발사각(지상타 방지)
     const float MaxPitchDeg    = 40.f;     // 최대 발사각(너무 뜨는 것 방지)
@@ -268,7 +268,7 @@ bool AHitBox::ApplyHitReal(float Timing, float HeightBat, float SideBat, ABall* 
     const float Xcomp   = -Power * Accuracy;
 
     //  Y 성분: Timing 기반 ‘절대’ 좌우, X와 무관하게 그대로 반영 (보정/스케일 제거)
-    const float BallDir = FMath::Lerp(2.f, -2.f, (Timing + 1.f) * 0.5f);
+    const float BallDir = FMath::Lerp(1.5f, -1.5f, (Timing + 1.f) * 0.5f);
     const float Ycomp   = BallDir * Power * Accuracy;
 
     // ✅ Z 성분: HeightBat 기반, 이후 발사각 보정 단계에서 각도만 클램프

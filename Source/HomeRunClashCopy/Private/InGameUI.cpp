@@ -165,21 +165,24 @@ void UInGameUI::UpdateBallDistance(float Distance)
 // Display Homerun State
 void UInGameUI::DisplayHomerunState(bool Homerun)
 {
-	if (ESlateVisibility::Visible != HomerunImage->GetVisibility() && ESlateVisibility::Visible != HitImage->GetVisibility())
+	if (nullptr != this)
 	{
-		FTimerHandle HomerunStateTimer;
-		isHomerunStateDisplaying = true;
-		if (Homerun)	// Display Homerun
+		if (ESlateVisibility::Visible != HomerunImage->GetVisibility() && ESlateVisibility::Visible != HitImage->GetVisibility())
 		{
-			HomerunImage->SetVisibility(ESlateVisibility::Visible);
-			GetWorld()->GetTimerManager().SetTimer(HomerunStateTimer, this, &UInGameUI::HideHomerunState, DisplayTime, false);
-			UpdateSuccessfulHomerun();
-		}
-		else	// Display Hit
-		{
-			UE_LOG(LogTemp, Warning, TEXT("1234567890"));
-			HitImage->SetVisibility(ESlateVisibility::Visible);
-			GetWorld()->GetTimerManager().SetTimer(HomerunStateTimer, this, &UInGameUI::HideHomerunState, DisplayTime, false);
+			FTimerHandle HomerunStateTimer;
+			isHomerunStateDisplaying = true;
+			if (Homerun)	// Display Homerun
+			{
+				HomerunImage->SetVisibility(ESlateVisibility::Visible);
+				GetWorld()->GetTimerManager().SetTimer(HomerunStateTimer, this, &UInGameUI::HideHomerunState, DisplayTime, false);
+				UpdateSuccessfulHomerun();
+			}
+			else	// Display Hit
+			{
+				UE_LOG(LogTemp, Warning, TEXT("1234567890"));
+				HitImage->SetVisibility(ESlateVisibility::Visible);
+				GetWorld()->GetTimerManager().SetTimer(HomerunStateTimer, this, &UInGameUI::HideHomerunState, DisplayTime, false);
+			}
 		}
 	}
 }
