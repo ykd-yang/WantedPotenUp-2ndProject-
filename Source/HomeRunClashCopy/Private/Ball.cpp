@@ -154,12 +154,15 @@ void ABall::UpdateRotation(float DeltaTime)
 	if (BallInfo.Rotation.IsZero())
 	{
 		FVector RotAxis = FVector::CrossProduct(FVector::UpVector, Velocity);
-		RotAxis.Normalize();
-		float Angle = Velocity.Size()/ 2.5f * DeltaTime;
-		FQuat QuatRot(RotAxis, FMath::DegreesToRadians(Angle));
-		if (!QuatRot.ContainsNaN())
+		if (!RotAxis.IsNearlyZero())
 		{
-			AddActorWorldRotation(QuatRot);
+			RotAxis.Normalize();
+			float Angle = Velocity.Size()/ 2.5f * DeltaTime;
+			FQuat QuatRot(RotAxis, FMath::DegreesToRadians(Angle));
+			if (!QuatRot.ContainsNaN())
+			{
+				AddActorWorldRotation(QuatRot);
+			}
 		}
 	}
 	else
