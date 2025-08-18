@@ -45,7 +45,7 @@ bool ABatter::ApplySwing()
 bool ABatter::ApplySwingReal()
 {
 	
-	if (BallActor != nullptr)
+	if (BallActor != nullptr && MyHitBox != nullptr)
 	{
 		BallActor->SetActorRotation(FRotator(0, 0, 0));
 		float Timing =MyHitBox->CheckTiming(BallActor);
@@ -53,7 +53,6 @@ bool ABatter::ApplySwingReal()
 		float Side = MyHitBox->CheckSide(BallActor);
 		UE_LOG(LogTemp, Warning, TEXT("Timing: %f, HeightBat: %f, SideBat: %f, Ball Address: %p"), Timing, Height, Side, BallActor);
 		return MyHitBox-> ApplyHitReal(Timing,Height,Side,BallActor);
-		
 	}
 	return false;
 }
