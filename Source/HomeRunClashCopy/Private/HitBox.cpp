@@ -271,7 +271,7 @@ bool AHitBox::ApplyHitReal(float Timing, float HeightBat, float SideBat, ABall* 
     const float BallDir = FMath::Lerp(1.5f, -1.5f, (Timing + 1.f) * 0.5f);
     const float Ycomp   = BallDir * Power * Accuracy;
 
-    // ✅ Z 성분: HeightBat 기반, 이후 발사각 보정 단계에서 각도만 클램프
+    // Z 성분: HeightBat 기반, 이후 발사각 보정 단계에서 각도만 클램프
     const float BallAng = FMath::Lerp(5.f, 2.f, (HeightBat + 1.f) * 0.5f);
     float Zcomp         = BallAng * Power * Accuracy;
 
@@ -304,7 +304,7 @@ bool AHitBox::ApplyHitReal(float Timing, float HeightBat, float SideBat, ABall* 
         }
     }
 
-    // ==== 4) 역학 적용: J로 정당화 (Vout = Vin + J/m = Vtarget) ====
+    
     const FVector Vin = Ball->GetVelocity();
     const FVector dV  = Vtarget - Vin;
     const FVector J   = mBall * dV;
