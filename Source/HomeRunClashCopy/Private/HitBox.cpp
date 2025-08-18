@@ -250,34 +250,31 @@ bool AHitBox::ApplyHitReal(float Timing, float HeightBat, float SideBat, ABall* 
     if (Timing <= -1.9f || HeightBat <= -1.9f || SideBat <= -1.9f) return false;
 
     // ==== 튜닝 파라미터 ====
-    const float mBall          = 0.145f;   // kg, 스케일용
-    const float PowerBase      = 1800.f;   // 전체 파워 스케일(크면 더 멀리/빨리)
-    const float MinAccFloor    = 0.40f;    // 정확도 하한
-    const float MaxYawDeg      = 35.f;     // 타이밍에 따른 좌/우 최대 각
-    const float MinPitchDeg    = 16.f;     // 최소 발사각(지상타 방지)
-    const float MaxPitchDeg    = 65.f;     // 최대 발사각(너무 뜨는 것 방지)
+    const float mBall          = 0.145f;   // kg (스케일용)
+    const float PowerBase      = 1800.f;   // 전체 파워 스케일
+    const float MinAccFloor    = 0.30f;    // 정확도 하한
+    const float MinPitchDeg    = 5.f;      // 최소 발사각(지상타 방지)
+    const float MaxPitchDeg    = 40.f;     // 최대 발사각(너무 뜨는 것 방지)
     const float VminClamp      = 1600.f;   // 속도 하한
     const float VmaxClamp      = 5000.f;   // 속도 상한
 
     // ==== 1) 입력 → 파워/방향 성분 ====
-    // 파워 정확도: 사이드가 0일수록 강함
     float Accuracy = 1.f - FMath::Abs(FMath::Clamp(SideBat, -1.f, 1.f));
     Accuracy = FMath::Max(Accuracy, MinAccFloor);
 
-    const float Power    = PowerBase;                 // 파워는 고정 스케일
-    const float Xcomp    = -Power * Accuracy;         // ✅ 항상 –X로 강제 (앞으로 뻗는 힘)
-    const float BallDir  = FMath::Lerp(4.5f, -4.5f, (Timing + 1.f) * 0.5f);   // 좌/우 분산
-    const float BallAng  = FMath::Lerp(5.f,   2.f,  (HeightBat + 1.f) * 0.5f); // 높이 분산
+    const float Power   = PowerBase;
 
-    // 타이밍을 좌/우 각도로만 쓰고, 그 각도에 비례해 Y 성분 스케일
-    const float yawDeg   = FMath::Clamp(Timing, -1.f, 1.f) * MaxYawDeg;
-    const float yawScale = FMath::Cos(FMath::DegreesToRadians(FMath::Abs(yawDeg))); // 좌/우 꺾일수록 전진이 줄어드는 효과 보정
-    const float Ycomp    = BallDir * Power * Accuracy * yawScale;
+    // X 성분: 항상 –(Power*Accuracy) — 전진은 절대값으로 고정
+    const float Xcomp   = -Power * Accuracy;
 
-    // 높이 성분: HeightBat 기반 분산 → 아래에서 발사각 보정으로 최종 확정
-    float Zcomp = BallAng * Power * Accuracy;
+    //  Y 성분: Timing 기반 ‘절대’ 좌우, X와 무관하게 그대로 반영 (보정/스케일 제거)
+    const float BallDir = FMath::Lerp(2.f, -2.f, (Timing + 1.f) * 0.5f);
+    const float Ycomp   = BallDir * Power * Accuracy;
 
-    // 원하는 "목표 속도" 초기값(규칙 반영)
+    // ✅ Z 성분: HeightBat 기반, 이후 발사각 보정 단계에서 각도만 클램프
+    const float BallAng = FMath::Lerp(5.f, 2.f, (HeightBat + 1.f) * 0.5f);
+    float Zcomp         = BallAng * Power * Accuracy;
+
     FVector Vtarget(Xcomp, Ycomp, Zcomp);
 
     // ==== 2) 발사각 강제(지상타 방지/너무 뜨는 것 방지) ====
@@ -285,7 +282,6 @@ bool AHitBox::ApplyHitReal(float Timing, float HeightBat, float SideBat, ABall* 
         const float flatMag = FVector(Vtarget.X, Vtarget.Y, 0.f).Size();
         float up = Vtarget.Z;
 
-        // 최소/최대 발사각 범위로 Z 성분 조정
         const float minUp = flatMag * FMath::Tan(FMath::DegreesToRadians(MinPitchDeg));
         const float maxUp = flatMag * FMath::Tan(FMath::DegreesToRadians(MaxPitchDeg));
         if (up <  minUp) up =  minUp;
@@ -294,7 +290,7 @@ bool AHitBox::ApplyHitReal(float Timing, float HeightBat, float SideBat, ABall* 
         Vtarget.Z = up;
     }
 
-    // ==== 3) 최종 속도 크기 클램프 (방향 보존) ====
+  
     {
         const float spd = Vtarget.Size();
         if (spd > KINDA_SMALL_NUMBER)
@@ -304,26 +300,21 @@ bool AHitBox::ApplyHitReal(float Timing, float HeightBat, float SideBat, ABall* 
         }
         else
         {
-            // 혹시 0에 수렴하면 안전한 전진값 부여
             Vtarget = FVector(-1.f, 0.f, 0.f) * VminClamp;
         }
     }
 
-    // ==== 4) 역학 적용: 충격량–운동량 정리로 "Vout" 산출 ====
-    //   J = m (Vout - Vin)  →  Vout = Vin + J/m
-    // 여기서는 "게임 의도에 맞춘 목표 속도 Vtarget"이 되도록 필요한 J를 계산한 뒤,
-    // 그 결과 Vout = Vin + J/m = Vtarget 으로 사용.
-    const FVector Vin = Ball->GetVelocity();         // 현재 속도(있으면)
-    const FVector dV  = Vtarget - Vin;               // 필요한 속도 변화량
-    const FVector J   = mBall * dV;                  // 필요한 충격량(로깅/분석용)
+    // ==== 4) 역학 적용: J로 정당화 (Vout = Vin + J/m = Vtarget) ====
+    const FVector Vin = Ball->GetVelocity();
+    const FVector dV  = Vtarget - Vin;
+    const FVector J   = mBall * dV;
 
-    // 최종 속도는 역학으로 산출한 결과(=Vtarget)로 사용
-    FVector Vout = Vin + J / mBall; // 수학적으로 Vtarget
+    FVector Vout = Vin + J / mBall; // = Vtarget
 
-    // 혹시라도 수치 오차로 X가 양수가 되면 재강제
+    
     if (Vout.X > 0.f) Vout.X = -FMath::Abs(Vout.X);
 
-    // 마지막 안전장치: 방향 보존 + 크기 재확정
+    // 최종 정규화 + 크기 재확정
     {
         const float Spd = FMath::Clamp(Vout.Size(), VminClamp, VmaxClamp);
         Vout = Vout.GetSafeNormal() * Spd;
@@ -331,6 +322,7 @@ bool AHitBox::ApplyHitReal(float Timing, float HeightBat, float SideBat, ABall* 
 
     // ==== 5) 적용 ====
     Ball->SetActorRotation(FRotator::ZeroRotator);
+    Ball->SetActorLocation(StrikeZoneActor->GetActorLocation());
     Ball->SetBallHit(Vout);
 
     UE_LOG(LogTemp, Warning,
@@ -343,6 +335,7 @@ bool AHitBox::ApplyHitReal(float Timing, float HeightBat, float SideBat, ABall* 
     }
     return true;
 }
+
 
 
 
