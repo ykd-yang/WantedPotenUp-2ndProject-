@@ -73,6 +73,8 @@ void ABatter::SetBallActor(class ABall* ball)
 	BallActor = ball;
 }
 
+
+
 // Called when the game starts or when spawned
 void ABatter::BeginPlay()
 {

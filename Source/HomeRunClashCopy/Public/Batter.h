@@ -27,6 +27,7 @@ public:
 	bool ApplySwingReal();
 	bool bCanSwing = true;
 	class ABall* BallActor;
+	
 
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	bool bIsHiting =false;
@@ -56,6 +57,7 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	void SetBallActor(class ABall* ball);
+	
 	
 
 };

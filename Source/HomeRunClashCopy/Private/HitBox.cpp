@@ -174,22 +174,19 @@ float AHitBox::CheckTiming(ABall* Ball)
 {
 	if (!Ball) return -999.f;
 
-	// 기준 컴포넌트(Z 중심): HitBox가 있으면 그걸, 없으면 Mesh
-	const USceneComponent* Comp =
-		HitBox ? static_cast<const USceneComponent*>(HitBox)
-			   : static_cast<const USceneComponent*>(HitBoxMesh);
+	UStaticMeshComponent* Comp = StrikeZoneActor->FindComponentByClass<UStaticMeshComponent>();
 	if (!Comp) return -999.f;
 
 	const float centerX = Comp->GetComponentLocation().X;
 	const float ballX   = Ball->GetActorLocation().X;
 	const float deltaX  = ballX - centerX;
 
-	constexpr float kHalfTiming=100.f;               
+	constexpr float kHalfTiming=50.f;              
 
 	if (FMath::Abs(deltaX) > kHalfTiming)
 		return -2.f;                                   // 범위 밖
 
-	// 범위 안: -40 -> -1, 0 -> 0, +40 -> +1
+	
 	return deltaX / kHalfTiming;
 }
 
@@ -250,84 +247,127 @@ bool AHitBox::ApplyHitReal(float Timing, float HeightBat, float SideBat, ABall* 
     if (Timing <= -1.9f || HeightBat <= -1.9f || SideBat <= -1.9f) return false;
 
     // ==== 튜닝 파라미터 ====
-    const float mBall          = 0.145f;   // kg (스케일용)
-    const float PowerBase      = 2000.f;   // 전체 파워 스케일
-    const float MinAccFloor    = 0.30f;    // 정확도 하한
-    const float MinPitchDeg    = 5.f;      // 최소 발사각(지상타 방지)
-    const float MaxPitchDeg    = 40.f;     // 최대 발사각(너무 뜨는 것 방지)
-    const float VminClamp      = 1600.f;   // 속도 하한
-    const float VmaxClamp      = 5000.f;   // 속도 상한
+    const float mBall        = 0.145f;   // kg (스케일용)
+    const float PowerBase    = 2000;   // 전체 파워 스케일
+    const float MinAccFloor  = 0.20f;    // 정확도 하한
+    const float MinPitchDeg  = 6.f;      // 최소 발사각
+    const float MaxPitchDeg  = 30.f;     // 최대 발사각
+    const float VminClamp    = 1500.f;   // 속도 하한
+    const float VmaxClamp    = 3800.f;   // 속도 상한
+
+    // 파울 라인 안전 각도(보수적으로 라인보다 살짝 좁게)
+    const float FoulAngleDeg = 43.f;
+    const float FoulRad      = FMath::DegreesToRadians(FoulAngleDeg);
 
     // ==== 1) 입력 → 파워/방향 성분 ====
-    float Accuracy = 1.f - FMath::Abs(FMath::Clamp(SideBat, -1.f, 1.f));
-    Accuracy = FMath::Max(Accuracy, MinAccFloor);
+    // Accuracy = max(1 - |clamp(SideBat)|, MinAccFloor)
+    const float SideClamped  = FMath::Clamp(SideBat, -1.f, 1.f);
+    const float Accuracy     = FMath::Max(1.f - FMath::Abs(SideClamped), MinAccFloor);
 
-    const float Power   = PowerBase;
+    const float Power = PowerBase;
 
-    // X 성분: 항상 –(Power*Accuracy) — 전진은 절대값으로 고정
+    // 고정 전방(-X), 타이밍 좌우(Y), 높이(Z)
     const float Xcomp   = -Power * Accuracy;
 
-    //  Y 성분: Timing 기반 ‘절대’ 좌우, X와 무관하게 그대로 반영 (보정/스케일 제거)
     const float BallDir = FMath::Lerp(1.5f, -1.5f, (Timing + 1.f) * 0.5f);
-    const float Ycomp   = BallDir * Power * Accuracy;
+    const float Ycomp   =  BallDir * Power * Accuracy;
 
-    // Z 성분: HeightBat 기반, 이후 발사각 보정 단계에서 각도만 클램프
-    const float BallAng = FMath::Lerp(5.f, 2.f, (HeightBat + 1.f) * 0.5f);
-    float Zcomp         = BallAng * Power * Accuracy;
+    const float BallAng = FMath::Lerp(1.f, 0.5f, (HeightBat + 1.f) * 0.5f);
+    float       Zcomp   =  BallAng * Power * Accuracy;
 
     FVector Vtarget(Xcomp, Ycomp, Zcomp);
 
-    // ==== 2) 발사각 강제(지상타 방지/너무 뜨는 것 방지) ====
+    // ==== 2) 발사각 강제(지상타/너무 뜸 방지) ====
     {
-        const float flatMag = FVector(Vtarget.X, Vtarget.Y, 0.f).Size();
-        float up = Vtarget.Z;
+        const float flatMagSq = Vtarget.X * Vtarget.X + Vtarget.Y * Vtarget.Y;
+        if (flatMagSq > KINDA_SMALL_NUMBER)
+        {
+            const float flatMag = FMath::Sqrt(flatMagSq);
 
-        const float minUp = flatMag * FMath::Tan(FMath::DegreesToRadians(MinPitchDeg));
-        const float maxUp = flatMag * FMath::Tan(FMath::DegreesToRadians(MaxPitchDeg));
-        if (up <  minUp) up =  minUp;
-        if (up >  maxUp) up =  maxUp;
+            const float MinPitchRad = FMath::DegreesToRadians(MinPitchDeg);
+            const float MaxPitchRad = FMath::DegreesToRadians(MaxPitchDeg);
+            const float minUp = flatMag * FMath::Tan(MinPitchRad);
+            const float maxUp = flatMag * FMath::Tan(MaxPitchRad);
 
-        Vtarget.Z = up;
+            float up = Vtarget.Z;
+            if (up <  minUp) up =  minUp;
+            if (up >  maxUp) up =  maxUp;
+        }
     }
 
-  
+    // ==== 3) 속도 크기 클램프 ====
     {
-        const float spd = Vtarget.Size();
-        if (spd > KINDA_SMALL_NUMBER)
+        const float spdSq = Vtarget.SizeSquared();
+        if (spdSq > KINDA_SMALL_NUMBER)
         {
+            const float spd     = FMath::Sqrt(spdSq);
             const float clamped = FMath::Clamp(spd, VminClamp, VmaxClamp);
-            Vtarget = Vtarget * (clamped / spd);
+            const float scale   = clamped / spd;
+            Vtarget *= scale;
         }
         else
         {
-            Vtarget = FVector(-1.f, 0.f, 0.f) * VminClamp;
+            Vtarget = FVector(-VminClamp, 0.f, 0.f);
         }
     }
 
-    
+    // ==== 4) 충격량/목표 속도 ====
     const FVector Vin = Ball->GetVelocity();
     const FVector dV  = Vtarget - Vin;
     const FVector J   = mBall * dV;
 
-    FVector Vout = Vin + J / mBall; // = Vtarget
+    FVector Vout = Vin + J / mBall; // = Vtarget (현재 모델에서는 결국 Vtarget)
 
-    
+    // 전방성 보장: X는 항상 음수
     if (Vout.X > 0.f) Vout.X = -FMath::Abs(Vout.X);
 
-    // 최종 정규화 + 크기 재확정
+    // ==== 5) 파울 방지(수평 방위각 클램프) ====
     {
-        const float Spd = FMath::Clamp(Vout.Size(), VminClamp, VmaxClamp);
-        Vout = Vout.GetSafeNormal() * Spd;
+        const float flatMagSq = Vout.X * Vout.X + Vout.Y * Vout.Y;
+        if (flatMagSq > KINDA_SMALL_NUMBER)
+        {
+            const float flatMag = FMath::Sqrt(flatMagSq);
+            // 전방(-X) 기준 0°, 좌우 Y로 각도 측정
+            const float phi        = FMath::Atan2(Vout.Y, -Vout.X);
+            const float phiClamped = FMath::Clamp(phi, -FoulRad, FoulRad);
+
+            float s, c;
+            FMath::SinCos(&s, &c, phiClamped); // s = sin, c = cos
+
+            // 수평 크기 유지하며 각도만 변경
+            Vout.X = -flatMag * c;
+            Vout.Y =  flatMag * s;
+        }
+
+        // 안전: X는 항상 음수
+        if (Vout.X > 0.f) Vout.X = -FMath::Abs(Vout.X);
     }
 
-    // ==== 5) 적용 ====
+    // ==== 6) 최종 정규화 + 크기 재확정 ====
+    {
+        const float spdSq = Vout.SizeSquared();
+        if (spdSq > KINDA_SMALL_NUMBER)
+        {
+            const float spd   = FMath::Sqrt(spdSq);
+            const float final = FMath::Clamp(spd, VminClamp, VmaxClamp);
+            Vout *= (final / spd);
+        }
+        else
+        {
+            Vout = FVector(-VminClamp, 0.f, 0.f);
+        }
+    }
+
+    // ==== 7) 적용 ====
+    const FVector SpawnLoc = StrikeZoneActor->GetActorLocation();
+    SpawnEffect(SpawnLoc);
     Ball->SetActorRotation(FRotator::ZeroRotator);
-    Ball->SetActorLocation(StrikeZoneActor->GetActorLocation());
+    Ball->SetActorLocation(SpawnLoc);
     Ball->SetBallHit(Vout);
 
     UE_LOG(LogTemp, Warning,
-        TEXT("ApplyHitReal -> T:%f H:%f S:%f | Acc:%f | Power:%f | Vin:%s Vout:%s | J:%s"),
-        Timing, HeightBat, SideBat, Accuracy, Power, *Vin.ToString(), *Vout.ToString(), *J.ToString());
+        TEXT("ApplyHitReal -> T:%f H:%f S:%f | Acc:%f | Power:%f | Vin:%s Vout:%s | J:%s | FoulAngle:%f"),
+        Timing, HeightBat, SideBat, Accuracy, Power, *Vin.ToString(), *Vout.ToString(), *J.ToString(), FoulAngleDeg);
 
     if (ABaseBallGameMode* GM = Cast<ABaseBallGameMode>(UGameplayStatics::GetGameMode(this)))
     {
@@ -337,6 +377,22 @@ bool AHitBox::ApplyHitReal(float Timing, float HeightBat, float SideBat, ABall* 
 }
 
 
+
+void AHitBox::SpawnEffect(const FVector& SpawnLocation)
+{
+	if (ExplosionEffect)
+	{
+		// 2. GameplayStatics를 이용해 파티클 스폰
+		UGameplayStatics::SpawnEmitterAtLocation(
+			GetWorld(),         // 현재 월드
+			ExplosionEffect,    // 스폰할 파티클 (UPROPERTY 변수)
+			SpawnLocation,      // 스폰할 위치
+			FRotator::ZeroRotator // 회전 없음
+		);
+
+		UE_LOG(LogTemp, Warning, TEXT("파티클 이펙트를 스폰했습니다!"));
+	}
+}
 
 
 // Called every frame
