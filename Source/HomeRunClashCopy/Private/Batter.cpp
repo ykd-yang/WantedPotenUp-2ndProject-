@@ -52,7 +52,16 @@ bool ABatter::ApplySwingReal()
 		float Height = MyHitBox->CheckHeight(BallActor);
 		float Side = MyHitBox->CheckSide(BallActor);
 		UE_LOG(LogTemp, Warning, TEXT("Timing: %f, HeightBat: %f, SideBat: %f, Ball Address: %p"), Timing, Height, Side, BallActor);
-		return MyHitBox-> ApplyHitReal(Timing,Height,Side,BallActor);
+		bool bIsSucced =  MyHitBox-> ApplyHitReal(Timing,Height,Side,BallActor);
+		if (bIsSucced)
+		{
+			OnHit.Broadcast(Timing, BallActor);
+			return true;
+		}
+		else
+		{
+			return false; 
+		}
 	}
 	return false;
 }

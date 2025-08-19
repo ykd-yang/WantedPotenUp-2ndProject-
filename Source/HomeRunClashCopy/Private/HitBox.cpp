@@ -246,7 +246,7 @@ bool AHitBox::ApplyHitReal(float Timing, float HeightBat, float SideBat, ABall* 
     if (!Ball) return false;
     if (Timing <= -1.9f || HeightBat <= -1.9f || SideBat <= -1.9f) return false;
 
-    // ==== 튜닝 파라미터 ====
+    
     const float mBall        = 0.145f;   // kg (스케일용)
     const float PowerBase    = 2000;   // 전체 파워 스케일
     const float MinAccFloor  = 0.20f;    // 정확도 하한
@@ -259,8 +259,7 @@ bool AHitBox::ApplyHitReal(float Timing, float HeightBat, float SideBat, ABall* 
     const float FoulAngleDeg = 43.f;
     const float FoulRad      = FMath::DegreesToRadians(FoulAngleDeg);
 
-    // ==== 1) 입력 → 파워/방향 성분 ====
-    // Accuracy = max(1 - |clamp(SideBat)|, MinAccFloor)
+    
     const float SideClamped  = FMath::Clamp(SideBat, -1.f, 1.f);
     const float Accuracy     = FMath::Max(1.f - FMath::Abs(SideClamped), MinAccFloor);
 
@@ -277,7 +276,7 @@ bool AHitBox::ApplyHitReal(float Timing, float HeightBat, float SideBat, ABall* 
 
     FVector Vtarget(Xcomp, Ycomp, Zcomp);
 
-    // ==== 2) 발사각 강제(지상타/너무 뜸 방지) ====
+    
     {
         const float flatMagSq = Vtarget.X * Vtarget.X + Vtarget.Y * Vtarget.Y;
         if (flatMagSq > KINDA_SMALL_NUMBER)
@@ -295,7 +294,7 @@ bool AHitBox::ApplyHitReal(float Timing, float HeightBat, float SideBat, ABall* 
         }
     }
 
-    // ==== 3) 속도 크기 클램프 ====
+  
     {
         const float spdSq = Vtarget.SizeSquared();
         if (spdSq > KINDA_SMALL_NUMBER)
