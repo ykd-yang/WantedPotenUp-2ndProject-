@@ -24,10 +24,10 @@ ABall::ABall()
 		BallMesh->SetNotifyRigidBodyCollision(true);
 		BallMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 		BallMesh->SetCollisionObjectType(ECC_GameTraceChannel3);
-		BallMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel5, ECR_Overlap);
-		BallMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel4, ECR_Overlap);
-		BallMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECR_Block);
-		BallMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldDynamic, ECR_Block);
+		BallMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel5, ECR_Overlap); //strikezone
+		BallMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel4, ECR_Overlap); //hitbox
+		//BallMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECR_Block);
+		//BallMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldDynamic, ECR_Block);
 		BallMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel6, ECR_Block); //homerun
 		BallMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel7, ECR_Block); //ground
 		
