@@ -46,7 +46,7 @@ public:
 	FVector Plane;
 
 	UPROPERTY(EditAnywhere, Category = "Effects")
-	UParticleSystem* ExplosionEffect;
+	class UParticleSystem* ExplosionEffect;
 	
 
 	float CheckTiming(class ABall* Ball);
