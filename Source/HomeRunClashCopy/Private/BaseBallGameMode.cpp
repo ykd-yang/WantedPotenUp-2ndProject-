@@ -175,7 +175,7 @@ void ABaseBallGameMode::OnBallHitTick()
 	//비거리 표시
 	if (!didBallFall)	// !!공이 배트 이외의 물체를 닿았냐
 		{
-			InGameUI->UpdateBallDistance(5);	// !!strikezone location, ball location length
+			InGameUI->UpdateBallDistance();	// !!strikezone location, ball location length
 		}
 	else if (InGameUI->isJudgementDisplaying)	// 만약 판정UI가 남아 있다면 사라진 후에 표시
 	{
