@@ -14,20 +14,19 @@
 ABaseBallGameMode::ABaseBallGameMode()
 {
 	State = EGameModeState::None;
-	
 }
 
 void ABaseBallGameMode::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 	// Create Widget
 	if (nullptr != InGameUIClass)
 	{
 		InGameUI = CreateWidget<UInGameUI>(GetWorld(), InGameUIClass);
 		if (nullptr != InGameUI)
 		{
-			InGameUI->AddToViewport();	// Display Widget
+			InGameUI->AddToViewport(); // Display Widget
 		}
 	}
 
@@ -41,56 +40,40 @@ void ABaseBallGameMode::BeginPlay()
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Pitcher is null"));
 	}
-	
+
 	ChangeState(EGameModeState::Start);
 }
 
-void ABaseBallGameMode::Tick(float DeltaSeconds)
+void ABaseBallGameMode::Tick(float DeltaTime)
 {
-	Super::Tick(DeltaSeconds);
-	UE_LOG(LogTemp, Warning, TEXT("123"));
-	
-	
+	Super::Tick(DeltaTime);
 
-		UEnum* EnumPtr = FindObject<UEnum>(ANY_PACKAGE, TEXT("EGameModeState"), true);
 
-			FString DisplayString = EnumPtr->GetDisplayNameTextByValue((int64)State).ToString();
-			GEngine->AddOnScreenDebugMessage(
-				-1, 
-				2.0f, 
-				FColor::Yellow,
-				FString::Printf(TEXT("%s"), *DisplayString) // <-- 여기서 * 사용
-			);
-			UE_LOG(LogTemp, Warning, TEXT("123"), *DisplayString);
-		
-	
-	
 	switch (State)
 	{
-		case EGameModeState::Start:
-			
-			OnStartTick();
-			break;
-		case EGameModeState::Throw:
-			OnThrowTick();
-			break;
-		case EGameModeState::BallHit:
-			OnBallHitTick();
-			break;
-		case EGameModeState::BallMiss:
-			OnBallMissTick();
-			break;
-		case EGameModeState::End:
-			OnEndTick();
-			break;
-		default:
-			break;
+	case EGameModeState::Start:
+
+		OnStartTick();
+		break;
+	case EGameModeState::Throw:
+		OnThrowTick();
+		break;
+	case EGameModeState::BallHit:
+		OnBallHitTick();
+		break;
+	case EGameModeState::BallMiss:
+		OnBallMissTick();
+		break;
+	case EGameModeState::End:
+		OnEndTick();
+		break;
+	default:
+		break;
 	}
 }
 
 void ABaseBallGameMode::ChangeState(EGameModeState NewState)
 {
-	UE_LOG(LogTemp, Warning, TEXT("123"));
 	if (State == NewState)
 		return;
 	switch (State)
@@ -113,9 +96,9 @@ void ABaseBallGameMode::ChangeState(EGameModeState NewState)
 	default:
 		break;
 	}
-	
+
 	State = NewState;
-	
+
 	switch (State)
 	{
 	case EGameModeState::Start:
@@ -139,14 +122,14 @@ void ABaseBallGameMode::ChangeState(EGameModeState NewState)
 
 FString ABaseBallGameMode::BallTypeToString(EBallType BT)
 {
-	switch(BT)
+	switch (BT)
 	{
-	case EBallType::Straight:  return TEXT("4FSB");
-	case EBallType::Curve:     return TEXT("CB");
-	case EBallType::Slider:    return TEXT("SL");
-	case EBallType::Fork:      return TEXT("FO");
-	case EBallType::ChangeUp:  return TEXT("CH");
-	case EBallType::Knuckle:   return TEXT("KN");
+	case EBallType::Straight: return TEXT("4FSB");
+	case EBallType::Curve: return TEXT("CB");
+	case EBallType::Slider: return TEXT("SL");
+	case EBallType::Fork: return TEXT("FO");
+	case EBallType::ChangeUp: return TEXT("CH");
+	case EBallType::Knuckle: return TEXT("KN");
 	default: return TEXT("Unknown");
 	}
 }
@@ -173,17 +156,19 @@ void ABaseBallGameMode::OnBallHitTick()
 	// 6. 1초후 카메라 타자시점 원상복귀
 	// 7. 바로 다시 Throw State
 	//비거리 표시
-	if (!didBallFall)	// !!공이 배트 이외의 물체를 닿았냐
-		{
-			InGameUI->UpdateBallDistance();	// !!strikezone location, ball location length
-		}
-	else if (InGameUI->isJudgementDisplaying)	// 만약 판정UI가 남아 있다면 사라진 후에 표시
-	{
-	}
-	else if (!InGameUI->isHomerunStateDisplaying)
-	{
-		InGameUI->DisplayHomerunState(isHomerun);	// !!홈런이냐 아니냐 -> 땅이냐 벽이냐
-	}
+	// if (!didBallFall) // !!공이 배트 이외의 물체를 닿았냐
+	// {
+	// 	InGameUI->UpdateBallDistance(); // strikezone location, ball location length
+	// }
+	// else if (InGameUI->isJudgementDisplaying) // 만약 판정UI가 남아 있다면 사라진 후에 표시
+	// {
+	// 	InGameUI->HideBallDistance();
+	// }
+	// else if (!InGameUI->isHomerunStateDisplaying)
+	// {
+	// 	InGameUI->DisplayHomerunState(isHomerun); // 홈런이냐 아니냐 -> 땅이냐 벽이냐
+	// 	InGameUI->HideBallDistance();
+	// }
 }
 
 void ABaseBallGameMode::OnBallMissTick()
@@ -199,18 +184,16 @@ void ABaseBallGameMode::OnEndTick()
 void ABaseBallGameMode::OnStartEnter()
 {
 	// 1. 화면이 타자시점이 된다
-	
+
 	// 2. 줌이되고 ReadyUI 표시
-	
+
 	// 3. 카메라가 Pitch방향으로 숙인다
-	
+
 	// 4. GoUI 표시
-	
+
 	// 5. 몇초 뒤 Throw State
 	FTimerHandle StartTimer;
-	GetWorld()->GetTimerManager().SetTimer(StartTimer,[this](){ChangeState(EGameModeState::Throw);},5,false);
-
-	
+	GetWorld()->GetTimerManager().SetTimer(StartTimer, [this]() { ChangeState(EGameModeState::Throw); }, 5, false);
 }
 
 void ABaseBallGameMode::OnThrowEnter()
@@ -219,12 +202,10 @@ void ABaseBallGameMode::OnThrowEnter()
 	{
 		InGameUI->isHomerunStateDisplaying = false;
 		// 카메라 원상복귀
-		
+
 		// 	1.공을 던진다 + 공의 정보를 가져온다
 		Pitcher->ThrowTrigger();
 	}
-	
-	
 }
 
 void ABaseBallGameMode::OnBallHitEnter()
@@ -233,6 +214,7 @@ void ABaseBallGameMode::OnBallHitEnter()
 	// 2. 공의 정보, 타자에서!!공의 방향, 타자에서!!타격 판정, tick에서 비거리 표시
 	//BallType = Ball->BallInfo.BallType;
 	InGameUI->DisplayBallInfo("BallTypeToString(BallType)");
+	;
 }
 
 void ABaseBallGameMode::OnBallMissEnter()
@@ -245,30 +227,32 @@ void ABaseBallGameMode::OnBallMissEnter()
 		InGameUI->DisplayMiss();
 		InGameUI->DisplayBallHitDirection(-2);
 		//BallType = Ball->BallInfo.BallType;
-		InGameUI->DisplayBallInfo("BallTypeToString(BallType)");	// 3. 공의 정보와 방향이 사라지면  4. 다시 Throw State
+		InGameUI->DisplayBallInfo("BallTypeToString(BallType)"); // 3. 공의 정보와 방향이 사라지면  4. 다시 Throw State
 		FTimerHandle MissTimer;
-		GetWorld()->GetTimerManager().SetTimer(MissTimer,[this](){ChangeState(EGameModeState::Throw);},InGameUI->DisplayTime,false);
+		GetWorld()->GetTimerManager().SetTimer(MissTimer, [this]() { ChangeState(EGameModeState::Throw); },
+		                                       InGameUI->DisplayTime, false);
 		InGameUI->DeductRemainingBalls();
 	}
 	// else if (ESlateVisibility::Visible == InGameUI->MissImage->GetVisibility())
 	// {
 	// 	
 	// }
-	else	// 헛스윙 시, 바로 !!타자에서 Miss 표시
+	else // 헛스윙 시, 바로 !!타자에서 Miss 표시
 	{
 		UE_LOG(LogTemp, Warning, TEXT("헛스윙 Miss"));
 		InGameUI->DisplayBallHitDirection(-2);
 		//BallType = Ball->BallInfo.BallType;
-		InGameUI->DisplayBallInfo("BallTypeToString(BallType)");	// 3. 공의 정보와 방향이 사라지면  4. 다시 Throw State
+		InGameUI->DisplayBallInfo("BallTypeToString(BallType)"); // 3. 공의 정보와 방향이 사라지면  4. 다시 Throw State
 		FTimerHandle MissTimer;
-		GetWorld()->GetTimerManager().SetTimer(MissTimer,[this](){ChangeState(EGameModeState::Throw);},InGameUI->DisplayTime,false);
+		GetWorld()->GetTimerManager().SetTimer(MissTimer, [this]() { ChangeState(EGameModeState::Throw); },
+		                                       InGameUI->DisplayTime, false);
 		InGameUI->DeductRemainingBalls();
 	}
 }
 
 void ABaseBallGameMode::OnEndEnter()
 {
-	if (InGameUI->IsStageCleared)	// 스테이지 클리어 시
+	if (InGameUI->IsStageCleared) // 스테이지 클리어 시
 	{
 		// 기존 UI 제거
 		if (InGameUI)
@@ -288,14 +272,14 @@ void ABaseBallGameMode::OnEndEnter()
 		// 마우스 커서 활성화
 		if (APlayerController* PlayerController = GetWorld()->GetFirstPlayerController())
 		{
-			PlayerController->bShowMouseCursor = true;	// 마우스 커서 보이게
+			PlayerController->bShowMouseCursor = true; // 마우스 커서 보이게
 			FInputModeUIOnly InputMode;
 			InputMode.SetWidgetToFocus(nullptr);
 			InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
-			PlayerController->SetInputMode(InputMode);	// UI 모드로 입력 전환
+			PlayerController->SetInputMode(InputMode); // UI 모드로 입력 전환
 		}
 	}
-	else	// 스테이지 실패 시
+	else // 스테이지 실패 시
 	{
 		// 기존 UI 제거
 		if (InGameUI)
@@ -315,11 +299,11 @@ void ABaseBallGameMode::OnEndEnter()
 		// 마우스 커서 활성화
 		if (APlayerController* PlayerController = GetWorld()->GetFirstPlayerController())
 		{
-			PlayerController->bShowMouseCursor = true;	// 마우스 커서 보이게
+			PlayerController->bShowMouseCursor = true; // 마우스 커서 보이게
 			FInputModeUIOnly InputMode;
 			InputMode.SetWidgetToFocus(nullptr);
 			InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
-			PlayerController->SetInputMode(InputMode);	// UI 모드로 입력 전환
+			PlayerController->SetInputMode(InputMode); // UI 모드로 입력 전환
 		}
 	}
 }
@@ -335,7 +319,8 @@ void ABaseBallGameMode::OnThrowExit()
 
 void ABaseBallGameMode::OnBallHitExit()
 {
-	didBallFall = false;	// didBallFall 초기화
+	didBallFall = false;
+	InGameUI->bHidingBallDistance = false;
 }
 
 void ABaseBallGameMode::OnBallMissExit()

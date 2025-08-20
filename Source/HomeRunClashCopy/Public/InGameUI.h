@@ -87,6 +87,10 @@ public:
 	// 비거리!!
 	UFUNCTION(BlueprintCallable)
 	void UpdateBallDistance();
+	UFUNCTION(BlueprintCallable)
+	void HideBallDistance();
+	bool bHidingBallDistance = false;
+	
 	// 홈런이냐 아니냐
 	UFUNCTION(BlueprintCallable)
 	void DisplayHomerunState(bool Homerun);

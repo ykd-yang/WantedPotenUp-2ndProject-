@@ -35,9 +35,6 @@ void UInGameUI::NativeConstruct()
 void UInGameUI::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
 	Super::NativeTick(MyGeometry, InDeltaTime);
-
-	
-
 }
 
 
@@ -46,7 +43,7 @@ void UInGameUI::UpdateHomerunGaugeText(float HomerunGauge)
 {
 	int32 HomerunGaugeInt = static_cast<int>(HomerunGauge);
 	FString HomerunGaugeString = FString::FromInt(HomerunGaugeInt);
-	
+
 	HomerunGaugeText->SetText(FText::FromString(HomerunGaugeString + "%"));
 }
 
@@ -56,14 +53,13 @@ void UInGameUI::DeductRemainingBalls()
 {
 	FString RemainingBallsString = RemainingBallText->GetText().ToString();
 	int32 RemainingBallsInt = FCString::Atoi(*RemainingBallsString) - 1;
-	RemainingBallText->SetText(FText::AsNumber(RemainingBallsInt));	// Deduct remaining balls.
-	
+	RemainingBallText->SetText(FText::AsNumber(RemainingBallsInt)); // Deduct remaining balls.
+
 	// Stage failed. (no more remaining balls)
 	if (RemainingBallsInt <= 0 && GameMode->HomerunsForWin > SuccessfulHomerun)
 	{
 		IsStageCleared = false;
 		GameMode->ChangeState(EGameModeState::End);
-		
 	}
 }
 
@@ -73,11 +69,12 @@ void UInGameUI::UpdateSuccessfulHomerun()
 {
 	FText SuccessfulHomerunText = FText::FromString(TEXT("{0}/{1}"));
 	SuccessfulHomerun += 1;
-	SuccessfulHomerunText = FText::Format(SuccessfulHomerunText,FText::AsNumber(SuccessfulHomerun) , FText::AsNumber(GameMode->HomerunsForWin));
-	MainMissionCounterText->SetText(SuccessfulHomerunText);	// Count after a successful homerun.
-	
+	SuccessfulHomerunText = FText::Format(SuccessfulHomerunText, FText::AsNumber(SuccessfulHomerun),
+	                                      FText::AsNumber(GameMode->HomerunsForWin));
+	MainMissionCounterText->SetText(SuccessfulHomerunText); // Count after a successful homerun.
+
 	// Stage cleared.
-	if (GameMode->HomerunsForWin <= SuccessfulHomerun)	// is there more successful homerun than stage required homerun?
+	if (GameMode->HomerunsForWin <= SuccessfulHomerun) // is there more successful homerun than stage required homerun?
 	{
 		IsStageCleared = true;
 		GameMode->ChangeState(EGameModeState::End);
@@ -90,12 +87,13 @@ void UInGameUI::DisplayBallInfo(FString BallType)
 {
 	// 입력 구종에 따라 구종표시 및 구종에 따른 랜덤 속력
 
-	
+
 	BallInfoOverlay->SetVisibility(ESlateVisibility::Visible);
-	PlayAnimation(BallInfoAnimation,0.f,1, EUMGSequencePlayMode::Forward,1.f);
+	PlayAnimation(BallInfoAnimation, 0.f, 1, EUMGSequencePlayMode::Forward, 1.f);
 	FTimerHandle BallInfoTimer;
 	GetWorld()->GetTimerManager().SetTimer(BallInfoTimer, this, &UInGameUI::HideBallInfo, DisplayTime, false);
 }
+
 // Hide Ball Info
 void UInGameUI::HideBallInfo()
 {
@@ -112,19 +110,24 @@ void UInGameUI::DisplayBallHitDirection(float BallHitDirection)
 	{
 		// Display Ball Direction
 		HitDirectionOverlay->SetVisibility(ESlateVisibility::Visible);
-		GetWorld()->GetTimerManager().SetTimer(HitDirectionTimer, this, &UInGameUI::HideBallHitDirection, DisplayTime, false);
+		GetWorld()->GetTimerManager().SetTimer(HitDirectionTimer, this, &UInGameUI::HideBallHitDirection, DisplayTime,
+		                                       false);
 		return;
 	}
-	float PositionX = FMath::GetMappedRangeValueClamped(FVector2D(-1.0f, 1.0f),FVector2D(-130.0f, 130.0f), BallHitDirection);	// Position X: -130 ~ 130
-	UCanvasPanelSlot* CanvasSlot = UWidgetLayoutLibrary::SlotAsCanvasSlot(HitIndicatorUI);	// Set Hit Indicator Position to Ball Direction
+	float PositionX = FMath::GetMappedRangeValueClamped(FVector2D(-1.0f, 1.0f), FVector2D(-130.0f, 130.0f),
+	                                                    BallHitDirection); // Position X: -130 ~ 130
+	UCanvasPanelSlot* CanvasSlot = UWidgetLayoutLibrary::SlotAsCanvasSlot(HitIndicatorUI);
+	// Set Hit Indicator Position to Ball Direction
 	FVector2D CanvasPosition = CanvasSlot->GetPosition();
 	CanvasPosition.X = PositionX;
 	CanvasSlot->SetPosition(CanvasPosition);
 	// Display Ball Direction & Indicator
 	HitIndicatorUI->SetVisibility(ESlateVisibility::Visible);
 	HitDirectionOverlay->SetVisibility(ESlateVisibility::Visible);
-	GetWorld()->GetTimerManager().SetTimer(HitDirectionTimer, this, &UInGameUI::HideBallHitDirection, DisplayTime, false);
+	GetWorld()->GetTimerManager().SetTimer(HitDirectionTimer, this, &UInGameUI::HideBallHitDirection, DisplayTime,
+	                                       false);
 }
+
 // Hide Ball Direction and Indicator
 void UInGameUI::HideBallHitDirection()
 {
@@ -134,7 +137,7 @@ void UInGameUI::HideBallHitDirection()
 
 
 // Display Ball Judgement UI
-void UInGameUI::DisplayBallJudgement(float Judgement)	
+void UInGameUI::DisplayBallJudgement(float Judgement)
 {
 	isJudgementDisplaying = true;
 	FTimerHandle JudgementTimer;
@@ -143,9 +146,10 @@ void UInGameUI::DisplayBallJudgement(float Judgement)
 
 void UInGameUI::HideBallJudgement()
 {
-	MissImage->SetVisibility(ESlateVisibility::Hidden);	// 변경 필요
+	MissImage->SetVisibility(ESlateVisibility::Hidden); // 변경 필요
 	isJudgementDisplaying = false;
 }
+
 // Display Miss UI
 void UInGameUI::DisplayMiss()
 {
@@ -153,7 +157,8 @@ void UInGameUI::DisplayMiss()
 	{
 		MissImage->SetVisibility(ESlateVisibility::Visible);
 		FTimerHandle MissTimer;
-		GetWorld()->GetTimerManager().SetTimer(MissTimer,[this](){MissImage->SetVisibility(ESlateVisibility::Hidden);},DisplayTime,false);
+		GetWorld()->GetTimerManager().SetTimer(
+			MissTimer, [this]() { MissImage->SetVisibility(ESlateVisibility::Hidden); }, DisplayTime, false);
 	}
 }
 
@@ -161,13 +166,43 @@ void UInGameUI::DisplayMiss()
 // Display Ball Distance
 void UInGameUI::UpdateBallDistance()
 {
-	AStrikeZone* StrikeZone = Cast<AStrikeZone>(UGameplayStatics::GetActorOfClass(GetWorld(), AStrikeZone::StaticClass()));
-	ABall* Ball = Cast<ABall>(UGameplayStatics::GetActorOfClass(GetWorld(), ABall::StaticClass()));
-	if (Ball && StrikeZone)
+	if (GEngine)
 	{
-		int32 Distance = FVector::Dist(Ball->GetActorLocation(), StrikeZone->GetActorLocation());
-		HitDistanceText->SetVisibility(ESlateVisibility::Visible);
+		FString DebugMessage = FString::Printf(
+			TEXT("My Actor is Ticking! Current Location"));
+		GEngine->AddOnScreenDebugMessage(1, 0.0f, FColor::Yellow, DebugMessage);
 	}
+	HitDistanceText->SetVisibility(ESlateVisibility::Visible);
+	
+	AStrikeZone* StrikeZone = Cast<AStrikeZone>(
+		UGameplayStatics::GetActorOfClass(GetWorld(), AStrikeZone::StaticClass()));
+	ABall* Ball = Cast<ABall>(UGameplayStatics::GetActorOfClass(GetWorld(), ABall::StaticClass()));
+	UCanvasPanelSlot* CanvasSlot = Cast<UCanvasPanelSlot>(HitDistanceText->Slot);
+	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
+
+	if (Ball && StrikeZone && PlayerController && CanvasSlot)
+	{
+		FVector2D ScreenPosition;
+		PlayerController->ProjectWorldLocationToScreen(Ball->GetActorLocation(), ScreenPosition);
+		CanvasSlot->SetPosition(ScreenPosition);
+
+		int32 Distance = FVector::Dist(Ball->GetActorLocation(), StrikeZone->GetActorLocation());
+		FText WinConditionText = FText::FromString(TEXT("{0}FT"));
+		FText WinCondition = FText::Format(WinConditionText, FText::AsNumber(Distance));
+		
+		
+	}
+}
+
+void UInGameUI::HideBallDistance()
+{
+	if (!bHidingBallDistance)
+	{
+		FTimerHandle BallDistanceTimer;
+		GetWorld()->GetTimerManager().SetTimer(BallDistanceTimer,
+										   [this]() { HitDistanceText->SetVisibility(ESlateVisibility::Hidden); }, 1, false);
+	}
+	
 }
 
 
@@ -176,25 +211,28 @@ void UInGameUI::DisplayHomerunState(bool Homerun)
 {
 	if (nullptr != this)
 	{
-		if (ESlateVisibility::Visible != HomerunImage->GetVisibility() && ESlateVisibility::Visible != HitImage->GetVisibility())
+		if (ESlateVisibility::Visible != HomerunImage->GetVisibility() && ESlateVisibility::Visible != HitImage->
+			GetVisibility())
 		{
 			FTimerHandle HomerunStateTimer;
 			isHomerunStateDisplaying = true;
-			if (Homerun)	// Display Homerun
+			if (Homerun) // Display Homerun
 			{
 				HomerunImage->SetVisibility(ESlateVisibility::Visible);
-				GetWorld()->GetTimerManager().SetTimer(HomerunStateTimer, this, &UInGameUI::HideHomerunState, DisplayTime, false);
+				GetWorld()->GetTimerManager().SetTimer(HomerunStateTimer, this, &UInGameUI::HideHomerunState,
+				                                       DisplayTime, false);
 				UpdateSuccessfulHomerun();
 			}
-			else	// Display Hit
+			else // Display Hit
 			{
-				UE_LOG(LogTemp, Warning, TEXT("1234567890"));
 				HitImage->SetVisibility(ESlateVisibility::Visible);
-				GetWorld()->GetTimerManager().SetTimer(HomerunStateTimer, this, &UInGameUI::HideHomerunState, DisplayTime, false);
+				GetWorld()->GetTimerManager().SetTimer(HomerunStateTimer, this, &UInGameUI::HideHomerunState,
+				                                       DisplayTime, false);
 			}
 		}
 	}
 }
+
 // Hide Homerun State
 void UInGameUI::HideHomerunState()
 {
@@ -204,10 +242,10 @@ void UInGameUI::HideHomerunState()
 
 	if (nullptr != GameMode->Ball)
 	{
-		GameMode->Ball->Destroy();
+		GameMode->Ball->Destroy(); // Destroy Ball
 	}
-	
-	FTimerHandle HideHomerunStateTimer;
-	GetWorld()->GetTimerManager().SetTimer(HideHomerunStateTimer,[this](){GameMode->ChangeState(EGameModeState::Throw);},1,false);
-}
 
+	FTimerHandle HideHomerunStateTimer;
+	GetWorld()->GetTimerManager().SetTimer(HideHomerunStateTimer,
+	                                       [this]() { GameMode->ChangeState(EGameModeState::Throw); }, 1, false);
+}
