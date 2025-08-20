@@ -4,8 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Ball.h"
 #include "Batter.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnHit,float,BaseBallDir,ABall*,HITBALL);
 UCLASS()
 class HOMERUNCLASHCOPY_API ABatter : public ACharacter
 {
@@ -27,6 +29,7 @@ public:
 	bool ApplySwingReal();
 	bool bCanSwing = true;
 	class ABall* BallActor;
+	
 
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	bool bIsHiting =false;
@@ -37,6 +40,9 @@ public:
 	
 	UPROPERTY()
 	class UUserWidget* AimWidgetInstance;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnHit OnHit;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Animation")
 	class UAnimMontage* SwingMontage;
@@ -56,6 +62,7 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	void SetBallActor(class ABall* ball);
+	
 	
 
 };

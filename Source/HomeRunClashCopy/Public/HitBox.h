@@ -44,6 +44,9 @@ public:
 	
 	float DepthOffset;
 	FVector Plane;
+
+	UPROPERTY(EditAnywhere, Category = "Effects")
+	class UParticleSystem* ExplosionEffect;
 	
 
 	float CheckTiming(class ABall* Ball);
@@ -51,6 +54,7 @@ public:
 	float CheckSide(class ABall* Ball);
 	bool ApplyHit(float Timing, float HeightBat, float SideBat, class ABall* ball);
 	bool ApplyHitReal(float Timing, float HeightBat, float SideBat, ABall* Ball);
+	void SpawnEffect(const FVector& SpawnLocation);
 	
 protected:
 	// Called when the game starts or when spawned
