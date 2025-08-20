@@ -30,7 +30,6 @@ void UInGameUI::NativeConstruct()
 	MainMissionCounterText->SetText(WinCondition);
 }
 
-
 // InGameUI Tick
 void UInGameUI::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
@@ -74,7 +73,8 @@ void UInGameUI::UpdateSuccessfulHomerun()
 	MainMissionCounterText->SetText(SuccessfulHomerunText); // Count after a successful homerun.
 
 	// Stage cleared.
-	if (GameMode->HomerunsForWin <= SuccessfulHomerun) // is there more successful homerun than stage required homerun?
+	if (GameMode->HomerunsForWin <= SuccessfulHomerun)
+	// is there more successful homerun than stage required homerun?
 	{
 		IsStageCleared = true;
 		GameMode->ChangeState(EGameModeState::End);
@@ -110,7 +110,8 @@ void UInGameUI::DisplayBallHitDirection(float BallHitDirection)
 	{
 		// Display Ball Direction
 		HitDirectionOverlay->SetVisibility(ESlateVisibility::Visible);
-		GetWorld()->GetTimerManager().SetTimer(HitDirectionTimer, this, &UInGameUI::HideBallHitDirection, DisplayTime,
+		GetWorld()->GetTimerManager().SetTimer(HitDirectionTimer, this, &UInGameUI::HideBallHitDirection,
+		                                       DisplayTime,
 		                                       false);
 		return;
 	}
@@ -173,7 +174,7 @@ void UInGameUI::UpdateBallDistance()
 		GEngine->AddOnScreenDebugMessage(1, 0.0f, FColor::Yellow, DebugMessage);
 	}
 	HitDistanceText->SetVisibility(ESlateVisibility::Visible);
-	
+
 	AStrikeZone* StrikeZone = Cast<AStrikeZone>(
 		UGameplayStatics::GetActorOfClass(GetWorld(), AStrikeZone::StaticClass()));
 	ABall* Ball = Cast<ABall>(UGameplayStatics::GetActorOfClass(GetWorld(), ABall::StaticClass()));
@@ -189,8 +190,6 @@ void UInGameUI::UpdateBallDistance()
 		int32 Distance = FVector::Dist(Ball->GetActorLocation(), StrikeZone->GetActorLocation());
 		FText WinConditionText = FText::FromString(TEXT("{0}FT"));
 		FText WinCondition = FText::Format(WinConditionText, FText::AsNumber(Distance));
-		
-		
 	}
 }
 
@@ -200,9 +199,11 @@ void UInGameUI::HideBallDistance()
 	{
 		FTimerHandle BallDistanceTimer;
 		GetWorld()->GetTimerManager().SetTimer(BallDistanceTimer,
-										   [this]() { HitDistanceText->SetVisibility(ESlateVisibility::Hidden); }, 1, false);
+		                                       [this]()
+		                                       {
+			                                       HitDistanceText->SetVisibility(ESlateVisibility::Hidden);
+		                                       }, 1, false);
 	}
-	
 }
 
 
@@ -247,5 +248,5 @@ void UInGameUI::HideHomerunState()
 
 	FTimerHandle HideHomerunStateTimer;
 	GetWorld()->GetTimerManager().SetTimer(HideHomerunStateTimer,
-	                                       [this]() { GameMode->ChangeState(EGameModeState::Throw); }, 1, false);
+	                                       [this]() { GameMode->ChangeState(EGameModeState::Throw); }, 2, false);
 }

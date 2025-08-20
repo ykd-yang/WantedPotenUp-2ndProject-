@@ -252,8 +252,8 @@ bool AHitBox::ApplyHitReal(float Timing, float HeightBat, float SideBat, ABall* 
     const float MinAccFloor  = 0.20f;    // 정확도 하한
     const float MinPitchDeg  = 6.f;      // 최소 발사각
     const float MaxPitchDeg  = 30.f;     // 최대 발사각
-    const float VminClamp    = 1500.f;   // 속도 하한
-    const float VmaxClamp    = 3800.f;   // 속도 상한
+    const float VminClamp    = 3000.f;   // 속도 하한
+    const float VmaxClamp    = 5000.f;   // 속도 상한
 
     // 파울 라인 안전 각도(보수적으로 라인보다 살짝 좁게)
     const float FoulAngleDeg = 43.f;

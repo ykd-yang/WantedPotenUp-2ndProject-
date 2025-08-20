@@ -109,4 +109,10 @@ public:
 	
 	ABall* Ball;
 	EBallType BallType;
+
+	UPROPERTY(EditAnywhere, Category = "StartCamera")
+	ACameraActor* StartCamera;
+	APlayerController* PlayerController;
+	
+	void SwitchToStartCamera(APlayerController* PlayerController);
 };

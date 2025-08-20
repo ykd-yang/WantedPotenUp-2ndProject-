@@ -24,6 +24,7 @@ protected:
 	virtual void NativeConstruct() override;
 
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
+
 	
 public:
 	UPROPERTY()
@@ -103,7 +104,7 @@ public:
 	bool isJudgementDisplaying;
 	bool isHomerunStateDisplaying;
 	
-	float DisplayTime = 3.0f;	// UI display time
+	float DisplayTime = 2.5f;	// UI display time
 	
 
 };

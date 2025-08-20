@@ -8,18 +8,25 @@
 #include "InGameUI.h"
 #include "StageClearUI.h"
 #include "StageFailUI.h"
+#include "Camera/CameraActor.h"
+#include "Camera/CameraComponent.h"
 #include "Components/Image.h"
 
 
 ABaseBallGameMode::ABaseBallGameMode()
 {
 	State = EGameModeState::None;
+
+	PrimaryActorTick.bCanEverTick = true;
 }
 
 void ABaseBallGameMode::BeginPlay()
 {
 	Super::BeginPlay();
 
+	PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	
+	
 	// Create Widget
 	if (nullptr != InGameUIClass)
 	{
@@ -156,19 +163,18 @@ void ABaseBallGameMode::OnBallHitTick()
 	// 6. 1초후 카메라 타자시점 원상복귀
 	// 7. 바로 다시 Throw State
 	//비거리 표시
-	// if (!didBallFall) // !!공이 배트 이외의 물체를 닿았냐
-	// {
-	// 	InGameUI->UpdateBallDistance(); // strikezone location, ball location length
-	// }
-	// else if (InGameUI->isJudgementDisplaying) // 만약 판정UI가 남아 있다면 사라진 후에 표시
-	// {
-	// 	InGameUI->HideBallDistance();
-	// }
-	// else if (!InGameUI->isHomerunStateDisplaying)
-	// {
-	// 	InGameUI->DisplayHomerunState(isHomerun); // 홈런이냐 아니냐 -> 땅이냐 벽이냐
-	// 	InGameUI->HideBallDistance();
-	// }
+	if (!didBallFall) // !!공이 배트 이외의 물체를 닿았냐
+	{
+		InGameUI->UpdateBallDistance(); // strikezone location, ball location length
+	}
+	else if (InGameUI->isJudgementDisplaying) // 만약 판정UI가 남아 있다면 사라진 후에 표시
+	{
+		InGameUI->HideBallDistance();
+	}
+	else if (!InGameUI->isHomerunStateDisplaying)
+	{
+		InGameUI->HideBallDistance();
+	}
 }
 
 void ABaseBallGameMode::OnBallMissTick()
@@ -202,7 +208,7 @@ void ABaseBallGameMode::OnThrowEnter()
 	{
 		InGameUI->isHomerunStateDisplaying = false;
 		// 카메라 원상복귀
-
+		SwitchToStartCamera(PlayerController);
 		// 	1.공을 던진다 + 공의 정보를 가져온다
 		Pitcher->ThrowTrigger();
 	}
@@ -213,8 +219,7 @@ void ABaseBallGameMode::OnBallHitEnter()
 	// 1. 타격시 성공
 	// 2. 공의 정보, 타자에서!!공의 방향, 타자에서!!타격 판정, tick에서 비거리 표시
 	//BallType = Ball->BallInfo.BallType;
-	InGameUI->DisplayBallInfo("BallTypeToString(BallType)");
-	;
+	InGameUI->DisplayBallInfo("BallTypeToString(BallType)");;
 }
 
 void ABaseBallGameMode::OnBallMissEnter()
@@ -270,7 +275,7 @@ void ABaseBallGameMode::OnEndEnter()
 			}
 		}
 		// 마우스 커서 활성화
-		if (APlayerController* PlayerController = GetWorld()->GetFirstPlayerController())
+		if (PlayerController)
 		{
 			PlayerController->bShowMouseCursor = true; // 마우스 커서 보이게
 			FInputModeUIOnly InputMode;
@@ -297,7 +302,7 @@ void ABaseBallGameMode::OnEndEnter()
 			}
 		}
 		// 마우스 커서 활성화
-		if (APlayerController* PlayerController = GetWorld()->GetFirstPlayerController())
+		if (PlayerController)
 		{
 			PlayerController->bShowMouseCursor = true; // 마우스 커서 보이게
 			FInputModeUIOnly InputMode;
@@ -329,4 +334,13 @@ void ABaseBallGameMode::OnBallMissExit()
 
 void ABaseBallGameMode::OnEndExit()
 {
+}
+
+void ABaseBallGameMode::SwitchToStartCamera(APlayerController* pc)
+{
+	if (pc && StartCamera)
+	{
+		// 부드럽게 시점 전환 (0.5초 동안)                                                                                                                                                
+		pc->SetViewTargetWithBlend(StartCamera, 0.5f);
+	}
 }
