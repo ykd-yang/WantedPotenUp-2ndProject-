@@ -201,6 +201,12 @@ void UInGameUI::HideHomerunState()
 	HomerunImage->SetVisibility(ESlateVisibility::Hidden);
 	HitImage->SetVisibility(ESlateVisibility::Hidden);
 	DeductRemainingBalls();
+
+	if (nullptr != GameMode->Ball)
+	{
+		GameMode->Ball->Destroy();
+	}
+	
 	FTimerHandle HideHomerunStateTimer;
 	GetWorld()->GetTimerManager().SetTimer(HideHomerunStateTimer,[this](){GameMode->ChangeState(EGameModeState::Throw);},1,false);
 }
