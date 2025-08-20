@@ -55,6 +55,9 @@ public:
 	UImage* HomerunImage;
 	UPROPERTY(meta = (BindWidget))
 	UImage* HitImage;
+	// Hit Distance
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* HitDistanceText;
 	
 	
 	UFUNCTION(BlueprintCallable)
@@ -64,7 +67,7 @@ public:
 	void DeductRemainingBalls();
 	UFUNCTION(BlueprintCallable)
 	void UpdateSuccessfulHomerun();
-	// 공의 정보
+	// 공의 정보!!
 	UFUNCTION(BlueprintCallable)
 	void DisplayBallInfo(FString BallType);
 	UFUNCTION(BlueprintCallable)
@@ -74,16 +77,16 @@ public:
 	void DisplayBallHitDirection(float BallHitDirection);
 	UFUNCTION(BlueprintCallable)
 	void HideBallHitDirection();
-	// 공의 판정
+	// 공의 판정!!
 	UFUNCTION(BlueprintCallable)
 	void DisplayBallJudgement(float Judgement);
 	UFUNCTION(BlueprintCallable)
 	void HideBallJudgement();
 	UFUNCTION(BlueprintCallable)
 	void DisplayMiss();
-	// 비거리
+	// 비거리!!
 	UFUNCTION(BlueprintCallable)
-	void UpdateBallDistance(float Distance);
+	void UpdateBallDistance();
 	// 홈런이냐 아니냐
 	UFUNCTION(BlueprintCallable)
 	void DisplayHomerunState(bool Homerun);

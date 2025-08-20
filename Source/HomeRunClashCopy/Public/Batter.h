@@ -4,8 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Ball.h"
 #include "Batter.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnHit,float,BaseBallDir,ABall*,HITBALL);
 UCLASS()
 class HOMERUNCLASHCOPY_API ABatter : public ACharacter
 {
@@ -38,6 +40,9 @@ public:
 	
 	UPROPERTY()
 	class UUserWidget* AimWidgetInstance;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnHit OnHit;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Animation")
 	class UAnimMontage* SwingMontage;

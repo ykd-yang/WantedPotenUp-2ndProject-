@@ -3,6 +3,7 @@
 
 #include "InGameUI.h"
 #include "BaseBallGameMode.h"
+#include "StrikeZone.h"
 #include "Blueprint/WidgetLayoutLibrary.h"
 #include "Components/CanvasPanelSlot.h"
 #include "Components/Image.h"
@@ -34,6 +35,8 @@ void UInGameUI::NativeConstruct()
 void UInGameUI::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
 	Super::NativeTick(MyGeometry, InDeltaTime);
+
+	
 
 }
 
@@ -156,9 +159,15 @@ void UInGameUI::DisplayMiss()
 
 
 // Display Ball Distance
-void UInGameUI::UpdateBallDistance(float Distance)
+void UInGameUI::UpdateBallDistance()
 {
-	
+	AStrikeZone* StrikeZone = Cast<AStrikeZone>(UGameplayStatics::GetActorOfClass(GetWorld(), AStrikeZone::StaticClass()));
+	ABall* Ball = Cast<ABall>(UGameplayStatics::GetActorOfClass(GetWorld(), ABall::StaticClass()));
+	if (Ball && StrikeZone)
+	{
+		int32 Distance = FVector::Dist(Ball->GetActorLocation(), StrikeZone->GetActorLocation());
+		HitDistanceText->SetVisibility(ESlateVisibility::Visible);
+	}
 }
 
 
@@ -192,6 +201,12 @@ void UInGameUI::HideHomerunState()
 	HomerunImage->SetVisibility(ESlateVisibility::Hidden);
 	HitImage->SetVisibility(ESlateVisibility::Hidden);
 	DeductRemainingBalls();
+
+	if (nullptr != GameMode->Ball)
+	{
+		GameMode->Ball->Destroy();
+	}
+	
 	FTimerHandle HideHomerunStateTimer;
 	GetWorld()->GetTimerManager().SetTimer(HideHomerunStateTimer,[this](){GameMode->ChangeState(EGameModeState::Throw);},1,false);
 }
