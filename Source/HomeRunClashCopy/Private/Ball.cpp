@@ -2,6 +2,7 @@
 #include "Ball.h"
 #include "AirResistanceLibraryFunction.h"
 #include "BaseBallGameMode.h"
+#include "HomerunEventer.h"
 #include "Engine/EngineTypes.h"
 #include "Components/PrimitiveComponent.h"
 #include "Indicator.h"
@@ -24,10 +25,10 @@ ABall::ABall()
 		BallMesh->SetNotifyRigidBodyCollision(true);
 		BallMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 		BallMesh->SetCollisionObjectType(ECC_GameTraceChannel3);
-		BallMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel5, ECR_Overlap);
-		BallMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel4, ECR_Overlap);
-		BallMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECR_Block);
-		BallMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldDynamic, ECR_Block);
+		BallMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel5, ECR_Overlap); //strikezone
+		BallMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel4, ECR_Overlap); //hitbox
+		//BallMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECR_Block);
+		//BallMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldDynamic, ECR_Block);
 		BallMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel6, ECR_Block); //homerun
 		BallMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel7, ECR_Block); //ground
 		
@@ -226,6 +227,12 @@ void ABall::OnBallHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimiti
 		{
 			Gm->isHomerun = true;
 			UE_LOG(LogTemp, Warning, TEXT("HomeRun HIT"));
+
+			AHomerunEventer* Hr = Cast<AHomerunEventer>(OtherActor);
+			if (Hr)
+			{
+				Hr->OnBallHit(GetActorLocation());
+			}
 		}
 		else if (Channel == ECC_GameTraceChannel7)
 		{
