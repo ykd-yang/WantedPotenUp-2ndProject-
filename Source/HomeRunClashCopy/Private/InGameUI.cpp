@@ -19,7 +19,9 @@ void UInGameUI::NativeConstruct()
 
 	// Get GameMode (to get variables)
 	GameMode = Cast<ABaseBallGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
-
+	AStrikeZone* StrikeZone = Cast<AStrikeZone>(
+			UGameplayStatics::GetActorOfClass(GetWorld(), AStrikeZone::StaticClass()));
+	StrikeZoneLocation = StrikeZone->GetActorLocation();
 	// Initializing remaining ball count on UI.
 	RemainingBallText->SetText(FText::AsNumber(GameMode->RemainingBalls));
 
@@ -28,6 +30,8 @@ void UInGameUI::NativeConstruct()
 	int32 WinConditionInt = GameMode->HomerunsForWin;
 	FText WinCondition = FText::Format(WinConditionText, FText::AsNumber(WinConditionInt));
 	MainMissionCounterText->SetText(WinCondition);
+
+	DistanceCanvasSlot = Cast<UCanvasPanelSlot>(HitDistanceText->Slot);
 }
 
 // InGameUI Tick
@@ -165,29 +169,17 @@ void UInGameUI::DisplayMiss()
 
 
 // Display Ball Distance
-void UInGameUI::UpdateBallDistance()
+void UInGameUI::UpdateBallDistance(ABall* ball, APlayerController* playercontroller)
 {
-	if (GEngine)
-	{
-		FString DebugMessage = FString::Printf(
-			TEXT("My Actor is Ticking! Current Location"));
-		GEngine->AddOnScreenDebugMessage(1, 0.0f, FColor::Yellow, DebugMessage);
-	}
 	HitDistanceText->SetVisibility(ESlateVisibility::Visible);
-
-	AStrikeZone* StrikeZone = Cast<AStrikeZone>(
-		UGameplayStatics::GetActorOfClass(GetWorld(), AStrikeZone::StaticClass()));
-	ABall* Ball = Cast<ABall>(UGameplayStatics::GetActorOfClass(GetWorld(), ABall::StaticClass()));
-	UCanvasPanelSlot* CanvasSlot = Cast<UCanvasPanelSlot>(HitDistanceText->Slot);
-	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
-
-	if (Ball && StrikeZone && PlayerController && CanvasSlot)
+	
+	if (ball && playercontroller && DistanceCanvasSlot)
 	{
 		FVector2D ScreenPosition;
-		PlayerController->ProjectWorldLocationToScreen(Ball->GetActorLocation(), ScreenPosition);
-		CanvasSlot->SetPosition(ScreenPosition);
+		playercontroller->ProjectWorldLocationToScreen(ball->GetActorLocation(), ScreenPosition);
+		DistanceCanvasSlot->SetPosition(ScreenPosition);
 
-		int32 Distance = FVector::Dist(Ball->GetActorLocation(), StrikeZone->GetActorLocation());
+		int32 Distance = FVector::Dist(ball->GetActorLocation(), StrikeZoneLocation);
 		FText WinConditionText = FText::FromString(TEXT("{0}FT"));
 		FText WinCondition = FText::Format(WinConditionText, FText::AsNumber(Distance));
 	}

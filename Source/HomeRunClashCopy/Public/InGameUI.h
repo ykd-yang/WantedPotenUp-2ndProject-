@@ -10,6 +10,7 @@
  * 
  */
 
+class UCanvasPanelSlot;
 class ABaseBallGameMode;
 class UTextBlock;
 class UImage;
@@ -29,6 +30,7 @@ protected:
 public:
 	UPROPERTY()
 	ABaseBallGameMode* GameMode;
+	
 	
 	// Homerun Gauge Text
 	UPROPERTY(meta = (BindWidget))
@@ -59,6 +61,8 @@ public:
 	// Hit Distance
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* HitDistanceText;
+	FVector StrikeZoneLocation;
+	UCanvasPanelSlot* DistanceCanvasSlot;
 	
 	
 	UFUNCTION(BlueprintCallable)
@@ -87,7 +91,7 @@ public:
 	void DisplayMiss();
 	// 비거리!!
 	UFUNCTION(BlueprintCallable)
-	void UpdateBallDistance();
+	void UpdateBallDistance(ABall* ball, APlayerController* playercontroller);
 	UFUNCTION(BlueprintCallable)
 	void HideBallDistance();
 	bool bHidingBallDistance = false;
