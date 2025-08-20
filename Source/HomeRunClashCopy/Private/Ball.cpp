@@ -2,6 +2,7 @@
 #include "Ball.h"
 #include "AirResistanceLibraryFunction.h"
 #include "BaseBallGameMode.h"
+#include "HomerunEventer.h"
 #include "Engine/EngineTypes.h"
 #include "Components/PrimitiveComponent.h"
 #include "Indicator.h"
@@ -226,6 +227,12 @@ void ABall::OnBallHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimiti
 		{
 			Gm->isHomerun = true;
 			UE_LOG(LogTemp, Warning, TEXT("HomeRun HIT"));
+
+			AHomerunEventer* Hr = Cast<AHomerunEventer>(OtherActor);
+			if (Hr)
+			{
+				Hr->OnBallHit(GetActorLocation());
+			}
 		}
 		else if (Channel == ECC_GameTraceChannel7)
 		{
