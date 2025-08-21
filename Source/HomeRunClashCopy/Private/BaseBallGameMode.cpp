@@ -169,10 +169,12 @@ void ABaseBallGameMode::OnBallHitTick()
 	}
 	else if (InGameUI->isJudgementDisplaying) // 만약 판정UI가 남아 있다면 사라진 후에 표시
 	{
+		UE_LOG(LogTemp, Warning, TEXT("isJudgementDisplaying"))
 		InGameUI->HideBallDistance();
 	}
 	else if (!InGameUI->isHomerunStateDisplaying)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("isHomerunStateDisplaying"))
 		InGameUI->HideBallDistance();
 	}
 }
