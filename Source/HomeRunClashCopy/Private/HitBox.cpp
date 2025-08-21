@@ -10,6 +10,7 @@
 #include "Blueprint/WidgetLayoutLibrary.h"
 #include "Components/BoxComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include <cmath>
 
 // Sets default values
 AHitBox::AHitBox()
@@ -246,16 +247,22 @@ bool AHitBox::ApplyHitReal(float Timing, float HeightBat, float SideBat, ABall* 
     if (!Ball) return false;
     if (Timing <= -1.9f || HeightBat <= -1.9f || SideBat <= -1.9f) return false;
 
-    
+	auto isCritical = [](float t, float h, float s)
+	{
+		return (FMath::Abs(t) <= 1.3f) &&
+		   (FMath::Abs(h) <= 1.3f) &&
+		   (FMath::Abs(s) <= 1.3f);
+	};
+	bool Critical = isCritical(Timing,HeightBat,SideBat);
     const float mBall        = 0.145f;   // kg (스케일용)
-    const float PowerBase    = 2000;   // 전체 파워 스케일
+    const float PowerBase    = 2600;   // 전체 파워 스케일
     const float MinAccFloor  = 0.20f;    // 정확도 하한
     const float MinPitchDeg  = 6.f;      // 최소 발사각
     const float MaxPitchDeg  = 30.f;     // 최대 발사각
     const float VminClamp    = 3000.f;   // 속도 하한
-    const float VmaxClamp    = 5000.f;   // 속도 상한
+    const float VmaxClamp    = 6000.f;   // 속도 상한
 
-    // 파울 라인 안전 각도(보수적으로 라인보다 살짝 좁게)
+ 
     const float FoulAngleDeg = 43.f;
     const float FoulRad      = FMath::DegreesToRadians(FoulAngleDeg);
 
@@ -276,7 +283,11 @@ bool AHitBox::ApplyHitReal(float Timing, float HeightBat, float SideBat, ABall* 
 
     FVector Vtarget(Xcomp, Ycomp, Zcomp);
 
-    
+	if (Critical)
+	{
+		Vtarget.X*=1.5;
+	}
+	
     {
         const float flatMagSq = Vtarget.X * Vtarget.X + Vtarget.Y * Vtarget.Y;
         if (flatMagSq > KINDA_SMALL_NUMBER)
@@ -333,16 +344,16 @@ bool AHitBox::ApplyHitReal(float Timing, float HeightBat, float SideBat, ABall* 
             float s, c;
             FMath::SinCos(&s, &c, phiClamped); // s = sin, c = cos
 
-            // 수평 크기 유지하며 각도만 변경
+            
             Vout.X = -flatMag * c;
             Vout.Y =  flatMag * s;
         }
 
-        // 안전: X는 항상 음수
+        
         if (Vout.X > 0.f) Vout.X = -FMath::Abs(Vout.X);
     }
 
-    // ==== 6) 최종 정규화 + 크기 재확정 ====
+    
     {
         const float spdSq = Vout.SizeSquared();
         if (spdSq > KINDA_SMALL_NUMBER)
