@@ -62,7 +62,7 @@ void AHitBox::BeginPlay()
 			AimWidget->AddToViewport();
 		}
 	}
-	GetWorld() -> GetFirstPlayerController() ->SetShowMouseCursor(true);
+	GetWorld() -> GetFirstPlayerController() ->SetShowMouseCursor(false);
 	//StrikeZoneActor = Cast<AStrikeZone>(UGameplayStatics::GetActorOfClass(GetWorld(),AStrikeZone::StaticClass()));
 	
 }
@@ -249,9 +249,9 @@ bool AHitBox::ApplyHitReal(float Timing, float HeightBat, float SideBat, ABall* 
 
 	auto isCritical = [](float t, float h, float s)
 	{
-		return (FMath::Abs(t) <= 1.3f) &&
-		   (FMath::Abs(h) <= 1.3f) &&
-		   (FMath::Abs(s) <= 1.3f);
+		return (FMath::Abs(t) <= 0.3f) &&
+		   (FMath::Abs(h) <= 0.3f) &&
+		   (FMath::Abs(s) <= 0.3f);
 	};
 	bool Critical = isCritical(Timing,HeightBat,SideBat);
     const float mBall        = 0.145f;   // kg (스케일용)
@@ -326,12 +326,12 @@ bool AHitBox::ApplyHitReal(float Timing, float HeightBat, float SideBat, ABall* 
     const FVector dV  = Vtarget - Vin;
     const FVector J   = mBall * dV;
 
-    FVector Vout = Vin + J / mBall; // = Vtarget (현재 모델에서는 결국 Vtarget)
+    FVector Vout = Vin + J / mBall; 
 
-    // 전방성 보장: X는 항상 음수
+    
     if (Vout.X > 0.f) Vout.X = -FMath::Abs(Vout.X);
 
-    // ==== 5) 파울 방지(수평 방위각 클램프) ====
+   
     {
         const float flatMagSq = Vout.X * Vout.X + Vout.Y * Vout.Y;
         if (flatMagSq > KINDA_SMALL_NUMBER)
@@ -368,9 +368,10 @@ bool AHitBox::ApplyHitReal(float Timing, float HeightBat, float SideBat, ABall* 
         }
     }
 
-    // ==== 7) 적용 ====
+    
     const FVector SpawnLoc = StrikeZoneActor->GetActorLocation();
-    SpawnEffect(SpawnLoc);
+
+	if (Critical)SpawnEffect(SpawnLoc);
     Ball->SetActorRotation(FRotator::ZeroRotator);
     Ball->SetActorLocation(SpawnLoc);
     Ball->SetBallHit(Vout);
@@ -382,6 +383,7 @@ bool AHitBox::ApplyHitReal(float Timing, float HeightBat, float SideBat, ABall* 
     if (ABaseBallGameMode* GM = Cast<ABaseBallGameMode>(UGameplayStatics::GetGameMode(this)))
     {
         if (GM->InGameUI) GM->InGameUI->DisplayBallHitDirection(Timing);
+    
     }
     return true;
 }
