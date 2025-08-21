@@ -241,19 +241,19 @@ float AHitBox::CheckHeight(ABall* Ball)
 	// 범위 안: -40 -> -1, 0 -> 0, +40 -> +1
 	return deltaZ / kHalfHeight;
 }
+bool AHitBox::CheckCritical(float Timing, float HeightBat,float SideBat)
+{
+	return (FMath::Abs(Timing) <= 0.3f) &&
+		   (FMath::Abs(HeightBat) <= 0.3f) &&
+		   (FMath::Abs(SideBat) <= 0.3f);
+}
 
 bool AHitBox::ApplyHitReal(float Timing, float HeightBat, float SideBat, ABall* Ball)
 {
     if (!Ball) return false;
     if (Timing <= -1.9f || HeightBat <= -1.9f || SideBat <= -1.9f) return false;
 
-	auto isCritical = [](float t, float h, float s)
-	{
-		return (FMath::Abs(t) <= 0.3f) &&
-		   (FMath::Abs(h) <= 0.3f) &&
-		   (FMath::Abs(s) <= 0.3f);
-	};
-	bool Critical = isCritical(Timing,HeightBat,SideBat);
+	bool IsCritical = CheckCritical(Timing,HeightBat,SideBat);
     const float mBall        = 0.145f;   // kg (스케일용)
     const float PowerBase    = 2600;   // 전체 파워 스케일
     const float MinAccFloor  = 0.20f;    // 정확도 하한
@@ -283,7 +283,7 @@ bool AHitBox::ApplyHitReal(float Timing, float HeightBat, float SideBat, ABall* 
 
     FVector Vtarget(Xcomp, Ycomp, Zcomp);
 
-	if (Critical)
+	if (IsCritical)
 	{
 		Vtarget.X*=1.5;
 	}
@@ -371,7 +371,7 @@ bool AHitBox::ApplyHitReal(float Timing, float HeightBat, float SideBat, ABall* 
     
     const FVector SpawnLoc = StrikeZoneActor->GetActorLocation();
 
-	if (Critical)SpawnEffect(SpawnLoc);
+	if (IsCritical)SpawnEffect(SpawnLoc);
     Ball->SetActorRotation(FRotator::ZeroRotator);
     Ball->SetActorLocation(SpawnLoc);
     Ball->SetBallHit(Vout);

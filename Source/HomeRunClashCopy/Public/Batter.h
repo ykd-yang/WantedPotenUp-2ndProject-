@@ -7,7 +7,7 @@
 #include "Ball.h"
 #include "Batter.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnHit,float,BaseBallDir,ABall*,HITBALL);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnHit,float,BaseBallDir,ABall*,HITBALL,bool, IsCritical);
 UCLASS()
 class HOMERUNCLASHCOPY_API ABatter : public ACharacter
 {
@@ -38,7 +38,7 @@ public:
 	TSubclassOf<class UUserWidget> AimWidgetClass;
 
 	
-	UPROPERTY()
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	class UUserWidget* AimWidgetInstance;
 
 	UPROPERTY(BlueprintAssignable)

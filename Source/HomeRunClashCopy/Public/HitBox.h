@@ -51,6 +51,7 @@ public:
 
 	float CheckTiming(class ABall* Ball);
 	float CheckHeight(class ABall* Ball);
+	bool CheckCritical(float Timing, float HeightBat, float SideBat);
 	float CheckSide(class ABall* Ball);
 	bool ApplyHit(float Timing, float HeightBat, float SideBat, class ABall* ball);
 	bool ApplyHitReal(float Timing, float HeightBat, float SideBat, ABall* Ball);

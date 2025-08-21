@@ -51,11 +51,13 @@ bool ABatter::ApplySwingReal()
 		float Timing =MyHitBox->CheckTiming(BallActor);
 		float Height = MyHitBox->CheckHeight(BallActor);
 		float Side = MyHitBox->CheckSide(BallActor);
+		bool Critical = MyHitBox->CheckCritical(Timing,Height,Side);
 		UE_LOG(LogTemp, Warning, TEXT("Timing: %f, HeightBat: %f, SideBat: %f, Ball Address: %p"), Timing, Height, Side, BallActor);
 		bool bIsSucced =  MyHitBox-> ApplyHitReal(Timing,Height,Side,BallActor);
 		if (bIsSucced)
 		{
-			OnHit.Broadcast(Timing, BallActor);
+			OnHit.Broadcast(Timing, BallActor,Critical);
+			
 			return true;
 		}
 		else
