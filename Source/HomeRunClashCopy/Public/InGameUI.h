@@ -84,7 +84,7 @@ public:
 	void HideBallHitDirection();
 	// 공의 판정!!
 	UFUNCTION(BlueprintCallable)
-	void DisplayBallJudgement(float Judgement);
+	void DisplayBallJudgement(float Judgement, bool isCritical);
 	UFUNCTION(BlueprintCallable)
 	void HideBallJudgement();
 	UFUNCTION(BlueprintCallable)
