@@ -60,6 +60,7 @@ void AHitBox::BeginPlay()
 		if (AimWidget)
 		{
 			AimWidget->AddToViewport();
+			AimWidget->SetVisibility(ESlateVisibility::Hidden);
 		}
 	}
 	GetWorld() -> GetFirstPlayerController() ->SetShowMouseCursor(false);

@@ -2,6 +2,8 @@
 
 
 #include "BaseBallGameMode.h"
+
+#include "HitBox.h"
 #include "Pitcher.h"
 #include "Blueprint/UserWidget.h"
 #include "Kismet/GameplayStatics.h"
@@ -9,6 +11,7 @@
 #include "MainMenuUI.h"
 #include "StageClearUI.h"
 #include "StageFailUI.h"
+#include "Blueprint/WidgetBlueprintLibrary.h"
 #include "Camera/CameraActor.h"
 #include "Camera/CameraComponent.h"
 #include "Components/Image.h"
@@ -26,17 +29,25 @@ void ABaseBallGameMode::BeginPlay()
 	Super::BeginPlay();
 
 	PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
-	
-	
+
 	// Create Widget
-	if (nullptr != InGameUIClass)
+	if (nullptr != MainMenuUIClass)
 	{
-		InGameUI = CreateWidget<UInGameUI>(GetWorld(), InGameUIClass);
-		if (nullptr != InGameUI)
+		MainMenuUI = CreateWidget<UMainMenuUI>(GetWorld(), MainMenuUIClass);
+		if (nullptr != MainMenuUI)
 		{
-			InGameUI->AddToViewport(); // Display Widget
+			MainMenuUI->AddToViewport(); // Display Widget
 		}
 	}
+
+	
+
+
+	InputModeUIOnly.SetWidgetToFocus(nullptr);
+	InputModeUIOnly.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+	PlayerController->SetInputMode(InputModeUIOnly);
+	
+
 
 	// Casting Pitcher
 	AActor* FoundPitcher = UGameplayStatics::GetActorOfClass(GetWorld(), APitcher::StaticClass());
@@ -48,8 +59,6 @@ void ABaseBallGameMode::BeginPlay()
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Pitcher is null"));
 	}
-
-	ChangeState(EGameModeState::Start);
 }
 
 void ABaseBallGameMode::Tick(float DeltaTime)
@@ -95,7 +104,7 @@ void ABaseBallGameMode::ChangeState(EGameModeState NewState)
 	case EGameModeState::Throw:
 		OnThrowExit();
 		break;
-		case EGameModeState::CalledShot:
+	case EGameModeState::CalledShot:
 		OnCalledShotExit();
 		break;
 	case EGameModeState::BallHit:
@@ -121,7 +130,7 @@ void ABaseBallGameMode::ChangeState(EGameModeState NewState)
 	case EGameModeState::Throw:
 		OnThrowEnter();
 		break;
-		case EGameModeState::CalledShot:
+	case EGameModeState::CalledShot:
 		OnCalledShotEnter();
 		break;
 	case EGameModeState::BallHit:
@@ -205,6 +214,10 @@ void ABaseBallGameMode::OnEndTick()
 //On Enter
 void ABaseBallGameMode::OnStartEnter()
 {
+	UWidgetBlueprintLibrary::GetAllWidgetsOfClass(GetWorld(), AllWidgets, UUserWidget::StaticClass(), true);
+	AllWidgets[0]->SetVisibility(ESlateVisibility::Visible);
+	PlayerController->bShowMouseCursor = false;
+	PlayerController->SetInputMode(InputModeGameOnly);
 	// 1. 화면이 타자시점이 된다
 
 	// 2. 줌이되고 ReadyUI 표시
@@ -298,10 +311,9 @@ void ABaseBallGameMode::OnEndEnter()
 		if (PlayerController)
 		{
 			PlayerController->bShowMouseCursor = true; // 마우스 커서 보이게
-			FInputModeUIOnly InputMode;
-			InputMode.SetWidgetToFocus(nullptr);
-			InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
-			PlayerController->SetInputMode(InputMode); // UI 모드로 입력 전환
+			InputModeUIOnly.SetWidgetToFocus(nullptr);
+			InputModeUIOnly.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+			PlayerController->SetInputMode(InputModeUIOnly); // UI 모드로 입력 전환
 		}
 	}
 	else // 스테이지 실패 시
@@ -325,10 +337,9 @@ void ABaseBallGameMode::OnEndEnter()
 		if (PlayerController)
 		{
 			PlayerController->bShowMouseCursor = true; // 마우스 커서 보이게
-			FInputModeUIOnly InputMode;
-			InputMode.SetWidgetToFocus(nullptr);
-			InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
-			PlayerController->SetInputMode(InputMode); // UI 모드로 입력 전환
+			InputModeUIOnly.SetWidgetToFocus(nullptr);
+			InputModeUIOnly.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+			PlayerController->SetInputMode(InputModeUIOnly); // UI 모드로 입력 전환
 		}
 	}
 }
@@ -369,22 +380,50 @@ void ABaseBallGameMode::SwitchToStartCamera(APlayerController* pc)
 	}
 }
 
-void ABaseBallGameMode::SwitchToMainMenu()
+
+void ABaseBallGameMode::SwitchToMainMenuUI()
 {
-	UE_LOG(LogTemp, Warning, TEXT("to mainmenu"))
+	
+	UWidgetBlueprintLibrary::GetAllWidgetsOfClass(GetWorld(), AllWidgets, UUserWidget::StaticClass(), true);
+
 	// 기존 UI 제거
-	if (InGameUI)
+	if (StageClearUI == AllWidgets[1])
+	{
+		StageClearUI->RemoveFromParent();
+		StageClearUI = nullptr;
+	}
+	if (StageFailUI == AllWidgets[1])
 	{
 		StageFailUI->RemoveFromParent();
 		StageFailUI = nullptr;
 	}
-	// 새로운 StageClearUI 생성
+
+	// 새로운 MainMenuUI 생성
 	if (MainMenuUIClass)
 	{
 		MainMenuUI = CreateWidget<UMainMenuUI>(GetWorld(), MainMenuUIClass);
 		if (MainMenuUI)
 		{
 			MainMenuUI->AddToViewport();
+		}
+	}
+}
+
+void ABaseBallGameMode::SwitchToInGameUI()
+{
+	// 기존 UI 제거
+	if (MainMenuUI)
+	{
+		MainMenuUI->RemoveFromParent();
+		MainMenuUI = nullptr;
+	}
+	// 새로운 InGameUI 생성
+	if (InGameUIClass)
+	{
+		InGameUI = CreateWidget<UInGameUI>(GetWorld(), InGameUIClass);
+		if (InGameUI)
+		{
+			InGameUI->AddToViewport();
 		}
 	}
 }

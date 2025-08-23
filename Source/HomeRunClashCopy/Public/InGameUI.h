@@ -53,6 +53,12 @@ public:
 	// Ball Jugdement
 	UPROPERTY(meta = (BindWidget))
 	UImage* MissImage;
+	UPROPERTY(meta = (BindWidget))
+	UImage* GoodImage;
+	UPROPERTY(meta = (BindWidget))
+	UImage* GreatImage;
+	UPROPERTY(meta = (BindWidget))
+	UImage* PerfectImage;
 	// Homerun State
 	UPROPERTY(meta = (BindWidget))
 	UImage* HomerunImage;
