@@ -85,10 +85,20 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* ComboText;
 	// Ready, Go
+	UPROPERTY(meta = (BindWidgetAnim), Transient)
+	UWidgetAnimation* ReadyAnimation;
+	UPROPERTY(meta = (BindWidgetAnim), Transient)
+	UWidgetAnimation* GoAnimation;
 	UPROPERTY(meta = (BindWidget))
 	UImage* ReadyImage;
 	UPROPERTY(meta = (BindWidget))
+	UImage* ReadyLeftImage;
+	UPROPERTY(meta = (BindWidget))
+	UImage* ReadyRightImage;
+	UPROPERTY(meta = (BindWidget))
 	UImage* GoImage;
+	UPROPERTY(meta = (BindWidget))
+	UImage* GoDisappearImage;
 
 	UFUNCTION(BlueprintCallable)
 	void UpdateHomerunGauge(int32 NewHomerunGauge);
@@ -140,7 +150,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void DisplayReady();
 	UFUNCTION(BlueprintCallable)
-	void HideyReady();
+	void HideReady();
 	UFUNCTION(BlueprintCallable)
 	void DisplayGo();
 	UFUNCTION(BlueprintCallable)
