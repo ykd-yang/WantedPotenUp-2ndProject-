@@ -326,28 +326,36 @@ void UInGameUI::DisplayCombo()
 
 void UInGameUI::DisplayReady()
 {
+	ReadyLeftImage->SetVisibility(ESlateVisibility::Visible);
+	ReadyRightImage->SetVisibility(ESlateVisibility::Visible);
 	ReadyImage->SetVisibility(ESlateVisibility::Visible);
+	PlayAnimation(ReadyAnimation);
 	FTimerHandle DisplayReadyTimer;
-	GetWorld()->GetTimerManager().SetTimer(DisplayReadyTimer, this, &UInGameUI::HideyReady, 1.85f, false);
+	GetWorld()->GetTimerManager().SetTimer(DisplayReadyTimer, this, &UInGameUI::HideReady, 1.75f, false);
 
 }
 
-void UInGameUI::HideyReady()
+void UInGameUI::HideReady()
 {
+	ReadyLeftImage->SetVisibility(ESlateVisibility::Hidden);
+	ReadyRightImage->SetVisibility(ESlateVisibility::Hidden);
 	ReadyImage->SetVisibility(ESlateVisibility::Hidden);
 	FTimerHandle HideReadyTimer;
-	GetWorld()->GetTimerManager().SetTimer(HideReadyTimer, this, &UInGameUI::DisplayGo, 2.7f, false);
+	GetWorld()->GetTimerManager().SetTimer(HideReadyTimer, this, &UInGameUI::DisplayGo, 2.35f, false);
 }
 
 void UInGameUI::DisplayGo()
 {
+	GoDisappearImage->SetVisibility(ESlateVisibility::Visible);
 	GoImage->SetVisibility(ESlateVisibility::Visible);
+	PlayAnimation(GoAnimation);
 	FTimerHandle DisplayGoTimer;
-	GetWorld()->GetTimerManager().SetTimer(DisplayGoTimer, this, &UInGameUI::HideGo, 1.1, false);
+	GetWorld()->GetTimerManager().SetTimer(DisplayGoTimer, this, &UInGameUI::HideGo, 1.16f, false);
 
 }
 
 void UInGameUI::HideGo()
 {
+	GoDisappearImage->SetVisibility(ESlateVisibility::Hidden);
 	GoImage->SetVisibility(ESlateVisibility::Hidden);
 }
