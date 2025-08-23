@@ -72,8 +72,8 @@ void APitcher::SpawnBall()
 		true);
 	Ball->AttachToComponent(PitcherSkeletal, AttachRule, FName("RightHandSocket"));
 
-	float randY = FMath::RandRange(-35, 35);
-	float randZ = FMath::RandRange(-35, 35);
+	float randY = FMath::RandRange(-20, 20);
+	float randZ = FMath::RandRange(-20, 20);
 	
 	Ball->Init(GetRandomBallInfo(), ThrowLocation + FVector(0, randY, randZ));
 
