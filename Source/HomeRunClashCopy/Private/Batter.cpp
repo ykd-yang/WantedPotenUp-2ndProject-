@@ -57,7 +57,7 @@ bool ABatter::ApplySwingReal()
 		if (bIsSucced)
 		{
 			//OnHit.Broadcast(Timing, BallActor,Critical);  실제 플레이용
-			OnHit.Broadcast(Timing, BallActor,bIsCritical); // 테스트용
+			OnHit.Broadcast(Timing, BallActor,true); // 테스트용
 			
 			return true;
 		}
@@ -87,6 +87,7 @@ void ABatter::PlayCallHitMontage()
 	{
 		AnimInstance->Montage_Play(CallHitMontage, 1.0f); 
 	}
+	bIsCritical = true;;
 }
 
 void ABatter::SetBallActor(class ABall* ball)
