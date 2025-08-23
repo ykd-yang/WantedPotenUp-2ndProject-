@@ -243,9 +243,9 @@ float AHitBox::CheckHeight(ABall* Ball)
 }
 bool AHitBox::CheckCritical(float Timing, float HeightBat,float SideBat)
 {
-	return (FMath::Abs(Timing) <= 0.3f) &&
-		   (FMath::Abs(HeightBat) <= 0.3f) &&
-		   (FMath::Abs(SideBat) <= 0.3f);
+	return (FMath::Abs(Timing) <= 1.f) &&
+		   (FMath::Abs(HeightBat) <= 1.f) &&
+		   (FMath::Abs(SideBat) <= 1.f);
 }
 
 bool AHitBox::ApplyHitReal(float Timing, float HeightBat, float SideBat, ABall* Ball)
