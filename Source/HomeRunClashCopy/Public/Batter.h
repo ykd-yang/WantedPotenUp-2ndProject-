@@ -21,6 +21,8 @@ public:
 	UPROPERTY(EditAnywhere)
 	class UInputAction* IA_Swing;
 	UPROPERTY(EditAnywhere)
+	class UInputAction* IA_Test;
+	UPROPERTY(EditAnywhere)
 	class UInputMappingContext * playerContext;
 	void PlayAnimSwing();
 	UFUNCTION(BlueprintCallable)
@@ -29,6 +31,8 @@ public:
 	bool ApplySwingReal();
 	bool bCanSwing = true;
 	class ABall* BallActor;
+
+	bool bIsCritical = false;
 	
 
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
@@ -47,7 +51,11 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Animation")
 	class UAnimMontage* SwingMontage;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Animation")
+	class UAnimMontage* CallHitMontage;
+
 	void PlaySwingMontage();
+	void PlayCallHitMontage();
 	
 	
 protected:
@@ -62,6 +70,7 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	void SetBallActor(class ABall* ball);
+	 void ForCriticalTest();
 	
 	
 

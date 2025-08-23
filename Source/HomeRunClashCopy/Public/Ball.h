@@ -10,7 +10,7 @@
 class ABaseBallGameMode;
 class UNiagaraComponent;
 
-UCLASS()
+UCLASS(Blueprintable)
 class HOMERUNCLASHCOPY_API ABall : public AActor
 {
 	GENERATED_BODY()

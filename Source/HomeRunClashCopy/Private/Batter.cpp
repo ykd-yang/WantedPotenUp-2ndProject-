@@ -56,7 +56,8 @@ bool ABatter::ApplySwingReal()
 		bool bIsSucced =  MyHitBox-> ApplyHitReal(Timing,Height,Side,BallActor);
 		if (bIsSucced)
 		{
-			OnHit.Broadcast(Timing, BallActor,Critical);
+			//OnHit.Broadcast(Timing, BallActor,Critical);  실제 플레이용
+			OnHit.Broadcast(Timing, BallActor,true); // 테스트용
 			
 			return true;
 		}
@@ -79,11 +80,25 @@ void ABatter::PlaySwingMontage()
 	
 }
 
+void ABatter::PlayCallHitMontage()
+{
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance && CallHitMontage)
+	{
+		AnimInstance->Montage_Play(CallHitMontage, 1.0f); 
+	}
+	bIsCritical = true;;
+}
+
 void ABatter::SetBallActor(class ABall* ball)
 {
 	BallActor = ball;
 }
 
+void ABatter::ForCriticalTest()
+{
+	bIsCritical  = !bIsCritical;
+}
 
 
 // Called when the game starts or when spawned
@@ -125,6 +140,7 @@ void ABatter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
     if (input)
     {
     	input -> BindAction(IA_Swing,ETriggerEvent::Triggered,this,&ABatter::PlaySwingMontage);
+    	input -> BindAction(IA_Test , ETriggerEvent::Triggered,this,&ABatter::PlayCallHitMontage);
     }
 
 }
