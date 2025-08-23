@@ -51,7 +51,11 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Animation")
 	class UAnimMontage* SwingMontage;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Animation")
+	class UAnimMontage* CallHitMontage;
+
 	void PlaySwingMontage();
+	void PlayCallHitMontage();
 	
 	
 protected:

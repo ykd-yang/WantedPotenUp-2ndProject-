@@ -80,6 +80,15 @@ void ABatter::PlaySwingMontage()
 	
 }
 
+void ABatter::PlayCallHitMontage()
+{
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance && CallHitMontage)
+	{
+		AnimInstance->Montage_Play(CallHitMontage, 1.0f); 
+	}
+}
+
 void ABatter::SetBallActor(class ABall* ball)
 {
 	BallActor = ball;
@@ -130,7 +139,7 @@ void ABatter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
     if (input)
     {
     	input -> BindAction(IA_Swing,ETriggerEvent::Triggered,this,&ABatter::PlaySwingMontage);
-    	input -> BindAction(IA_Test , ETriggerEvent::Triggered,this,&ABatter::ForCriticalTest);
+    	input -> BindAction(IA_Test , ETriggerEvent::Triggered,this,&ABatter::PlayCallHitMontage);
     }
 
 }
