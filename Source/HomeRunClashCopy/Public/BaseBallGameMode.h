@@ -9,6 +9,7 @@
 #include "BaseBallGameMode.generated.h"
 
 
+class AHitBox;
 class UMainMenuUI;
 class UStageFailUI;
 class UStageClearUI;
@@ -55,7 +56,7 @@ public:
 	// StageFail UI
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="UI")
 	TSubclassOf<UMainMenuUI> MainMenuUIClass;
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TObjectPtr<UMainMenuUI> MainMenuUI;
 	// InGame UI
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="UI")
@@ -125,9 +126,16 @@ public:
 	ACameraActor* StartCamera;
 	UPROPERTY()
 	APlayerController* PlayerController;
+	FInputModeUIOnly InputModeUIOnly;
+	FInputModeGameOnly InputModeGameOnly;
+	UPROPERTY()
+	TArray<UUserWidget*> AllWidgets;
 	
 	void SwitchToStartCamera(APlayerController* PlayerController);
 
 	UFUNCTION(BlueprintCallable)
-	void SwitchToMainMenu();
+	void SwitchToMainMenuUI();
+
+	UFUNCTION(BlueprintCallable)
+	void SwitchToInGameUI();
 };

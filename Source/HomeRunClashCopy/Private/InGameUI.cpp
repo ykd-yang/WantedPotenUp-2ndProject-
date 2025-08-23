@@ -145,14 +145,40 @@ void UInGameUI::HideBallHitDirection()
 void UInGameUI::DisplayBallJudgement(float Judgement, bool isCritical)
 {
 	isJudgementDisplaying = true;
-	FTimerHandle JudgementTimer;
+	if (isCritical)
+	{
+		
+	}
+	else	// Not Critical
+	{
+		if (Judgement > -0.33f && Judgement < 0.33f)
+		{
+			
+			PerfectImage->SetVisibility(ESlateVisibility::Visible);
+		}
+		else if (Judgement > -0.66f && Judgement < 0.66f)
+		{
+			
+			GreatImage->SetVisibility(ESlateVisibility::Visible);
+		}
+		else if (Judgement < 0.33f)
+		{
+			
+			GoodImage->SetVisibility(ESlateVisibility::Visible);
+		}
+	}
 	
+	
+	FTimerHandle JudgementTimer;
 	GetWorld()->GetTimerManager().SetTimer(JudgementTimer, this, &UInGameUI::HideBallJudgement, DisplayTime, false);
 }
 
 void UInGameUI::HideBallJudgement()
 {
-	MissImage->SetVisibility(ESlateVisibility::Hidden); // 변경 필요
+	
+	GoodImage->SetVisibility(ESlateVisibility::Hidden); // 변경 필요
+	GreatImage->SetVisibility(ESlateVisibility::Hidden); // 변경 필요
+	PerfectImage->SetVisibility(ESlateVisibility::Hidden); // 변경 필요
 	isJudgementDisplaying = false;
 }
 
