@@ -10,6 +10,7 @@
  * 
  */
 
+class UProgressBar;
 class UCanvasPanelSlot;
 class ABaseBallGameMode;
 class UTextBlock;
@@ -26,15 +27,16 @@ protected:
 
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 
-	
 public:
 	UPROPERTY()
 	ABaseBallGameMode* GameMode;
-	
-	
+
+
 	// Homerun Gauge Text
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* HomerunGaugeText;
+	UPROPERTY(meta = (BindWidget))
+	UProgressBar* HomerunGaugeBar;
 	// Main Mission Counter & Remaining Balls
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* RemainingBallText;
@@ -44,7 +46,7 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	UOverlay* HitDirectionOverlay;
 	UPROPERTY(meta = (BindWidget))
-	UImage* HitIndicatorUI;	
+	UImage* HitIndicatorUI;
 	// Ball Info & Animation
 	UPROPERTY(meta = (BindWidget))
 	UOverlay* BallInfoOverlay;
@@ -68,11 +70,30 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* HitDistanceText;
 	FVector StrikeZoneLocation;
+	UPROPERTY()
 	UCanvasPanelSlot* DistanceCanvasSlot;
-	
-	
+	// Cycling Homerun
+	UPROPERTY(meta = (BindWidget))
+	UImage* LeftOnImage;
+	UPROPERTY(meta = (BindWidget))
+	UImage* CenterOnImage;
+	UPROPERTY(meta = (BindWidget))
+	UImage* RightOnImage;
+	// Combo
+	UPROPERTY(meta = (BindWidget))
+	UOverlay* ComboOverlay;
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* ComboText;
+	// Ready, Go
+	UPROPERTY(meta = (BindWidget))
+	UImage* ReadyImage;
+	UPROPERTY(meta = (BindWidget))
+	UImage* GoImage;
+
 	UFUNCTION(BlueprintCallable)
-	void UpdateHomerunGaugeText(float HomerunGauge);
+	void UpdateHomerunGauge(int32 NewHomerunGauge);
+	UFUNCTION(BlueprintCallable)
+	void ResetHomerunGauge();
 	// 미션, 남은 공
 	UFUNCTION(BlueprintCallable)
 	void DeductRemainingBalls();
@@ -101,20 +122,39 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void HideBallDistance();
 	bool bHidingBallDistance = false;
-	
+
 	// 홈런이냐 아니냐
 	UFUNCTION(BlueprintCallable)
 	void DisplayHomerunState(bool Homerun);
 	UFUNCTION(BlueprintCallable)
 	void HideHomerunState();
-	
+
+	UFUNCTION(BlueprintCallable)
+	void DisplayCyclingHomerun(FString Direction);
+	UFUNCTION(BlueprintCallable)
+	void HideCyclingHomerun();
+
+	UFUNCTION(BlueprintCallable)
+	void DisplayCombo();
+
+	UFUNCTION(BlueprintCallable)
+	void DisplayReady();
+	UFUNCTION(BlueprintCallable)
+	void HideyReady();
+	UFUNCTION(BlueprintCallable)
+	void DisplayGo();
+	UFUNCTION(BlueprintCallable)
+	void HideGo();
+
+	int32 ComboNumber;
+
+	int32 HomerunGauge;
+
 	int32 SuccessfulHomerun = 0;
 	bool IsStageCleared;
 
 	bool isJudgementDisplaying;
 	bool isHomerunStateDisplaying;
-	
-	float DisplayTime = 2.5f;	// UI display time
-	
 
+	float DisplayTime = 2.5f; // UI display time
 };

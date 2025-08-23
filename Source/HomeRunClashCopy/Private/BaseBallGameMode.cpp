@@ -40,14 +40,9 @@ void ABaseBallGameMode::BeginPlay()
 		}
 	}
 
-	
-
-
 	InputModeUIOnly.SetWidgetToFocus(nullptr);
 	InputModeUIOnly.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
 	PlayerController->SetInputMode(InputModeUIOnly);
-	
-
 
 	// Casting Pitcher
 	AActor* FoundPitcher = UGameplayStatics::GetActorOfClass(GetWorld(), APitcher::StaticClass());
@@ -58,6 +53,13 @@ void ABaseBallGameMode::BeginPlay()
 	else
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Pitcher is null"));
+	}
+
+
+	AActor* FoundStartCamera = UGameplayStatics::GetActorOfClass(GetWorld(), ACameraActor::StaticClass());
+	if (FoundStartCamera)
+	{
+		StartCamera = Cast<ACameraActor>(FoundStartCamera);
 	}
 }
 
@@ -70,22 +72,22 @@ void ABaseBallGameMode::Tick(float DeltaTime)
 	{
 	case EGameModeState::Start:
 
-		OnStartTick();
+		OnStartTick(DeltaTime);
 		break;
 	case EGameModeState::Throw:
-		OnThrowTick();
+		OnThrowTick(DeltaTime);
 		break;
 	case EGameModeState::CalledShot:
-		OnCalledShotTick();
+		OnCalledShotTick(DeltaTime);
 		break;
 	case EGameModeState::BallHit:
-		OnBallHitTick();
+		OnBallHitTick(DeltaTime);
 		break;
 	case EGameModeState::BallMiss:
-		OnBallMissTick();
+		OnBallMissTick(DeltaTime);
 		break;
 	case EGameModeState::End:
-		OnEndTick();
+		OnEndTick(DeltaTime);
 		break;
 	default:
 		break;
@@ -166,19 +168,33 @@ void ABaseBallGameMode::GiveBallToGameMode(ABall* NewBall)
 }
 
 //On Tick
-void ABaseBallGameMode::OnStartTick()
+void ABaseBallGameMode::OnStartTick(float DeltaTime)
+{
+	ElapsedTime += DeltaTime;
+	if (ElapsedTime >= 1.0f) // 1초 기다림
+	{
+		FVector CurrentLoc = StartCamera->GetActorLocation();
+		FVector NewLoc = FMath::VInterpTo(CurrentLoc, TargetLocation, DeltaTime, 2.0f);
+		StartCamera->SetActorLocation(NewLoc);
+
+		if (FVector::Dist(TargetLocation, StartCamera->GetActorLocation()) < 4.9f)
+		{
+			FRotator CurrentRot = StartCamera->GetActorRotation();
+			FRotator NewRot = FMath::RInterpTo(CurrentRot, TargetRotation, DeltaTime, 2.0f);
+			StartCamera->SetActorRotation(NewRot);
+		}
+	}
+}
+
+void ABaseBallGameMode::OnThrowTick(float DeltaTime)
 {
 }
 
-void ABaseBallGameMode::OnThrowTick()
+void ABaseBallGameMode::OnCalledShotTick(float DeltaTime)
 {
 }
 
-void ABaseBallGameMode::OnCalledShotTick()
-{
-}
-
-void ABaseBallGameMode::OnBallHitTick()
+void ABaseBallGameMode::OnBallHitTick(float DeltaTime)
 {
 	// 3. 공이 땅에 닿으면 비거리 결정
 	// 4. 비거리 결정 후 타격상태 표시 
@@ -202,11 +218,11 @@ void ABaseBallGameMode::OnBallHitTick()
 	}
 }
 
-void ABaseBallGameMode::OnBallMissTick()
+void ABaseBallGameMode::OnBallMissTick(float DeltaTime)
 {
 }
 
-void ABaseBallGameMode::OnEndTick()
+void ABaseBallGameMode::OnEndTick(float DeltaTime)
 {
 }
 
@@ -219,16 +235,20 @@ void ABaseBallGameMode::OnStartEnter()
 	PlayerController->bShowMouseCursor = false;
 	PlayerController->SetInputMode(InputModeGameOnly);
 	// 1. 화면이 타자시점이 된다
-
 	// 2. 줌이되고 ReadyUI 표시
-
 	// 3. 카메라가 Pitch방향으로 숙인다
-
 	// 4. GoUI 표시
-
+	FTimerHandle DisplayReadyTimer;
+	GetWorld()->GetTimerManager().SetTimer(DisplayReadyTimer, [this]
+	{
+		if (InGameUI)
+		{
+			InGameUI->DisplayReady();
+		}
+	}, 1, false);
 	// 5. 몇초 뒤 Throw State
 	FTimerHandle StartTimer;
-	GetWorld()->GetTimerManager().SetTimer(StartTimer, [this]() { ChangeState(EGameModeState::Throw); }, 5, false);
+	GetWorld()->GetTimerManager().SetTimer(StartTimer, [this]() { ChangeState(EGameModeState::Throw); }, 5.7f, false);
 }
 
 void ABaseBallGameMode::OnThrowEnter()
@@ -257,6 +277,8 @@ void ABaseBallGameMode::OnBallHitEnter()
 
 void ABaseBallGameMode::OnBallMissEnter()
 {
+	InGameUI->ComboNumber = 0;
+	InGameUI->DisplayCombo();
 	// 1. 공이 지나간다
 	// 2. 지나간 후 남은 공갯수 차감, 공의 정보, 공의 방향, Miss표시(먼저 사라짐)
 	if (ESlateVisibility::Visible != InGameUI->MissImage->GetVisibility())
@@ -347,6 +369,7 @@ void ABaseBallGameMode::OnEndEnter()
 //On Exit
 void ABaseBallGameMode::OnStartExit()
 {
+	ElapsedTime = 0.f;
 }
 
 void ABaseBallGameMode::OnThrowExit()
@@ -383,7 +406,6 @@ void ABaseBallGameMode::SwitchToStartCamera(APlayerController* pc)
 
 void ABaseBallGameMode::SwitchToMainMenuUI()
 {
-	
 	UWidgetBlueprintLibrary::GetAllWidgetsOfClass(GetWorld(), AllWidgets, UUserWidget::StaticClass(), true);
 
 	// 기존 UI 제거

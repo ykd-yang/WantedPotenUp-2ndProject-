@@ -8,6 +8,7 @@
 #include "Components/CanvasPanelSlot.h"
 #include "Components/Image.h"
 #include "Components/Overlay.h"
+#include "Components/ProgressBar.h"
 #include "Components/TextBlock.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -20,7 +21,7 @@ void UInGameUI::NativeConstruct()
 	// Get GameMode (to get variables)
 	GameMode = Cast<ABaseBallGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
 	AStrikeZone* StrikeZone = Cast<AStrikeZone>(
-			UGameplayStatics::GetActorOfClass(GetWorld(), AStrikeZone::StaticClass()));
+		UGameplayStatics::GetActorOfClass(GetWorld(), AStrikeZone::StaticClass()));
 	StrikeZoneLocation = StrikeZone->GetActorLocation();
 	// Initializing remaining ball count on UI.
 	RemainingBallText->SetText(FText::AsNumber(GameMode->RemainingBalls));
@@ -32,6 +33,8 @@ void UInGameUI::NativeConstruct()
 	MainMissionCounterText->SetText(WinCondition);
 
 	DistanceCanvasSlot = Cast<UCanvasPanelSlot>(HitDistanceText->Slot);
+
+	ResetHomerunGauge();
 }
 
 // InGameUI Tick
@@ -41,13 +44,20 @@ void UInGameUI::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 }
 
 
-// Update Homerun Gauge 구현 필요
-void UInGameUI::UpdateHomerunGaugeText(float HomerunGauge)
+// Update Homerun Gauge
+void UInGameUI::UpdateHomerunGauge(int32 NewHomerunGauge)
 {
-	int32 HomerunGaugeInt = static_cast<int>(HomerunGauge);
-	FString HomerunGaugeString = FString::FromInt(HomerunGaugeInt);
+	HomerunGauge += NewHomerunGauge;
+	if (100 <= HomerunGauge) HomerunGauge = 100; // over 100
+	HomerunGaugeText->SetText(FText::Format(NSLOCTEXT("UI", "HomerunGauge", "{0}%"), FText::AsNumber(HomerunGauge)));
+	HomerunGaugeBar->SetPercent(HomerunGauge / 100.0f);
+}
 
-	HomerunGaugeText->SetText(FText::FromString(HomerunGaugeString + "%"));
+void UInGameUI::ResetHomerunGauge()
+{
+	HomerunGauge = 0;
+	HomerunGaugeText->SetText(FText::Format(NSLOCTEXT("UI", "HomerunGauge", "{0}%"), FText::AsNumber(HomerunGauge)));
+	HomerunGaugeBar->SetPercent(HomerunGauge);
 }
 
 
@@ -147,35 +157,32 @@ void UInGameUI::DisplayBallJudgement(float Judgement, bool isCritical)
 	isJudgementDisplaying = true;
 	if (isCritical)
 	{
-		
 	}
-	else	// Not Critical
+	else // Not Critical
 	{
 		if (Judgement > -0.33f && Judgement < 0.33f)
 		{
-			
+			UpdateHomerunGauge(30);
 			PerfectImage->SetVisibility(ESlateVisibility::Visible);
 		}
 		else if (Judgement > -0.66f && Judgement < 0.66f)
 		{
-			
+			UpdateHomerunGauge(15);
 			GreatImage->SetVisibility(ESlateVisibility::Visible);
 		}
-		else if (Judgement < 0.33f)
+		else
 		{
-			
+			UpdateHomerunGauge(7);
 			GoodImage->SetVisibility(ESlateVisibility::Visible);
 		}
 	}
-	
-	
+
 	FTimerHandle JudgementTimer;
 	GetWorld()->GetTimerManager().SetTimer(JudgementTimer, this, &UInGameUI::HideBallJudgement, DisplayTime, false);
 }
 
 void UInGameUI::HideBallJudgement()
 {
-	
 	GoodImage->SetVisibility(ESlateVisibility::Hidden); // 변경 필요
 	GreatImage->SetVisibility(ESlateVisibility::Hidden); // 변경 필요
 	PerfectImage->SetVisibility(ESlateVisibility::Hidden); // 변경 필요
@@ -199,7 +206,7 @@ void UInGameUI::DisplayMiss()
 void UInGameUI::UpdateBallDistance(ABall* ball, APlayerController* playercontroller)
 {
 	HitDistanceText->SetVisibility(ESlateVisibility::Visible);
-	
+
 	if (ball && playercontroller && DistanceCanvasSlot)
 	{
 		FVector2D ScreenPosition;
@@ -238,6 +245,7 @@ void UInGameUI::DisplayHomerunState(bool Homerun)
 			isHomerunStateDisplaying = true;
 			if (Homerun) // Display Homerun
 			{
+				ComboNumber += 1;
 				HomerunImage->SetVisibility(ESlateVisibility::Visible);
 				GetWorld()->GetTimerManager().SetTimer(HomerunStateTimer, this, &UInGameUI::HideHomerunState,
 				                                       DisplayTime, false);
@@ -245,6 +253,7 @@ void UInGameUI::DisplayHomerunState(bool Homerun)
 			}
 			else // Display Hit
 			{
+				ComboNumber = 0;
 				HitImage->SetVisibility(ESlateVisibility::Visible);
 				GetWorld()->GetTimerManager().SetTimer(HomerunStateTimer, this, &UInGameUI::HideHomerunState,
 				                                       DisplayTime, false);
@@ -259,6 +268,7 @@ void UInGameUI::HideHomerunState()
 	HomerunImage->SetVisibility(ESlateVisibility::Hidden);
 	HitImage->SetVisibility(ESlateVisibility::Hidden);
 	DeductRemainingBalls();
+	DisplayCombo();
 
 	if (nullptr != GameMode->Ball)
 	{
@@ -268,4 +278,76 @@ void UInGameUI::HideHomerunState()
 	FTimerHandle HideHomerunStateTimer;
 	GetWorld()->GetTimerManager().SetTimer(HideHomerunStateTimer,
 	                                       [this]() { GameMode->ChangeState(EGameModeState::Throw); }, 2, false);
+}
+
+void UInGameUI::DisplayCyclingHomerun(FString Direction)
+{
+	if (Direction == "Left")
+	{
+		LeftOnImage->SetVisibility(ESlateVisibility::Visible);
+	}
+	if (Direction == "Center")
+	{
+		CenterOnImage->SetVisibility(ESlateVisibility::Visible);
+	}
+	if (Direction == "Right")
+	{
+		RightOnImage->SetVisibility(ESlateVisibility::Visible);
+	}
+
+	FTimerHandle HideCyclingHomerunTimer;
+	GetWorld()->GetTimerManager().SetTimer(HideCyclingHomerunTimer, this, &UInGameUI::HideCyclingHomerun, DisplayTime, false);
+
+}
+
+void UInGameUI::HideCyclingHomerun()
+{
+	if (LeftOnImage->GetVisibility() == ESlateVisibility::Visible && CenterOnImage->GetVisibility() ==
+		ESlateVisibility::Visible && RightOnImage->GetVisibility() == ESlateVisibility::Visible)
+	{
+		LeftOnImage->SetVisibility(ESlateVisibility::Hidden);
+		CenterOnImage->SetVisibility(ESlateVisibility::Hidden);
+		RightOnImage->SetVisibility(ESlateVisibility::Hidden);
+	}
+}
+
+void UInGameUI::DisplayCombo()
+{
+	if (2 <= ComboNumber)
+	{
+		ComboText->SetText(FText::AsNumber(ComboNumber));
+		ComboOverlay->SetVisibility(ESlateVisibility::Visible);
+	}
+	else
+	{
+		ComboOverlay->SetVisibility(ESlateVisibility::Hidden);
+	}
+}
+
+void UInGameUI::DisplayReady()
+{
+	ReadyImage->SetVisibility(ESlateVisibility::Visible);
+	FTimerHandle DisplayReadyTimer;
+	GetWorld()->GetTimerManager().SetTimer(DisplayReadyTimer, this, &UInGameUI::HideyReady, 1.85f, false);
+
+}
+
+void UInGameUI::HideyReady()
+{
+	ReadyImage->SetVisibility(ESlateVisibility::Hidden);
+	FTimerHandle HideReadyTimer;
+	GetWorld()->GetTimerManager().SetTimer(HideReadyTimer, this, &UInGameUI::DisplayGo, 2.7f, false);
+}
+
+void UInGameUI::DisplayGo()
+{
+	GoImage->SetVisibility(ESlateVisibility::Visible);
+	FTimerHandle DisplayGoTimer;
+	GetWorld()->GetTimerManager().SetTimer(DisplayGoTimer, this, &UInGameUI::HideGo, 1.1, false);
+
+}
+
+void UInGameUI::HideGo()
+{
+	GoImage->SetVisibility(ESlateVisibility::Hidden);
 }

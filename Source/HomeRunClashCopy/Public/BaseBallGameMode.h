@@ -84,12 +84,12 @@ public:
 	
 private:
 	// Tick
-	void OnStartTick();
-	void OnThrowTick();
-	void OnCalledShotTick();
-	void OnBallHitTick();
-	void OnBallMissTick();
-	void OnEndTick();
+	void OnStartTick(float DeltaTime);
+	void OnThrowTick(float DeltaTime);
+	void OnCalledShotTick(float DeltaTime);
+	void OnBallHitTick(float DeltaTime);
+	void OnBallMissTick(float DeltaTime);
+	void OnEndTick(float DeltaTime);
 
 	//OnState Enter
 	void OnStartEnter();
@@ -122,8 +122,11 @@ public:
 	ABall* Ball;
 	EBallType BallType;
 
-	UPROPERTY(EditAnywhere, Category = "StartCamera")
+	UPROPERTY()
 	ACameraActor* StartCamera;
+	FVector TargetLocation = FVector(3380.0f,-470.0f,280.0f);
+	FRotator TargetRotation = FRotator(0.f,180.f,0.f);
+	float ElapsedTime;
 	UPROPERTY()
 	APlayerController* PlayerController;
 	FInputModeUIOnly InputModeUIOnly;
