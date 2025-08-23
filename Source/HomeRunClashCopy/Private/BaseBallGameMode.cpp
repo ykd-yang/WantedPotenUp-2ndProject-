@@ -371,11 +371,12 @@ void ABaseBallGameMode::SwitchToStartCamera(APlayerController* pc)
 
 void ABaseBallGameMode::SwitchToMainMenu()
 {
+	UE_LOG(LogTemp, Warning, TEXT("to mainmenu"))
 	// 기존 UI 제거
 	if (InGameUI)
 	{
-		InGameUI->RemoveFromParent();
-		InGameUI = nullptr;
+		StageFailUI->RemoveFromParent();
+		StageFailUI = nullptr;
 	}
 	// 새로운 StageClearUI 생성
 	if (MainMenuUIClass)
