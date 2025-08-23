@@ -142,10 +142,11 @@ void UInGameUI::HideBallHitDirection()
 
 
 // Display Ball Judgement UI
-void UInGameUI::DisplayBallJudgement(float Judgement)
+void UInGameUI::DisplayBallJudgement(float Judgement, bool isCritical)
 {
 	isJudgementDisplaying = true;
 	FTimerHandle JudgementTimer;
+	
 	GetWorld()->GetTimerManager().SetTimer(JudgementTimer, this, &UInGameUI::HideBallJudgement, DisplayTime, false);
 }
 

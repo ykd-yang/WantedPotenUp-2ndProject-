@@ -9,6 +9,7 @@
 #include "BaseBallGameMode.generated.h"
 
 
+class UMainMenuUI;
 class UStageFailUI;
 class UStageClearUI;
 class UInGameUI;
@@ -20,6 +21,7 @@ enum class EGameModeState : uint8
 	None		UMETA(DisplayName = "None"),
 	Start		UMETA(DisplayName = "Start"),
 	Throw		UMETA(DisplayName = "Throw"),
+	CalledShot	UMETA(DisplayName = "CalledShot"),
 	BallHit		UMETA(DisplayName = "BallHit"),
 	BallMiss	UMETA(DisplayName = "BallMiss"),
 	End			UMETA(DisplayName = "End"),
@@ -50,6 +52,11 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void ChangeState(EGameModeState NewState);
 
+	// StageFail UI
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="UI")
+	TSubclassOf<UMainMenuUI> MainMenuUIClass;
+	UPROPERTY()
+	TObjectPtr<UMainMenuUI> MainMenuUI;
 	// InGame UI
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="UI")
 	TSubclassOf<UInGameUI> InGameUIClass;
@@ -78,6 +85,7 @@ private:
 	// Tick
 	void OnStartTick();
 	void OnThrowTick();
+	void OnCalledShotTick();
 	void OnBallHitTick();
 	void OnBallMissTick();
 	void OnEndTick();
@@ -85,6 +93,7 @@ private:
 	//OnState Enter
 	void OnStartEnter();
 	void OnThrowEnter();
+	void OnCalledShotEnter();
 	void OnBallHitEnter();
 	void OnBallMissEnter();
 	void OnEndEnter();
@@ -92,6 +101,7 @@ private:
 	//OnState End
 	void OnStartExit();
 	void OnThrowExit();
+	void OnCalledShotExit();
 	void OnBallHitExit();
 	void OnBallMissExit();
 	void OnEndExit();
@@ -106,13 +116,18 @@ public:
 	// Variables for InGameUI
 	int32 RemainingBalls = 12;
 	int32 HomerunsForWin = 5; 
-	
+
+	UPROPERTY()
 	ABall* Ball;
 	EBallType BallType;
 
 	UPROPERTY(EditAnywhere, Category = "StartCamera")
 	ACameraActor* StartCamera;
+	UPROPERTY()
 	APlayerController* PlayerController;
 	
 	void SwitchToStartCamera(APlayerController* PlayerController);
+
+	UFUNCTION(BlueprintCallable)
+	void SwitchToMainMenu();
 };
