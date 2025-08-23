@@ -44,7 +44,7 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	UOverlay* HitDirectionOverlay;
 	UPROPERTY(meta = (BindWidget))
-	UImage* HitIndicatorUI;
+	UImage* HitIndicatorUI;	
 	// Ball Info & Animation
 	UPROPERTY(meta = (BindWidget))
 	UOverlay* BallInfoOverlay;
