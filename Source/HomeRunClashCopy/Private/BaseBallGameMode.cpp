@@ -6,6 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "Kismet/GameplayStatics.h"
 #include "InGameUI.h"
+#include "MainMenuUI.h"
 #include "StageClearUI.h"
 #include "StageFailUI.h"
 #include "Camera/CameraActor.h"
@@ -65,6 +66,9 @@ void ABaseBallGameMode::Tick(float DeltaTime)
 	case EGameModeState::Throw:
 		OnThrowTick();
 		break;
+	case EGameModeState::CalledShot:
+		OnCalledShotTick();
+		break;
 	case EGameModeState::BallHit:
 		OnBallHitTick();
 		break;
@@ -91,6 +95,9 @@ void ABaseBallGameMode::ChangeState(EGameModeState NewState)
 	case EGameModeState::Throw:
 		OnThrowExit();
 		break;
+		case EGameModeState::CalledShot:
+		OnCalledShotExit();
+		break;
 	case EGameModeState::BallHit:
 		OnBallHitExit();
 		break;
@@ -113,6 +120,9 @@ void ABaseBallGameMode::ChangeState(EGameModeState NewState)
 		break;
 	case EGameModeState::Throw:
 		OnThrowEnter();
+		break;
+		case EGameModeState::CalledShot:
+		OnCalledShotEnter();
 		break;
 	case EGameModeState::BallHit:
 		OnBallHitEnter();
@@ -152,6 +162,10 @@ void ABaseBallGameMode::OnStartTick()
 }
 
 void ABaseBallGameMode::OnThrowTick()
+{
+}
+
+void ABaseBallGameMode::OnCalledShotTick()
 {
 }
 
@@ -214,6 +228,10 @@ void ABaseBallGameMode::OnThrowEnter()
 		// 	1.공을 던진다 + 공의 정보를 가져온다
 		Pitcher->ThrowTrigger();
 	}
+}
+
+void ABaseBallGameMode::OnCalledShotEnter()
+{
 }
 
 void ABaseBallGameMode::OnBallHitEnter()
@@ -294,7 +312,7 @@ void ABaseBallGameMode::OnEndEnter()
 			InGameUI->RemoveFromParent();
 			InGameUI = nullptr;
 		}
-		// 새로운 StageClearUI 생성
+		// 새로운 StageFailUI 생성
 		if (StageFailUIClass)
 		{
 			StageFailUI = CreateWidget<UStageFailUI>(GetWorld(), StageFailUIClass);
@@ -324,6 +342,10 @@ void ABaseBallGameMode::OnThrowExit()
 {
 }
 
+void ABaseBallGameMode::OnCalledShotExit()
+{
+}
+
 void ABaseBallGameMode::OnBallHitExit()
 {
 	didBallFall = false;
@@ -344,5 +366,24 @@ void ABaseBallGameMode::SwitchToStartCamera(APlayerController* pc)
 	{
 		// 부드럽게 시점 전환 (0.5초 동안)                                                                                                                                                
 		pc->SetViewTargetWithBlend(StartCamera, 0.5f);
+	}
+}
+
+void ABaseBallGameMode::SwitchToMainMenu()
+{
+	// 기존 UI 제거
+	if (InGameUI)
+	{
+		InGameUI->RemoveFromParent();
+		InGameUI = nullptr;
+	}
+	// 새로운 StageClearUI 생성
+	if (MainMenuUIClass)
+	{
+		MainMenuUI = CreateWidget<UMainMenuUI>(GetWorld(), MainMenuUIClass);
+		if (MainMenuUI)
+		{
+			MainMenuUI->AddToViewport();
+		}
 	}
 }

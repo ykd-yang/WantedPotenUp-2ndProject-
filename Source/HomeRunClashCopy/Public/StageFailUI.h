@@ -6,7 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "StageFailUI.generated.h"
 
-class UButton;
+class UUserWidget;
 /**
  * 
  */
@@ -20,5 +20,5 @@ class HOMERUNCLASHCOPY_API UStageFailUI : public UUserWidget
 public:
 	// Exit Button
 	UPROPERTY(meta = (BindWidget))
-	UButton* ExitButton;
+	UUserWidget* WBP_ExitButton;
 };
