@@ -26,7 +26,7 @@ void UInGameUI::NativeConstruct()
 		OSTAudioComponent->SetSound(OSTSound);
 		OSTAudioComponent->RegisterComponentWithWorld(GetWorld());
 	}
-	
+
 	// Get GameMode (to get variables)
 	GameMode = Cast<ABaseBallGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
 	AStrikeZone* StrikeZone = Cast<AStrikeZone>(
@@ -80,8 +80,7 @@ void UInGameUI::DeductRemainingBalls()
 	// Stage failed. (no more remaining balls)
 	if (RemainingBallsInt <= 0 && GameMode->HomerunsForWin > SuccessfulHomerun)
 	{
-		IsStageCleared = false;
-		GameMode->ChangeState(EGameModeState::End);
+		IsStageCleared = 0;
 	}
 }
 
@@ -99,8 +98,7 @@ void UInGameUI::UpdateSuccessfulHomerun()
 	if (GameMode->HomerunsForWin <= SuccessfulHomerun)
 	// is there more successful homerun than stage required homerun?
 	{
-		IsStageCleared = true;
-		GameMode->ChangeState(EGameModeState::End);
+		IsStageCleared = 1;
 	}
 }
 
@@ -287,9 +285,36 @@ void UInGameUI::HideHomerunState()
 		GameMode->Ball->Destroy(); // Destroy Ball
 	}
 
-	FTimerHandle HideHomerunStateTimer;
-	GetWorld()->GetTimerManager().SetTimer(HideHomerunStateTimer,
-	                                       [this]() { GameMode->ChangeState(EGameModeState::Throw); }, 1, false);
+	if (0 == IsStageCleared)	// Stage Fail
+	{
+		// StageFailImage->SetVisibility(ESlateVisibility::Visible); !!
+		FTimerHandle StageFailTimer;
+		GetWorld()->GetTimerManager().SetTimer(StageFailTimer, this, &UInGameUI::DisplayStageFail, 1, false);
+	}
+	else if (1 == IsStageCleared)	// Stage Clear
+	{
+		// StageClearImage->SetVisibility(ESlateVisibility::Visible); !!
+		FTimerHandle StageClearTimer;
+		GetWorld()->GetTimerManager().SetTimer(StageClearTimer, this, &UInGameUI::DisplayStageClear, 1, false);
+	}
+	else
+	{
+		FTimerHandle HideHomerunStateTimer;
+		GetWorld()->GetTimerManager().SetTimer(HideHomerunStateTimer,
+		                                       [this]() { GameMode->ChangeState(EGameModeState::Throw); }, 1, false);
+	}
+}
+
+void UInGameUI::DisplayStageClear()
+{
+	// StageClearImage->SetVisibility(ESlateVisibility::Hidden); !!
+	GameMode->ChangeState(EGameModeState::End);
+}
+
+void UInGameUI::DisplayStageFail()
+{
+	// StageFailImage->SetVisibility(ESlateVisibility::Hidden); !!
+	GameMode->ChangeState(EGameModeState::End);
 }
 
 void UInGameUI::DisplayCyclingHomerun(FString Direction)
@@ -308,8 +333,8 @@ void UInGameUI::DisplayCyclingHomerun(FString Direction)
 	}
 
 	FTimerHandle HideCyclingHomerunTimer;
-	GetWorld()->GetTimerManager().SetTimer(HideCyclingHomerunTimer, this, &UInGameUI::HideCyclingHomerun, DisplayTime, false);
-
+	GetWorld()->GetTimerManager().SetTimer(HideCyclingHomerunTimer, this, &UInGameUI::HideCyclingHomerun, DisplayTime,
+	                                       false);
 }
 
 void UInGameUI::HideCyclingHomerun()
@@ -342,10 +367,9 @@ void UInGameUI::DisplayReady()
 	ReadyRightImage->SetVisibility(ESlateVisibility::Visible);
 	ReadyImage->SetVisibility(ESlateVisibility::Visible);
 	PlayAnimation(ReadyAnimation);
-	
+
 	FTimerHandle DisplayReadyTimer;
 	GetWorld()->GetTimerManager().SetTimer(DisplayReadyTimer, this, &UInGameUI::HideReady, 1.75f, false);
-
 }
 
 void UInGameUI::HideReady()
@@ -353,10 +377,10 @@ void UInGameUI::HideReady()
 	ReadyLeftImage->SetVisibility(ESlateVisibility::Hidden);
 	ReadyRightImage->SetVisibility(ESlateVisibility::Hidden);
 	ReadyImage->SetVisibility(ESlateVisibility::Hidden);
-	
+
 	OSTAudioComponent->Play();
 	OSTAudioComponent->SetVolumeMultiplier(0.15);
-	
+
 	FTimerHandle HideReadyTimer;
 	GetWorld()->GetTimerManager().SetTimer(HideReadyTimer, this, &UInGameUI::DisplayGo, 2.35f, false);
 }
@@ -366,18 +390,17 @@ void UInGameUI::DisplayGo()
 	GoDisappearImage->SetVisibility(ESlateVisibility::Visible);
 	GoImage->SetVisibility(ESlateVisibility::Visible);
 	PlayAnimation(GoAnimation);
-	
+
 	UGameplayStatics::PlaySound2D(GetWorld(), PlayballSound);
-	
+
 	FTimerHandle DisplayGoTimer;
 	GetWorld()->GetTimerManager().SetTimer(DisplayGoTimer, this, &UInGameUI::HideGo, 1.16f, false);
-
 }
 
 void UInGameUI::HideGo()
 {
 	OSTAudioComponent->SetVolumeMultiplier(0.55);
-	
+
 	GoDisappearImage->SetVisibility(ESlateVisibility::Hidden);
 	GoImage->SetVisibility(ESlateVisibility::Hidden);
 }

@@ -154,6 +154,11 @@ public:
 	void HideHomerunState();
 
 	UFUNCTION(BlueprintCallable)
+	void DisplayStageClear();
+	UFUNCTION(BlueprintCallable)
+	void DisplayStageFail();
+	
+	UFUNCTION(BlueprintCallable)
 	void DisplayCyclingHomerun(FString Direction);
 	UFUNCTION(BlueprintCallable)
 	void HideCyclingHomerun();
@@ -169,13 +174,14 @@ public:
 	void DisplayGo();
 	UFUNCTION(BlueprintCallable)
 	void HideGo();
+	
 
 	int32 ComboNumber;
 
 	int32 HomerunGauge;
 
 	int32 SuccessfulHomerun = 0;
-	bool IsStageCleared;
+	int32 IsStageCleared = -1;
 
 	bool isJudgementDisplaying;
 	bool isHomerunStateDisplaying;
