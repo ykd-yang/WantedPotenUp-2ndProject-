@@ -105,6 +105,14 @@ public:
 	UImage* GoImage;
 	UPROPERTY(meta = (BindWidget))
 	UImage* GoDisappearImage;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Sound")
+	USoundBase* PlayballSound;
+	// OST
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Sound")
+	UAudioComponent* OSTAudioComponent;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Sound")
+	USoundBase* OSTSound;
+	
 
 	UFUNCTION(BlueprintCallable)
 	void UpdateHomerunGauge(int32 NewHomerunGauge);

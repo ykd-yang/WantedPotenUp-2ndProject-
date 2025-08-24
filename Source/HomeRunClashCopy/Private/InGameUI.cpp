@@ -5,6 +5,7 @@
 #include "BaseBallGameMode.h"
 #include "StrikeZone.h"
 #include "Blueprint/WidgetLayoutLibrary.h"
+#include "Components/AudioComponent.h"
 #include "Components/CanvasPanelSlot.h"
 #include "Components/Image.h"
 #include "Components/Overlay.h"
@@ -18,6 +19,14 @@ void UInGameUI::NativeConstruct()
 {
 	Super::NativeConstruct();
 
+	if (!OSTAudioComponent)
+	{
+		OSTAudioComponent = NewObject<UAudioComponent>(this);
+		OSTAudioComponent->bAutoActivate = false;
+		OSTAudioComponent->SetSound(OSTSound);
+		OSTAudioComponent->RegisterComponentWithWorld(GetWorld());
+	}
+	
 	// Get GameMode (to get variables)
 	GameMode = Cast<ABaseBallGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
 	AStrikeZone* StrikeZone = Cast<AStrikeZone>(
@@ -333,6 +342,7 @@ void UInGameUI::DisplayReady()
 	ReadyRightImage->SetVisibility(ESlateVisibility::Visible);
 	ReadyImage->SetVisibility(ESlateVisibility::Visible);
 	PlayAnimation(ReadyAnimation);
+	
 	FTimerHandle DisplayReadyTimer;
 	GetWorld()->GetTimerManager().SetTimer(DisplayReadyTimer, this, &UInGameUI::HideReady, 1.75f, false);
 
@@ -343,6 +353,10 @@ void UInGameUI::HideReady()
 	ReadyLeftImage->SetVisibility(ESlateVisibility::Hidden);
 	ReadyRightImage->SetVisibility(ESlateVisibility::Hidden);
 	ReadyImage->SetVisibility(ESlateVisibility::Hidden);
+	
+	OSTAudioComponent->Play();
+	OSTAudioComponent->SetVolumeMultiplier(0.15);
+	
 	FTimerHandle HideReadyTimer;
 	GetWorld()->GetTimerManager().SetTimer(HideReadyTimer, this, &UInGameUI::DisplayGo, 2.35f, false);
 }
@@ -352,6 +366,9 @@ void UInGameUI::DisplayGo()
 	GoDisappearImage->SetVisibility(ESlateVisibility::Visible);
 	GoImage->SetVisibility(ESlateVisibility::Visible);
 	PlayAnimation(GoAnimation);
+	
+	UGameplayStatics::PlaySound2D(GetWorld(), PlayballSound);
+	
 	FTimerHandle DisplayGoTimer;
 	GetWorld()->GetTimerManager().SetTimer(DisplayGoTimer, this, &UInGameUI::HideGo, 1.16f, false);
 
@@ -359,6 +376,8 @@ void UInGameUI::DisplayGo()
 
 void UInGameUI::HideGo()
 {
+	OSTAudioComponent->SetVolumeMultiplier(0.55);
+	
 	GoDisappearImage->SetVisibility(ESlateVisibility::Hidden);
 	GoImage->SetVisibility(ESlateVisibility::Hidden);
 }
