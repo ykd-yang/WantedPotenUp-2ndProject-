@@ -289,7 +289,7 @@ void UInGameUI::HideHomerunState()
 
 	FTimerHandle HideHomerunStateTimer;
 	GetWorld()->GetTimerManager().SetTimer(HideHomerunStateTimer,
-	                                       [this]() { GameMode->ChangeState(EGameModeState::Throw); }, 2, false);
+	                                       [this]() { GameMode->ChangeState(EGameModeState::Throw); }, 1, false);
 }
 
 void UInGameUI::DisplayCyclingHomerun(FString Direction)

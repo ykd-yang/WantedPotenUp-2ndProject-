@@ -58,8 +58,8 @@ bool ABatter::ApplySwingReal()
 		{
 			//OnHit.Broadcast(Timing, BallActor,Critical);  실제 플레이용
 			//PlayBatSound(Timing,Side,Height,Critical); // 테스트용
-			OnHit.Broadcast(Timing, BallActor,true); // 테스트용
-			PlayBatSound(Timing,Side,Height,true); // 테스트용
+			OnHit.Broadcast(Timing, BallActor,false); // 테스트용
+			PlayBatSound(Timing,Side,Height,false); // 테스트용
 			return true;
 		}
 		else
