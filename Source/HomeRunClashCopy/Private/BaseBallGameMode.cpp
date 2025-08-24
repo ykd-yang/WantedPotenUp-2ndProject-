@@ -31,18 +31,18 @@ void ABaseBallGameMode::BeginPlay()
 	PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
 
 	// Create Widget
-	if (nullptr != MainMenuUIClass)
+	if (nullptr != InGameUIClass)
 	{
-		MainMenuUI = CreateWidget<UMainMenuUI>(GetWorld(), MainMenuUIClass);
-		if (nullptr != MainMenuUI)
+		InGameUI = CreateWidget<UInGameUI>(GetWorld(), InGameUIClass);
+		if (nullptr != InGameUI)
 		{
-			MainMenuUI->AddToViewport(); // Display Widget
+			InGameUI->AddToViewport(); // Display Widget
 		}
 	}
-
-	InputModeUIOnly.SetWidgetToFocus(nullptr);
-	InputModeUIOnly.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
-	PlayerController->SetInputMode(InputModeUIOnly);
+	
+	// InputModeUIOnly.SetWidgetToFocus(nullptr);
+	// InputModeUIOnly.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+	// PlayerController->SetInputMode(InputModeUIOnly);
 
 	// Casting Pitcher
 	AActor* FoundPitcher = UGameplayStatics::GetActorOfClass(GetWorld(), APitcher::StaticClass());
@@ -61,6 +61,8 @@ void ABaseBallGameMode::BeginPlay()
 	{
 		StartCamera = Cast<ACameraActor>(FoundStartCamera);
 	}
+
+	ChangeState(EGameModeState::Start);
 }
 
 void ABaseBallGameMode::Tick(float DeltaTime)
@@ -230,8 +232,8 @@ void ABaseBallGameMode::OnEndTick(float DeltaTime)
 //On Enter
 void ABaseBallGameMode::OnStartEnter()
 {
-	UWidgetBlueprintLibrary::GetAllWidgetsOfClass(GetWorld(), AllWidgets, UUserWidget::StaticClass(), true);
-	AllWidgets[0]->SetVisibility(ESlateVisibility::Visible);
+	// UWidgetBlueprintLibrary::GetAllWidgetsOfClass(GetWorld(), AllWidgets, UUserWidget::StaticClass(), true);
+	// AllWidgets[0]->SetVisibility(ESlateVisibility::Visible);
 	PlayerController->bShowMouseCursor = false;
 	PlayerController->SetInputMode(InputModeGameOnly);
 	// 1. 화면이 타자시점이 된다
