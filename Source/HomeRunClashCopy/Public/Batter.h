@@ -33,6 +33,14 @@ public:
 	class ABall* BallActor;
 
 	bool bIsCritical = false;
+
+	UPROPERTY(EditDefaultsOnly, Category="SFX")
+	USoundBase* SFX_WellHit = nullptr;
+
+	UPROPERTY(EditDefaultsOnly, Category="SFX")
+	USoundBase* SFX_MisHit = nullptr;
+	UPROPERTY(EditDefaultsOnly, Category="SFX")
+	USoundBase* SFX_Swing = nullptr;
 	
 
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
@@ -70,7 +78,9 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	void SetBallActor(class ABall* ball);
-	 void ForCriticalTest();
+	void ForCriticalTest();
+
+	void PlayBatSound(float Timing,float SideBat,float Height,bool critical);
 	
 	
 

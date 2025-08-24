@@ -57,8 +57,9 @@ bool ABatter::ApplySwingReal()
 		if (bIsSucced)
 		{
 			//OnHit.Broadcast(Timing, BallActor,Critical);  실제 플레이용
+			//PlayBatSound(Timing,Side,Height,Critical); // 테스트용
 			OnHit.Broadcast(Timing, BallActor,true); // 테스트용
-			
+			PlayBatSound(Timing,Side,Height,true); // 테스트용
 			return true;
 		}
 		else
@@ -73,6 +74,7 @@ void ABatter::PlaySwingMontage()
 {
 
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	
 	if (AnimInstance && SwingMontage)
 	{
 		AnimInstance->Montage_Play(SwingMontage, 1.0f); 
@@ -98,6 +100,25 @@ void ABatter::SetBallActor(class ABall* ball)
 void ABatter::ForCriticalTest()
 {
 	bIsCritical  = !bIsCritical;
+}
+
+void ABatter::PlayBatSound(float Timing, float SideBat, float Height, bool critical)
+{
+	if (!SFX_WellHit || !SFX_MisHit) return;
+	
+	USoundBase* ChosenSound = nullptr;
+
+	if (FMath::Abs(SideBat) < 0.5f || critical)
+	{
+		ChosenSound = SFX_WellHit;   // 잘 맞음
+	}
+	else
+	{
+		ChosenSound = SFX_MisHit;    // 못 맞음
+	}
+
+	
+	UGameplayStatics::PlaySoundAtLocation(this, ChosenSound, GetActorLocation());
 }
 
 
