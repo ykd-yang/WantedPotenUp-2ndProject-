@@ -19,9 +19,6 @@ protected:
 	virtual void NativeConstruct() override;
 
 public:
-	UPROPERTY()
-	ABaseBallGameMode* GameMode;
-	
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UButton> StartButton;
 
