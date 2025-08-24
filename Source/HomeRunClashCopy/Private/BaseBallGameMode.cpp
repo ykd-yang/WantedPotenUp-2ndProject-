@@ -39,7 +39,7 @@ void ABaseBallGameMode::BeginPlay()
 			InGameUI->AddToViewport(); // Display Widget
 		}
 	}
-	
+
 	// InputModeUIOnly.SetWidgetToFocus(nullptr);
 	// InputModeUIOnly.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
 	// PlayerController->SetInputMode(InputModeUIOnly);
@@ -230,6 +230,7 @@ void ABaseBallGameMode::OnEndTick(float DeltaTime)
 //On Enter
 void ABaseBallGameMode::OnStartEnter()
 {
+	InGameUI->IsStageCleared = -1;
 	// UWidgetBlueprintLibrary::GetAllWidgetsOfClass(GetWorld(), AllWidgets, UUserWidget::StaticClass(), true);
 	// AllWidgets[0]->SetVisibility(ESlateVisibility::Visible);
 	PlayerController->bShowMouseCursor = false;
@@ -283,36 +284,54 @@ void ABaseBallGameMode::OnBallMissEnter()
 	// 2. 지나간 후 남은 공갯수 차감, 공의 정보, 공의 방향, Miss표시(먼저 사라짐)
 	if (ESlateVisibility::Visible != InGameUI->MissImage->GetVisibility())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Miss"));
-		InGameUI->DisplayMiss();
-		InGameUI->DisplayBallHitDirection(-2);
-		//BallType = Ball->BallInfo.BallType;
-		InGameUI->DisplayBallInfo("BallTypeToString(BallType)"); // 3. 공의 정보와 방향이 사라지면  4. 다시 Throw State
-		FTimerHandle MissTimer;
-		GetWorld()->GetTimerManager().SetTimer(MissTimer, [this]() { ChangeState(EGameModeState::Throw); },
-		                                       InGameUI->DisplayTime, false);
 		InGameUI->DeductRemainingBalls();
+
+		if (0 == InGameUI->IsStageCleared)	// 게임 실패
+		{
+			FTimerHandle StageFailTimer;
+			GetWorld()->GetTimerManager().SetTimer(StageFailTimer,
+											   [this]() { InGameUI->DisplayStageFail(); }, 1, false);
+		}
+		else
+		{
+			InGameUI->DisplayMiss();
+			InGameUI->DisplayBallHitDirection(-2);
+			//BallType = Ball->BallInfo.BallType;
+			InGameUI->DisplayBallInfo("BallTypeToString(BallType)"); // 3. 공의 정보와 방향이 사라지면  4. 다시 Throw State
+			FTimerHandle MissTimer;
+			GetWorld()->GetTimerManager().SetTimer(MissTimer, [this]() { ChangeState(EGameModeState::Throw); },
+			                                       InGameUI->DisplayTime, false);
+		}
 	}
 	// else if (ESlateVisibility::Visible == InGameUI->MissImage->GetVisibility())
 	// {
 	// 	
 	// }
-	else // 헛스윙 시, 바로 !!타자에서 Miss 표시
+	else // 헛스윙 시, 바로 타자에서 Miss 표시
 	{
-		UE_LOG(LogTemp, Warning, TEXT("헛스윙 Miss"));
-		InGameUI->DisplayBallHitDirection(-2);
-		//BallType = Ball->BallInfo.BallType;
-		InGameUI->DisplayBallInfo("BallTypeToString(BallType)"); // 3. 공의 정보와 방향이 사라지면  4. 다시 Throw State
-		FTimerHandle MissTimer;
-		GetWorld()->GetTimerManager().SetTimer(MissTimer, [this]() { ChangeState(EGameModeState::Throw); },
-		                                       InGameUI->DisplayTime, false);
 		InGameUI->DeductRemainingBalls();
+
+		if (0 == InGameUI->IsStageCleared)	// 게임 실패
+		{
+			FTimerHandle StageFailTimer;
+			GetWorld()->GetTimerManager().SetTimer(StageFailTimer,
+											   [this]() { InGameUI->DisplayStageFail(); }, 1, false);
+		}
+		else
+		{
+			InGameUI->DisplayBallHitDirection(-2);
+			//BallType = Ball->BallInfo.BallType;
+			InGameUI->DisplayBallInfo("BallTypeToString(BallType)"); // 3. 공의 정보와 방향이 사라지면  4. 다시 Throw State
+			FTimerHandle MissTimer;
+			GetWorld()->GetTimerManager().SetTimer(MissTimer, [this]() { ChangeState(EGameModeState::Throw); },
+			                                       InGameUI->DisplayTime, false);
+		}
 	}
 }
 
 void ABaseBallGameMode::OnEndEnter()
 {
-	if (InGameUI->IsStageCleared) // 스테이지 클리어 시
+	if (1 == InGameUI->IsStageCleared) // 스테이지 클리어 시
 	{
 		// 기존 UI 제거
 		if (InGameUI)
