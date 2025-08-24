@@ -194,10 +194,11 @@ void UInGameUI::DisplayMiss()
 {
 	if (ESlateVisibility::Hidden == MissImage->GetVisibility())
 	{
+		PlayAnimation(MissAnimation);
 		MissImage->SetVisibility(ESlateVisibility::Visible);
 		FTimerHandle MissTimer;
 		GetWorld()->GetTimerManager().SetTimer(
-			MissTimer, [this]() { MissImage->SetVisibility(ESlateVisibility::Hidden); }, DisplayTime, false);
+			MissTimer, [this]() { MissImage->SetVisibility(ESlateVisibility::Hidden); }, 1.4, false);
 	}
 }
 
@@ -246,6 +247,7 @@ void UInGameUI::DisplayHomerunState(bool Homerun)
 			if (Homerun) // Display Homerun
 			{
 				ComboNumber += 1;
+				PlayAnimation(HomerunAnimation);
 				HomerunImage->SetVisibility(ESlateVisibility::Visible);
 				GetWorld()->GetTimerManager().SetTimer(HomerunStateTimer, this, &UInGameUI::HideHomerunState,
 				                                       DisplayTime, false);
@@ -254,6 +256,7 @@ void UInGameUI::DisplayHomerunState(bool Homerun)
 			else // Display Hit
 			{
 				ComboNumber = 0;
+				PlayAnimation(HitAnimation);
 				HitImage->SetVisibility(ESlateVisibility::Visible);
 				GetWorld()->GetTimerManager().SetTimer(HomerunStateTimer, this, &UInGameUI::HideHomerunState,
 				                                       DisplayTime, false);

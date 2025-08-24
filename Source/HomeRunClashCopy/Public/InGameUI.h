@@ -55,6 +55,8 @@ public:
 	// Ball Jugdement
 	UPROPERTY(meta = (BindWidget))
 	UImage* MissImage;
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
+	UWidgetAnimation* MissAnimation;
 	UPROPERTY(meta = (BindWidget))
 	UImage* GoodImage;
 	UPROPERTY(meta = (BindWidget))
@@ -64,8 +66,12 @@ public:
 	// Homerun State
 	UPROPERTY(meta = (BindWidget))
 	UImage* HomerunImage;
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
+	UWidgetAnimation* HomerunAnimation;
 	UPROPERTY(meta = (BindWidget))
 	UImage* HitImage;
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
+	UWidgetAnimation* HitAnimation;
 	// Hit Distance
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* HitDistanceText;
