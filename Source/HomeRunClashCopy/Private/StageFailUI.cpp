@@ -3,15 +3,26 @@
 
 #include "StageFailUI.h"
 
+#include "BaseBallGameMode.h"
+#include "InGameUI.h"
+#include "Components/AudioComponent.h"
+
 void UStageFailUI::NativeConstruct()
 {
 	Super::NativeConstruct();
-
+	
+	if (!FailOSTComponent)
+	{
+		FailOSTComponent = NewObject<UAudioComponent>(this);
+		FailOSTComponent->bAutoActivate = false;
+		FailOSTComponent->SetSound(FailOSTSound);
+		FailOSTComponent->RegisterComponentWithWorld(GetWorld());
+	}
+	
 	// InGameUI 불러서
-
-	// FPlayOST PlayClearOST 바인드
-
+	ABaseBallGameMode* Gm =  Cast<ABaseBallGameMode>(GetWorld()->GetAuthGameMode());
 	//FPlayOST PlayFailOST 바인드
+	Gm->InGameUI->PlayFailOST.AddDynamic(this, &UStageFailUI::PlayFailOST);
 }
 
 void UStageFailUI::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
@@ -19,12 +30,10 @@ void UStageFailUI::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 	Super::NativeTick(MyGeometry, InDeltaTime);
 }
 
-void UStageFailUI::PlayFailAnim()
-{
-	// 슬퍼하는 애니메이션 연결
-}
+
 
 void UStageFailUI::PlayFailOST()
 {
 	// 실패 노래 재생
+	FailOSTComponent->Play();
 }

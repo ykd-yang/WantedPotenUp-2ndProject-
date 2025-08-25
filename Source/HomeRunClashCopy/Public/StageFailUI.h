@@ -27,7 +27,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Sound")
 	USoundBase* FailOSTSound;
 
-	void PlayFailAnim();
+	UFUNCTION()
 	void PlayFailOST();
 	
 	// Exit Button

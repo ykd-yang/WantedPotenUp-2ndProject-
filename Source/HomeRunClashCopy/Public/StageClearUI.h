@@ -25,6 +25,9 @@ public:
 	UAudioComponent* ClearOSTComponent;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Sound")
 	USoundBase* ClearOSTSound;
+
+	UFUNCTION()
+	void PlayClearOST();
 	
 	// Exit Button
 	UPROPERTY(meta = (BindWidget))
