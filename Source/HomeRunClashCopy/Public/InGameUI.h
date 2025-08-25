@@ -9,6 +9,9 @@
 /**
  * 
  */
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FPlayAnimation);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FPlayOST);
+
 
 class UProgressBar;
 class UCanvasPanelSlot;
@@ -28,6 +31,16 @@ protected:
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 
 public:
+	UPROPERTY(BlueprintAssignable)
+	FPlayAnimation PlayClearAnim;
+	UPROPERTY(BlueprintAssignable)
+	FPlayAnimation PlayFailAnim;
+
+	UPROPERTY(BlueprintAssignable)
+	FPlayOST PlayClearOST;
+	UPROPERTY(BlueprintAssignable)
+	FPlayOST PlayFailOST;
+	
 	UPROPERTY()
 	ABaseBallGameMode* GameMode;
 
@@ -109,10 +122,9 @@ public:
 	USoundBase* PlayballSound;
 	// OST
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Sound")
-	UAudioComponent* OSTAudioComponent;
+	UAudioComponent* InGameOSTComponent;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Sound")
-	USoundBase* OSTSound;
-	
+	USoundBase* InGameOSTSound;
 
 	UFUNCTION(BlueprintCallable)
 	void UpdateHomerunGauge(int32 NewHomerunGauge);
@@ -154,9 +166,9 @@ public:
 	void HideHomerunState();
 
 	UFUNCTION(BlueprintCallable)
-	void DisplayStageClear();
+	void HideStageClear();
 	UFUNCTION(BlueprintCallable)
-	void DisplayStageFail();
+	void HideStageFail();
 	
 	UFUNCTION(BlueprintCallable)
 	void DisplayCyclingHomerun(FString Direction);

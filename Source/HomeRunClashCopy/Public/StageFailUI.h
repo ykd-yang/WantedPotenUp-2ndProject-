@@ -15,9 +15,21 @@ class HOMERUNCLASHCOPY_API UStageFailUI : public UUserWidget
 {
 	GENERATED_BODY()
 
+protected:
+	virtual void NativeConstruct() override;
 
+	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 	
 public:
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Sound")
+	UAudioComponent* FailOSTComponent;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Sound")
+	USoundBase* FailOSTSound;
+
+	void PlayFailAnim();
+	void PlayFailOST();
+	
 	// Exit Button
 	UPROPERTY(meta = (BindWidget))
 	UUserWidget* WBP_ExitButton;

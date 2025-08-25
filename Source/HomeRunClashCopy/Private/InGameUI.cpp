@@ -19,12 +19,12 @@ void UInGameUI::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	if (!OSTAudioComponent)
+	if (!InGameOSTComponent)
 	{
-		OSTAudioComponent = NewObject<UAudioComponent>(this);
-		OSTAudioComponent->bAutoActivate = false;
-		OSTAudioComponent->SetSound(OSTSound);
-		OSTAudioComponent->RegisterComponentWithWorld(GetWorld());
+		InGameOSTComponent = NewObject<UAudioComponent>(this);
+		InGameOSTComponent->bAutoActivate = false;
+		InGameOSTComponent->SetSound(InGameOSTSound);
+		InGameOSTComponent->RegisterComponentWithWorld(GetWorld());
 	}
 
 	// Get GameMode (to get variables)
@@ -237,6 +237,7 @@ void UInGameUI::HideBallDistance()
 		                                       {
 			                                       HitDistanceText->SetVisibility(ESlateVisibility::Hidden);
 		                                       }, 1, false);
+		bHidingBallDistance = true;
 	}
 }
 
@@ -285,17 +286,17 @@ void UInGameUI::HideHomerunState()
 		GameMode->Ball->Destroy(); // Destroy Ball
 	}
 
-	if (0 == IsStageCleared)	// Stage Fail
+	if (0 == IsStageCleared) // Stage Fail
 	{
 		// StageFailImage->SetVisibility(ESlateVisibility::Visible); !!
 		FTimerHandle StageFailTimer;
-		GetWorld()->GetTimerManager().SetTimer(StageFailTimer, this, &UInGameUI::DisplayStageFail, 1, false);
+		GetWorld()->GetTimerManager().SetTimer(StageFailTimer, this, &UInGameUI::HideStageFail, 2, false);
 	}
-	else if (1 == IsStageCleared)	// Stage Clear
+	else if (1 == IsStageCleared) // Stage Clear
 	{
 		// StageClearImage->SetVisibility(ESlateVisibility::Visible); !!
 		FTimerHandle StageClearTimer;
-		GetWorld()->GetTimerManager().SetTimer(StageClearTimer, this, &UInGameUI::DisplayStageClear, 1, false);
+		GetWorld()->GetTimerManager().SetTimer(StageClearTimer, this, &UInGameUI::HideStageClear, 2, false);
 	}
 	else
 	{
@@ -305,16 +306,55 @@ void UInGameUI::HideHomerunState()
 	}
 }
 
-void UInGameUI::DisplayStageClear()
+void UInGameUI::HideStageClear()
 {
 	// StageClearImage->SetVisibility(ESlateVisibility::Hidden); !!
-	GameMode->ChangeState(EGameModeState::End);
+
+	// Play Clear Animation
+	if (PlayClearAnim.IsBound())
+	{
+		PlayClearAnim.Broadcast();
+	}
+	// Play Clear OST !!
+	InGameOSTComponent->SetVolumeMultiplier(0.15);
+	FTimerHandle StopOSTTimer;
+	GetWorld()->GetTimerManager().SetTimer(StopOSTTimer,
+	                                       [this]() { InGameOSTComponent->Stop(); },
+	                                       2,
+	                                       false);
+	if (PlayClearOST.IsBound())
+	{
+		PlayClearOST.Broadcast();
+	}
+	// Play Camera Move !!
+
+	GameMode->ChangeState(EGameModeState::End); // play UI after camera move
 }
 
-void UInGameUI::DisplayStageFail()
+void UInGameUI::HideStageFail()
 {
 	// StageFailImage->SetVisibility(ESlateVisibility::Hidden); !!
-	GameMode->ChangeState(EGameModeState::End);
+
+	// Play Fail Animation
+	if (PlayFailAnim.IsBound())
+	{
+		PlayFailAnim.Broadcast();
+	}
+	// Play Fail OST !!
+	InGameOSTComponent->SetVolumeMultiplier(0.15);
+	FTimerHandle StopOSTTimer;
+	GetWorld()->GetTimerManager().SetTimer(StopOSTTimer,
+	                                       [this]() { InGameOSTComponent->Stop(); },
+	                                       2,
+	                                       false);
+	if (PlayFailOST.IsBound())
+	{
+		PlayFailOST.Broadcast();
+	}
+
+	// Play Camera Move !!
+
+	GameMode->ChangeState(EGameModeState::End); // play UI after camera move
 }
 
 void UInGameUI::DisplayCyclingHomerun(FString Direction)
@@ -378,8 +418,8 @@ void UInGameUI::HideReady()
 	ReadyRightImage->SetVisibility(ESlateVisibility::Hidden);
 	ReadyImage->SetVisibility(ESlateVisibility::Hidden);
 
-	OSTAudioComponent->Play();
-	OSTAudioComponent->SetVolumeMultiplier(0.15);
+	InGameOSTComponent->Play();
+	InGameOSTComponent->SetVolumeMultiplier(0.15);
 
 	FTimerHandle HideReadyTimer;
 	GetWorld()->GetTimerManager().SetTimer(HideReadyTimer, this, &UInGameUI::DisplayGo, 2.35f, false);
@@ -399,7 +439,7 @@ void UInGameUI::DisplayGo()
 
 void UInGameUI::HideGo()
 {
-	OSTAudioComponent->SetVolumeMultiplier(0.55);
+	InGameOSTComponent->SetVolumeMultiplier(0.55);
 
 	GoDisappearImage->SetVisibility(ESlateVisibility::Hidden);
 	GoImage->SetVisibility(ESlateVisibility::Hidden);

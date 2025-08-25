@@ -15,8 +15,17 @@ class HOMERUNCLASHCOPY_API UStageClearUI : public UUserWidget
 {
 	GENERATED_BODY()
 
+protected:
+	virtual void NativeConstruct() override;
 
+	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
+	
 public:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Sound")
+	UAudioComponent* ClearOSTComponent;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Sound")
+	USoundBase* ClearOSTSound;
+	
 	// Exit Button
 	UPROPERTY(meta = (BindWidget))
 	UUserWidget* WBP_ExitButton;
