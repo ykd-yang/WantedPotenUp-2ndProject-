@@ -208,11 +208,7 @@ void ABaseBallGameMode::OnBallHitTick(float DeltaTime)
 	{
 		//InGameUI->UpdateBallDistance(Ball, PlayerController); // strikezone location, ball location length
 	}
-	else if (InGameUI->isJudgementDisplaying) // 만약 판정UI가 남아 있다면 사라진 후에 표시
-	{
-		InGameUI->HideBallDistance();
-	}
-	else if (!InGameUI->isHomerunStateDisplaying)
+	else	// 만약 판정UI가 남아 있다면 사라진 후에 표시
 	{
 		InGameUI->HideBallDistance();
 	}
@@ -290,7 +286,7 @@ void ABaseBallGameMode::OnBallMissEnter()
 		{
 			FTimerHandle StageFailTimer;
 			GetWorld()->GetTimerManager().SetTimer(StageFailTimer,
-											   [this]() { InGameUI->DisplayStageFail(); }, 1, false);
+											   [this]() { InGameUI->HideStageFail(); }, 1, false);
 		}
 		else
 		{
@@ -315,7 +311,7 @@ void ABaseBallGameMode::OnBallMissEnter()
 		{
 			FTimerHandle StageFailTimer;
 			GetWorld()->GetTimerManager().SetTimer(StageFailTimer,
-											   [this]() { InGameUI->DisplayStageFail(); }, 1, false);
+											   [this]() { InGameUI->HideStageFail(); }, 1, false);
 		}
 		else
 		{

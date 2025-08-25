@@ -3,3 +3,13 @@
 
 #include "StageClearUI.h"
 
+void UStageClearUI::NativeConstruct()
+{
+	Super::NativeConstruct();
+}
+
+void UStageClearUI::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
+{
+	Super::NativeTick(MyGeometry, InDeltaTime);
+}
+
