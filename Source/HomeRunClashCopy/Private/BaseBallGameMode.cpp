@@ -39,7 +39,27 @@ void ABaseBallGameMode::BeginPlay()
 			InGameUI->AddToViewport(); // Display Widget
 		}
 	}
-
+	// 새로운 StageClearUI 생성
+	if (StageClearUIClass)
+	{
+		StageClearUI = CreateWidget<UStageClearUI>(GetWorld(), StageClearUIClass);
+		if (StageClearUI)
+		{
+			StageClearUI->AddToViewport();
+		}
+	}
+	StageClearUI->SetVisibility(ESlateVisibility::Hidden);
+	// 새로운 StageFailUI 생성
+	if (StageFailUIClass)
+	{
+		StageFailUI = CreateWidget<UStageFailUI>(GetWorld(), StageFailUIClass);
+		if (StageFailUI)
+		{
+			StageFailUI->AddToViewport();
+		}
+	}
+	StageFailUI->SetVisibility(ESlateVisibility::Hidden);
+	
 	// InputModeUIOnly.SetWidgetToFocus(nullptr);
 	// InputModeUIOnly.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
 	// PlayerController->SetInputMode(InputModeUIOnly);
@@ -327,57 +347,23 @@ void ABaseBallGameMode::OnBallMissEnter()
 
 void ABaseBallGameMode::OnEndEnter()
 {
+	UWidgetBlueprintLibrary::GetAllWidgetsOfClass(GetWorld(), AllWidgets, UUserWidget::StaticClass(), true);
+	AllWidgets[0]->SetVisibility(ESlateVisibility::Hidden);
+	// 마우스 커서 활성화
+	if (PlayerController)
+	{
+		PlayerController->bShowMouseCursor = true; // 마우스 커서 보이게
+		InputModeUIOnly.SetWidgetToFocus(nullptr);
+		InputModeUIOnly.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+		PlayerController->SetInputMode(InputModeUIOnly); // UI 모드로 입력 전환
+	}
 	if (1 == InGameUI->IsStageCleared) // 스테이지 클리어 시
 	{
-		// 기존 UI 제거
-		if (InGameUI)
-		{
-			InGameUI->RemoveFromParent();
-			InGameUI = nullptr;
-		}
-		// 새로운 StageClearUI 생성
-		if (StageClearUIClass)
-		{
-			StageClearUI = CreateWidget<UStageClearUI>(GetWorld(), StageClearUIClass);
-			if (StageClearUI)
-			{
-				StageClearUI->AddToViewport();
-			}
-		}
-		// 마우스 커서 활성화
-		if (PlayerController)
-		{
-			PlayerController->bShowMouseCursor = true; // 마우스 커서 보이게
-			InputModeUIOnly.SetWidgetToFocus(nullptr);
-			InputModeUIOnly.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
-			PlayerController->SetInputMode(InputModeUIOnly); // UI 모드로 입력 전환
-		}
+		StageClearUI->SetVisibility(ESlateVisibility::Visible);
 	}
-	else // 스테이지 실패 시
+	else // 스테이지 실패 시s
 	{
-		// 기존 UI 제거
-		if (InGameUI)
-		{
-			InGameUI->RemoveFromParent();
-			InGameUI = nullptr;
-		}
-		// 새로운 StageFailUI 생성
-		if (StageFailUIClass)
-		{
-			StageFailUI = CreateWidget<UStageFailUI>(GetWorld(), StageFailUIClass);
-			if (StageFailUI)
-			{
-				StageFailUI->AddToViewport();
-			}
-		}
-		// 마우스 커서 활성화
-		if (PlayerController)
-		{
-			PlayerController->bShowMouseCursor = true; // 마우스 커서 보이게
-			InputModeUIOnly.SetWidgetToFocus(nullptr);
-			InputModeUIOnly.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
-			PlayerController->SetInputMode(InputModeUIOnly); // UI 모드로 입력 전환
-		}
+		StageFailUI->SetVisibility(ESlateVisibility::Visible);
 	}
 }
 
