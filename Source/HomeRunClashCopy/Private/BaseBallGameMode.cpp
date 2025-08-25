@@ -310,7 +310,7 @@ void ABaseBallGameMode::OnBallMissEnter()
 	{
 		InGameUI->DeductRemainingBalls();
 
-		if (0 >= InGameUI->IsStageCleared)	// 게임 실패
+		if (0 == InGameUI->IsStageCleared)	// 게임 실패
 		{
 			FTimerHandle StageFailTimer;
 			GetWorld()->GetTimerManager().SetTimer(StageFailTimer,
