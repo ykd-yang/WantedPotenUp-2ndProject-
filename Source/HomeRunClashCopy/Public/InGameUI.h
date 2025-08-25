@@ -10,6 +10,7 @@
  * 
  */
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FPlayAnimation);
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FPlayOST);
 
 
@@ -40,7 +41,7 @@ public:
 	FPlayOST PlayClearOST;
 	UPROPERTY(BlueprintAssignable)
 	FPlayOST PlayFailOST;
-	
+
 	UPROPERTY()
 	ABaseBallGameMode* GameMode;
 
@@ -169,7 +170,7 @@ public:
 	void HideStageClear();
 	UFUNCTION(BlueprintCallable)
 	void HideStageFail();
-	
+
 	UFUNCTION(BlueprintCallable)
 	void DisplayCyclingHomerun(FString Direction);
 	UFUNCTION(BlueprintCallable)
@@ -186,7 +187,13 @@ public:
 	void DisplayGo();
 	UFUNCTION(BlueprintCallable)
 	void HideGo();
-	
+
+
+	UPROPERTY(EditAnywhere, Category="Pawn")
+	TSubclassOf<APawn> StageClearPawn;
+	UPROPERTY(EditAnywhere, Category="Pawn")
+	TSubclassOf<APawn> StageFailPawn;
+	FVector SpawnLocation = FVector(2940.000000,-1290.000000,50.000000);
 
 	int32 ComboNumber;
 
