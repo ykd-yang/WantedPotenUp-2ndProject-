@@ -74,14 +74,22 @@ void ABaseBallGameMode::BeginPlay()
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Pitcher is null"));
 	}
-
-
-	AActor* FoundStartCamera = UGameplayStatics::GetActorOfClass(GetWorld(), ACameraActor::StaticClass());
-	if (FoundStartCamera)
+	
+	TArray<AActor*> Cameras;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ACameraActor::StaticClass(), Cameras);
+	
+	for (AActor* Cam : Cameras)
 	{
-		StartCamera = Cast<ACameraActor>(FoundStartCamera);
+		if (Cam->ActorHasTag("StageStartCamera"))
+		{
+			StartCamera = Cast<ACameraActor>(Cam);
+		}
+		if (Cam->ActorHasTag("StageEndCamera"))
+		{
+			EndCamera = Cast<ACameraActor>(Cam);
+		}
 	}
-
+	
 	ChangeState(EGameModeState::Start);
 }
 
@@ -349,6 +357,8 @@ void ABaseBallGameMode::OnEndEnter()
 {
 	UWidgetBlueprintLibrary::GetAllWidgetsOfClass(GetWorld(), AllWidgets, UUserWidget::StaticClass(), true);
 	AllWidgets[0]->SetVisibility(ESlateVisibility::Hidden);
+
+	
 	// 마우스 커서 활성화
 	if (PlayerController)
 	{
@@ -356,6 +366,8 @@ void ABaseBallGameMode::OnEndEnter()
 		InputModeUIOnly.SetWidgetToFocus(nullptr);
 		InputModeUIOnly.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
 		PlayerController->SetInputMode(InputModeUIOnly); // UI 모드로 입력 전환
+
+		PlayerController->SetViewTarget(EndCamera);
 	}
 	if (1 == InGameUI->IsStageCleared) // 스테이지 클리어 시
 	{

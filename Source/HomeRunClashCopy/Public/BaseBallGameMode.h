@@ -124,6 +124,8 @@ public:
 
 	UPROPERTY()
 	ACameraActor* StartCamera;
+	UPROPERTY()
+	ACameraActor* EndCamera;
 	FVector TargetLocation = FVector(3380.0f,-470.0f,280.0f);
 	FRotator TargetRotation = FRotator(0.f,180.f,0.f);
 	float ElapsedTime;

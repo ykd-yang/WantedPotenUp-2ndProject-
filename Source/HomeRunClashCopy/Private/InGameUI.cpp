@@ -5,6 +5,7 @@
 #include "BaseBallGameMode.h"
 #include "StrikeZone.h"
 #include "Blueprint/WidgetLayoutLibrary.h"
+#include "Camera/CameraActor.h"
 #include "Components/AudioComponent.h"
 #include "Components/CanvasPanelSlot.h"
 #include "Components/Image.h"
@@ -308,6 +309,7 @@ void UInGameUI::HideHomerunState()
 
 void UInGameUI::HideStageClear()
 {
+	this->SetVisibility(ESlateVisibility::Hidden);
 	// StageClearImage->SetVisibility(ESlateVisibility::Hidden); !!
 
 	// Play Clear Animation
@@ -326,6 +328,14 @@ void UInGameUI::HideStageClear()
 	{
 		PlayClearOST.Broadcast();
 	}
+
+	FActorSpawnParameters Params;
+	Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+	APawn* ClearPawn = GetWorld()->SpawnActor<APawn>(StageClearPawn, SpawnLocation, FRotator(0,-90.f,0), Params);
+	if (ClearPawn)
+	{
+		ClearPawn->SetActorScale3D(FVector(3.0f, 3.0f, 3.0f));
+	}
 	// Play Camera Move !!
 
 	GameMode->ChangeState(EGameModeState::End); // play UI after camera move
@@ -333,6 +343,7 @@ void UInGameUI::HideStageClear()
 
 void UInGameUI::HideStageFail()
 {
+	this->SetVisibility(ESlateVisibility::Hidden);
 	// StageFailImage->SetVisibility(ESlateVisibility::Hidden); !!
 
 	// Play Fail Animation
@@ -351,9 +362,15 @@ void UInGameUI::HideStageFail()
 	{
 		PlayFailOST.Broadcast();
 	}
-
+	
+	FActorSpawnParameters Params;
+	Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+	APawn* FailPawn = GetWorld()->SpawnActor<APawn>(StageFailPawn, SpawnLocation, FRotator(0,-90.f,0), Params);
+	if (FailPawn)
+	{
+		FailPawn->SetActorScale3D(FVector(3.0f, 3.0f, 3.0f));
+	}
 	// Play Camera Move !!
-
 	GameMode->ChangeState(EGameModeState::End); // play UI after camera move
 }
 
