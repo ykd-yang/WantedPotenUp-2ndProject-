@@ -56,10 +56,18 @@ bool ABatter::ApplySwingReal()
 		bool bIsSucced =  MyHitBox-> ApplyHitReal(Timing,Height,Side,BallActor);
 		if (bIsSucced)
 		{
-			//OnHit.Broadcast(Timing, BallActor,Critical);  실제 플레이용
-			//PlayBatSound(Timing,Side,Height,Critical); // 테스트용
-			OnHit.Broadcast(Timing, BallActor,false); // 테스트용
-			PlayBatSound(Timing,Side,Height,false); // 테스트용
+			if (GetMesh()->GetOverlayMaterial())
+			{
+				OnHit.Broadcast(Timing, BallActor,true);  
+				PlayBatSound(Timing,Side,Height,true); 
+			}
+			else 
+			{
+				OnHit.Broadcast(Timing, BallActor,false);  
+				PlayBatSound(Timing,Side,Height,false); 
+			}
+			
+			
 			return true;
 		}
 		else
@@ -84,12 +92,13 @@ void ABatter::PlaySwingMontage()
 
 void ABatter::PlayCallHitMontage()
 {
+	ForCriticalTest();
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	if (AnimInstance && CallHitMontage)
 	{
 		AnimInstance->Montage_Play(CallHitMontage, 1.0f); 
 	}
-	bIsCritical = true;;
+	
 }
 
 void ABatter::SetBallActor(class ABall* ball)

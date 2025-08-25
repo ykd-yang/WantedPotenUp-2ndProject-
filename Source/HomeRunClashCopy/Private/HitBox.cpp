@@ -244,9 +244,9 @@ float AHitBox::CheckHeight(ABall* Ball)
 }
 bool AHitBox::CheckCritical(float Timing, float HeightBat,float SideBat)
 {
-	return (FMath::Abs(Timing) <= 1.f) &&
-		   (FMath::Abs(HeightBat) <= 1.f) &&
-		   (FMath::Abs(SideBat) <= 1.f);
+	return (FMath::Abs(Timing) <= 0.3f) &&
+		   (FMath::Abs(HeightBat) <= 0.3f) &&
+		   (FMath::Abs(SideBat) <= 0.3f);
 }
 
 bool AHitBox::ApplyHitReal(float Timing, float HeightBat, float SideBat, ABall* Ball)
@@ -256,7 +256,7 @@ bool AHitBox::ApplyHitReal(float Timing, float HeightBat, float SideBat, ABall* 
 
 	bool IsCritical = CheckCritical(Timing,HeightBat,SideBat);
     const float mBall        = 0.145f;   // kg (스케일용)
-    const float PowerBase    = 2500.f;   // 전체 파워 스케일
+    const float PowerBase    = 2700.f;   // 전체 파워 스케일
     const float MinAccFloor  = 0.20f;    // 정확도 하한
     const float MinPitchDeg  = 6.f;      // 최소 발사각
     const float MaxPitchDeg  = 20.f;     // 최대 발사각
@@ -275,20 +275,20 @@ bool AHitBox::ApplyHitReal(float Timing, float HeightBat, float SideBat, ABall* 
 
     // 고정 전방(-X), 타이밍 좌우(Y), 높이(Z)
     const float Xcomp   = -Power * Accuracy;
-	const float TimingOffset=0.f;
+	const float TimingOffset=0.2f;
 	const float HandiTiming = FMath::Clamp((Timing + 1.f) * 0.5f+TimingOffset, 0.f, 1.f);
 	
     const float BallDir = FMath::Lerp(1.5f, -1.5f, HandiTiming);
     const float Ycomp   =  BallDir * Power * Accuracy;
 
-    const float BallAng = FMath::Lerp(0.9f, 0.4f, (HeightBat + 1.f) * 0.5f);
+    const float BallAng = FMath::Lerp(0.95f, 0.4f, (HeightBat + 1.f) * 0.5f);
     float       Zcomp   =  BallAng * Power * Accuracy;
 
     FVector Vtarget(Xcomp, Ycomp, Zcomp);
 
 	if (IsCritical)
 	{
-		Vtarget.X*=1.5;
+		Vtarget.X*=1.6f;
 	}
 	
     {
