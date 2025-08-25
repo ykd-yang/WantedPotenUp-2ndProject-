@@ -256,8 +256,8 @@ bool AHitBox::ApplyHitReal(float Timing, float HeightBat, float SideBat, ABall* 
 
 	bool IsCritical = CheckCritical(Timing,HeightBat,SideBat);
     const float mBall        = 0.145f;   // kg (스케일용)
-    const float PowerBase    = 2700.f;   // 전체 파워 스케일
-    const float MinAccFloor  = 0.20f;    // 정확도 하한
+    const float PowerBase    = 2900.f;   // 전체 파워 스케일
+    const float MinAccFloor  = 0.40f;    // 정확도 하한
     const float MinPitchDeg  = 6.f;      // 최소 발사각
     const float MaxPitchDeg  = 20.f;     // 최대 발사각
     const float VminClamp    = 2500.f;   // 속도 하한
@@ -275,7 +275,7 @@ bool AHitBox::ApplyHitReal(float Timing, float HeightBat, float SideBat, ABall* 
 
     // 고정 전방(-X), 타이밍 좌우(Y), 높이(Z)
     const float Xcomp   = -Power * Accuracy;
-	const float TimingOffset=0.2f;
+	const float TimingOffset=0.3f;
 	const float HandiTiming = FMath::Clamp((Timing + 1.f) * 0.5f+TimingOffset, 0.f, 1.f);
 	
     const float BallDir = FMath::Lerp(1.5f, -1.5f, HandiTiming);
