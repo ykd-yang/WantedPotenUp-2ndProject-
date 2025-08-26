@@ -116,7 +116,7 @@ public:
 	
 	// Variables for InGameUI
 	int32 RemainingBalls = 12;
-	int32 HomerunsForWin = 5; 
+	int32 HomerunsForWin = 10; 
 
 	UPROPERTY()
 	ABall* Ball;

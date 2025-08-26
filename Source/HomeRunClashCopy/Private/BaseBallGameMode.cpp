@@ -290,6 +290,11 @@ void ABaseBallGameMode::OnThrowEnter()
 
 void ABaseBallGameMode::OnCalledShotEnter()
 {
+	auto* Batter = Cast<ABatter>(PlayerController->GetPawn());
+	if (Batter)
+	{
+		Batter->PlayCallHitMontage();
+	}
 }
 
 void ABaseBallGameMode::OnBallHitEnter()

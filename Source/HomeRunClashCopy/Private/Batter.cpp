@@ -4,9 +4,11 @@
 #include "Batter.h"
 
 #include "Ball.h"
+#include "BaseBallGameMode.h"
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
 #include "HitBox.h"
+#include "InGameUI.h"
 #include "Kismet/GameplayStatics.h"
 #include "Blueprint/UserWidget.h"
 
@@ -56,15 +58,13 @@ bool ABatter::ApplySwingReal()
 		bool bIsSucced =  MyHitBox-> ApplyHitReal(Timing,Height,Side,BallActor);
 		if (bIsSucced)
 		{
-			if (GetMesh()->GetOverlayMaterial())
+			
+			OnHit.Broadcast(Timing, BallActor,Critical);  
+			PlayBatSound(Timing,Side,Height,Critical);
+			auto* myGameMode = Cast<ABaseBallGameMode>(GetWorld()->GetAuthGameMode());
+			if (myGameMode)
 			{
-				OnHit.Broadcast(Timing, BallActor,true);  
-				PlayBatSound(Timing,Side,Height,true); 
-			}
-			else 
-			{
-				OnHit.Broadcast(Timing, BallActor,false);  
-				PlayBatSound(Timing,Side,Height,false); 
+				myGameMode->InGameUI->DisplayBallJudgement(Side,Critical);
 			}
 			
 			
