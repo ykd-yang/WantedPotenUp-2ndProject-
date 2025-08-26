@@ -58,13 +58,19 @@ void UInGameUI::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 void UInGameUI::UpdateHomerunGauge(int32 NewHomerunGauge)
 {
 	HomerunGauge += NewHomerunGauge;
-	if (100 <= HomerunGauge) HomerunGauge = 100; // over 100
+	if (100 <= HomerunGauge)
+	{
+		HomerunGauge = 100; // over 100
+		isCalledShot = true;
+	}
+	
 	HomerunGaugeText->SetText(FText::Format(NSLOCTEXT("UI", "HomerunGauge", "{0}%"), FText::AsNumber(HomerunGauge)));
 	HomerunGaugeBar->SetPercent(HomerunGauge / 100.0f);
 }
 
 void UInGameUI::ResetHomerunGauge()
 {
+	isCalledShot = false;
 	HomerunGauge = 0;
 	HomerunGaugeText->SetText(FText::Format(NSLOCTEXT("UI", "HomerunGauge", "{0}%"), FText::AsNumber(HomerunGauge)));
 	HomerunGaugeBar->SetPercent(HomerunGauge);
@@ -298,6 +304,13 @@ void UInGameUI::HideHomerunState()
 		// StageClearImage->SetVisibility(ESlateVisibility::Visible); !!
 		FTimerHandle StageClearTimer;
 		GetWorld()->GetTimerManager().SetTimer(StageClearTimer, this, &UInGameUI::HideStageClear, 2, false);
+	}
+	else if (isCalledShot)
+	{
+		FTimerHandle ChangeStateTimer;
+		GetWorld()->GetTimerManager().SetTimer(ChangeStateTimer,
+											   [this]() { GameMode->ChangeState(EGameModeState::CalledShot); }, 1, false);
+
 	}
 	else
 	{

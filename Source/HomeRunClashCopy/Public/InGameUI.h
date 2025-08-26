@@ -198,6 +198,7 @@ public:
 	int32 ComboNumber;
 
 	int32 HomerunGauge;
+	bool isCalledShot;
 
 	int32 SuccessfulHomerun = 0;
 	int32 IsStageCleared = -1;
