@@ -24,10 +24,13 @@ private:
 	UPROPERTY(EditAnywhere)
 	FString PlayerName;
 
-public:
 	UPROPERTY()
 	FRankingArray RankingData;
 	
+public:
 	FString GetPlayerName();
 	void SetPlayerName(const FString& NewPlayerName);
+
+	const TArray<FRankingData>& GetRankingData();
+	void UpdateRankingData(const FString& Name, const int32 Score, const int32 HitBallCnt);
 };
