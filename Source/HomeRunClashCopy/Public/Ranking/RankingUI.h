@@ -7,6 +7,7 @@
 #include "RankingUI.generated.h"
 
 class UScrollBox;
+class URankingDataUI;
 /**
  * 
  */
@@ -23,4 +24,10 @@ private:
 
 	UPROPERTY(meta=(BindWidget))
 	UButton* ExitButton;
+
+	UPROPERTY()
+	TSubclassOf<URankingDataUI> RankingUIClass;
+
+	UFUNCTION()
+	void OnPressExitButton();
 };
