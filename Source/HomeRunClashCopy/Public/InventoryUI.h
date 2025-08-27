@@ -8,6 +8,7 @@
 #include "Components/Image.h"
 #include "InventoryUI.generated.h"
 
+class UCanvasPanelSlot;
 class UTextBlock;
 class UButton;
 class UOverlay;
@@ -43,8 +44,13 @@ public:
 	UPROPERTY(meta=(BindWidget))
 	TObjectPtr<UButton> InventoryItemButton2;
 	UPROPERTY(meta=(BindWidget))
-	TObjectPtr<UTextBlock> EquippedText;
-	FVector2D TargetPos;
+	TObjectPtr<UTextBlock> Equipped1Text;
+	UPROPERTY(meta=(BindWidget))
+	TObjectPtr<UTextBlock> Equipped2Text;
+	UPROPERTY()
+	TObjectPtr<UCanvasPanelSlot> BtnSlot;
+	UPROPERTY()
+	TObjectPtr<UCanvasPanelSlot> TextSlot;
 	//Equipment Overlay
 	UPROPERTY(meta=(BindWidget))
 	TObjectPtr<UOverlay> EquipmentOverlay;
@@ -82,7 +88,7 @@ public:
 	void ChangeEquipStateText();
 	void MoveEquippedText();
 	
-	
+	bool bReverse;
 
 	
 };

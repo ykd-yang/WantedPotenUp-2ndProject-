@@ -3,6 +3,8 @@
 
 #include "InventoryUI.h"
 
+#include "Blueprint/WidgetLayoutLibrary.h"
+#include "Components/CanvasPanelSlot.h"
 #include "Components/TextBlock.h"
 
 void UInventoryUI::NativeConstruct()
@@ -12,7 +14,6 @@ void UInventoryUI::NativeConstruct()
 	InventoryItemButton1->OnClicked.AddDynamic(this, &UInventoryUI::OnItemPressed);
 	InventoryItemButton2->OnClicked.AddDynamic(this, &UInventoryUI::OnItemPressed);
 	EquipButton->OnClicked.AddDynamic(this, &UInventoryUI::OnEquipPressed);
-
 }
 
 void UInventoryUI::NativeTick(const FGeometry& MyGeometry, float DeltaTime)
@@ -35,9 +36,14 @@ void UInventoryUI::OnItemPressed()
 		// AccuracyStatusText 바꾸기
 		ChangeAccuracyStatusText();
 		// EquipStateText 교체, 장착중 바꾸기
-		ChangeEquipStateText();
-
-		
+		if (bReverse)
+		{
+			ChangeEquipStateTextReverse();
+		}
+		else
+		{
+			ChangeEquipStateText();
+		}
 	}
 	else if (InventoryItemButton2->HasUserFocus(GetOwningPlayer())) // 2번 아이템, 티타늄배트
 	{
@@ -52,9 +58,14 @@ void UInventoryUI::OnItemPressed()
 		// AccuracyStatusText 바꾸기
 		ChangeAccuracyStatusText();
 		// EquipStateText 교체, 장착중 바꾸기
-		ChangeEquipStateText();
-		
-		
+		if (bReverse)
+		{
+			ChangeEquipStateText();
+		}
+		else
+		{
+			ChangeEquipStateTextReverse();
+		}
 	}
 }
 
@@ -68,24 +79,23 @@ void UInventoryUI::OnEquipPressed()
 	// Change Material
 	switch (ItemType)
 	{
-	case EItemType::Item1:	// 1번 아이템 장착하면
-		
+	case EItemType::Item1: // 1번 아이템 장착하면
+
 		break;
-	case EItemType::Item2:	// 2번 아이템 장착하면
-		
+	case EItemType::Item2: // 2번 아이템 장착하면
+
 		break;
 	}
 	// Change Status
 	switch (ItemType)
 	{
-	case EItemType::Item1:	// 1번 아이템 장착하면
-		
+	case EItemType::Item1: // 1번 아이템 장착하면
+
 		break;
-	case EItemType::Item2:	// 2번 아이템 장착하면
-		
+	case EItemType::Item2: // 2번 아이템 장착하면
+
 		break;
 	}
-	
 }
 
 void UInventoryUI::ChangeItemType(EItemType newItem)
@@ -99,7 +109,7 @@ void UInventoryUI::ChangeEquipItemImage()
 {
 	switch (ItemType)
 	{
-	case EItemType::Item1:	// 1번 아이템 장착 시
+	case EItemType::Item1: // 1번 아이템 장착 시
 		if (EquipItemImage && EquipItemTexture1)
 		{
 			// FSlateBrush Brush;
@@ -107,7 +117,7 @@ void UInventoryUI::ChangeEquipItemImage()
 			// EquipItemImage->SetBrush(Brush);
 		}
 		break;
-	case EItemType::Item2:	// 2번 아이템 장착 시
+	case EItemType::Item2: // 2번 아이템 장착 시
 		if (EquipItemImage && EquipItemTexture2)
 		{
 			// FSlateBrush Brush;
@@ -122,10 +132,10 @@ void UInventoryUI::ChangeEquipmentText()
 {
 	switch (ItemType)
 	{
-	case EItemType::Item1:	// 1번 아이템 장착 시
+	case EItemType::Item1: // 1번 아이템 장착 시
 		EquipmentText->SetText(FText::FromString(TEXT("나무배트")));
 		break;
-	case EItemType::Item2:	// 2번 아이템 장착 시
+	case EItemType::Item2: // 2번 아이템 장착 시
 		EquipmentText->SetText(FText::FromString(TEXT("티타늄배트")));
 		break;
 	}
@@ -135,10 +145,10 @@ void UInventoryUI::ChangePowerStatusText()
 {
 	switch (ItemType)
 	{
-	case EItemType::Item1:	// 1번 아이템 장착 시
+	case EItemType::Item1: // 1번 아이템 장착 시
 		PowerStatusText->SetText(FText::FromString(TEXT("75")));
 		break;
-	case EItemType::Item2:	// 2번 아이템 장착 시
+	case EItemType::Item2: // 2번 아이템 장착 시
 		PowerStatusText->SetText(FText::FromString(TEXT("67")));
 		break;
 	}
@@ -148,10 +158,10 @@ void UInventoryUI::ChangeAccuracyStatusText()
 {
 	switch (ItemType)
 	{
-	case EItemType::Item1:	// 1번 아이템 장착 시
+	case EItemType::Item1: // 1번 아이템 장착 시
 		AccuracyStatusText->SetText(FText::FromString(TEXT("89")));
 		break;
-	case EItemType::Item2:	// 2번 아이템 장착 시
+	case EItemType::Item2: // 2번 아이템 장착 시
 		AccuracyStatusText->SetText(FText::FromString(TEXT("97")));
 		break;
 	}
@@ -159,16 +169,25 @@ void UInventoryUI::ChangeAccuracyStatusText()
 
 void UInventoryUI::ChangeEquipStateTextReverse()
 {
+	switch (ItemType)
+	{
+	case EItemType::Item1: // 1번 아이템 장착 중이면
+		EquipStateText->SetText(FText::FromString(TEXT("교체")));
+		break;
+	case EItemType::Item2: // 2번 아이템 장착 중이면
+		EquipStateText->SetText(FText::FromString(TEXT("교체")));
+		break;
+	}
 }
 
 void UInventoryUI::ChangeEquipStateText()
 {
 	switch (ItemType)
 	{
-	case EItemType::Item1:	// 1번 아이템 장착 중이면
+	case EItemType::Item1: // 1번 아이템 장착 중이면
 		EquipStateText->SetText(FText::FromString(TEXT("장착중")));
 		break;
-	case EItemType::Item2:	// 2번 아이템 장착 중이면
+	case EItemType::Item2: // 2번 아이템 장착 중이면
 		EquipStateText->SetText(FText::FromString(TEXT("장착중")));
 		break;
 	}
@@ -178,13 +197,15 @@ void UInventoryUI::MoveEquippedText()
 {
 	switch (ItemType)
 	{
-	case EItemType::Item1:	// 1번 아이템 장착 중이면
-		TargetPos = InventoryItemButton1->RenderTransform.Translation;
-		EquippedText->SetRenderTranslation(TargetPos);
+	case EItemType::Item1: // 1번 아이템 장착 중이면
+		bReverse = false;
+		Equipped1Text->SetVisibility(ESlateVisibility::Visible);
+		Equipped2Text->SetVisibility(ESlateVisibility::Hidden);
 		break;
-	case EItemType::Item2:	// 2번 아이템 장착 중이면
-		TargetPos = InventoryItemButton2->RenderTransform.Translation;
-		EquippedText->SetRenderTranslation(TargetPos);
+	case EItemType::Item2: // 2번 아이템 장착 중이면
+		bReverse = true;
+		Equipped2Text->SetVisibility(ESlateVisibility::Visible);
+		Equipped1Text->SetVisibility(ESlateVisibility::Hidden);
 		break;
 	}
 }
