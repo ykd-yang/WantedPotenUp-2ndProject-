@@ -64,7 +64,7 @@ bool ABatter::ApplySwingReal()
 			auto* myGameMode = Cast<ABaseBallGameMode>(GetWorld()->GetAuthGameMode());
 			if (myGameMode)
 			{
-				myGameMode->InGameUI->DisplayBallJudgement(Side,Critical);
+				myGameMode->InGameUI->DisplayBallJudgement(Side,Critical); 
 			}
 			
 			
