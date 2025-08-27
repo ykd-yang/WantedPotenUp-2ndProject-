@@ -7,6 +7,7 @@
 #include "RankingUI.generated.h"
 
 class UScrollBox;
+class URankingDataUI;
 /**
  * 
  */
@@ -14,6 +15,9 @@ UCLASS()
 class HOMERUNCLASHCOPY_API URankingUI : public UUserWidget
 {
 	GENERATED_BODY()
+public:
+	URankingUI(const FObjectInitializer& ObjectInitializer);
+	
 private:
 	virtual void NativeConstruct() override;
 	
@@ -23,4 +27,10 @@ private:
 
 	UPROPERTY(meta=(BindWidget))
 	UButton* ExitButton;
+
+	UPROPERTY()
+	TSubclassOf<URankingDataUI> RankingUIClass;
+
+	UFUNCTION()
+	void OnPressExitButton();
 };
