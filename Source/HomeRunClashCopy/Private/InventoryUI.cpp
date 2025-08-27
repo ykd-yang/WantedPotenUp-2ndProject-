@@ -1,0 +1,190 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+
+#include "InventoryUI.h"
+
+#include "Components/TextBlock.h"
+
+void UInventoryUI::NativeConstruct()
+{
+	Super::NativeConstruct();
+
+	InventoryItemButton1->OnClicked.AddDynamic(this, &UInventoryUI::OnItemPressed);
+	InventoryItemButton2->OnClicked.AddDynamic(this, &UInventoryUI::OnItemPressed);
+	EquipButton->OnClicked.AddDynamic(this, &UInventoryUI::OnEquipPressed);
+
+}
+
+void UInventoryUI::NativeTick(const FGeometry& MyGeometry, float DeltaTime)
+{
+	Super::NativeTick(MyGeometry, DeltaTime);
+}
+
+void UInventoryUI::OnItemPressed()
+{
+	if (InventoryItemButton1->HasUserFocus(GetOwningPlayer())) // 1번 아이템, 나무배트 
+	{
+		// Change ItemType
+		ChangeItemType(EItemType::Item1);
+		// EquipItemImage 바꾸기
+		ChangeEquipItemImage();
+		// EquipmentText 바꾸기
+		ChangeEquipmentText();
+		// PowerStatusText 바꾸기
+		ChangePowerStatusText();
+		// AccuracyStatusText 바꾸기
+		ChangeAccuracyStatusText();
+		// EquipStateText 교체, 장착중 바꾸기
+		ChangeEquipStateText();
+
+		
+	}
+	else if (InventoryItemButton2->HasUserFocus(GetOwningPlayer())) // 2번 아이템, 티타늄배트
+	{
+		// Change ItemType
+		ChangeItemType(EItemType::Item2);
+		// EquipItemImage 바꾸기
+		ChangeEquipItemImage();
+		// EquipmentText 바꾸기
+		ChangeEquipmentText();
+		// PowerStatusText 바꾸기
+		ChangePowerStatusText();
+		// AccuracyStatusText 바꾸기
+		ChangeAccuracyStatusText();
+		// EquipStateText 교체, 장착중 바꾸기
+		ChangeEquipStateText();
+		
+		
+	}
+}
+
+void UInventoryUI::OnEquipPressed()
+{
+	// EquipStateText 장착중 바꾸기
+	ChangeEquipStateText();
+	// EquippedText 옮기기
+	MoveEquippedText();
+
+	// Change Material
+	switch (ItemType)
+	{
+	case EItemType::Item1:	// 1번 아이템 장착하면
+		
+		break;
+	case EItemType::Item2:	// 2번 아이템 장착하면
+		
+		break;
+	}
+	// Change Status
+	switch (ItemType)
+	{
+	case EItemType::Item1:	// 1번 아이템 장착하면
+		
+		break;
+	case EItemType::Item2:	// 2번 아이템 장착하면
+		
+		break;
+	}
+	
+}
+
+void UInventoryUI::ChangeItemType(EItemType newItem)
+{
+	if (ItemType == newItem)
+		return;
+	ItemType = newItem;
+}
+
+void UInventoryUI::ChangeEquipItemImage()
+{
+	switch (ItemType)
+	{
+	case EItemType::Item1:	// 1번 아이템 장착 시
+		if (EquipItemImage && EquipItemTexture1)
+		{
+			// FSlateBrush Brush;
+			// Brush.SetResourceObject(EquipItemTexture1);
+			// EquipItemImage->SetBrush(Brush);
+		}
+		break;
+	case EItemType::Item2:	// 2번 아이템 장착 시
+		if (EquipItemImage && EquipItemTexture2)
+		{
+			// FSlateBrush Brush;
+			// Brush.SetResourceObject(EquipItemTexture2);
+			// EquipItemImage->SetBrush(Brush);
+		}
+		break;
+	}
+}
+
+void UInventoryUI::ChangeEquipmentText()
+{
+	switch (ItemType)
+	{
+	case EItemType::Item1:	// 1번 아이템 장착 시
+		EquipmentText->SetText(FText::FromString(TEXT("나무배트")));
+		break;
+	case EItemType::Item2:	// 2번 아이템 장착 시
+		EquipmentText->SetText(FText::FromString(TEXT("티타늄배트")));
+		break;
+	}
+}
+
+void UInventoryUI::ChangePowerStatusText()
+{
+	switch (ItemType)
+	{
+	case EItemType::Item1:	// 1번 아이템 장착 시
+		PowerStatusText->SetText(FText::FromString(TEXT("75")));
+		break;
+	case EItemType::Item2:	// 2번 아이템 장착 시
+		PowerStatusText->SetText(FText::FromString(TEXT("67")));
+		break;
+	}
+}
+
+void UInventoryUI::ChangeAccuracyStatusText()
+{
+	switch (ItemType)
+	{
+	case EItemType::Item1:	// 1번 아이템 장착 시
+		AccuracyStatusText->SetText(FText::FromString(TEXT("89")));
+		break;
+	case EItemType::Item2:	// 2번 아이템 장착 시
+		AccuracyStatusText->SetText(FText::FromString(TEXT("97")));
+		break;
+	}
+}
+
+void UInventoryUI::ChangeEquipStateTextReverse()
+{
+}
+
+void UInventoryUI::ChangeEquipStateText()
+{
+	switch (ItemType)
+	{
+	case EItemType::Item1:	// 1번 아이템 장착 중이면
+		EquipStateText->SetText(FText::FromString(TEXT("장착중")));
+		break;
+	case EItemType::Item2:	// 2번 아이템 장착 중이면
+		EquipStateText->SetText(FText::FromString(TEXT("장착중")));
+		break;
+	}
+}
+
+void UInventoryUI::MoveEquippedText()
+{
+	switch (ItemType)
+	{
+	case EItemType::Item1:	// 1번 아이템 장착 중이면
+		TargetPos = InventoryItemButton1->RenderTransform.Translation;
+		EquippedText->SetRenderTranslation(TargetPos);
+		break;
+	case EItemType::Item2:	// 2번 아이템 장착 중이면
+		TargetPos = InventoryItemButton2->RenderTransform.Translation;
+		EquippedText->SetRenderTranslation(TargetPos);
+		break;
+	}
+}
