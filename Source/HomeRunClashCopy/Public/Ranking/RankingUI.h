@@ -15,6 +15,9 @@ UCLASS()
 class HOMERUNCLASHCOPY_API URankingUI : public UUserWidget
 {
 	GENERATED_BODY()
+public:
+	URankingUI(const FObjectInitializer& ObjectInitializer);
+	
 private:
 	virtual void NativeConstruct() override;
 	

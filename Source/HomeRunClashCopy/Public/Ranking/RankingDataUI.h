@@ -16,6 +16,9 @@ class HOMERUNCLASHCOPY_API URankingDataUI : public UUserWidget
 	GENERATED_BODY()
 
 private:
+	virtual void NativeConstruct() override;
+	
+private:
 	UPROPERTY(meta=(BindWidget))
 	UTextBlock* RankText;
 	

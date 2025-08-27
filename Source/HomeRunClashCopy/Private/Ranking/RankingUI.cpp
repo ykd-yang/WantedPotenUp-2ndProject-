@@ -9,16 +9,18 @@
 #include "Ranking/RankingDataUI.h"
 #include "Ranking/RankingData.h"
 
-void URankingUI::NativeConstruct()
+URankingUI::URankingUI(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
-	Super::NativeConstruct();
-
-	
-	ConstructorHelpers::FClassFinder<URankingDataUI> WBP_RankingDataUI(TEXT("/Game/BP/WBP_RankingData.WBP_RankingData"));
+	ConstructorHelpers::FClassFinder<URankingDataUI> WBP_RankingDataUI(TEXT("/Game/BP/WBP_RankingData.WBP_RankingData_C"));
 	if (WBP_RankingDataUI.Succeeded())
 	{
 		RankingUIClass = WBP_RankingDataUI.Class;
 	}
+}
+
+void URankingUI::NativeConstruct()
+{
+	Super::NativeConstruct();
 
 	//랭킹 가져오기
 	UBaseBallGameInstance* GI = Cast<UBaseBallGameInstance>(GetGameInstance());

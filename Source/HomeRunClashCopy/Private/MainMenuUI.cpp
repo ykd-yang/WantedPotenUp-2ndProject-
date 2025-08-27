@@ -6,12 +6,15 @@
 #include "InventoryUI.h"
 #include "Components/Button.h"
 #include "Kismet/GameplayStatics.h"
+#include "Ranking/RankingUI.h"
 
 void UMainMenuUI::NativeConstruct()
 {
 	Super::NativeConstruct();
 	StartButton->OnClicked.AddDynamic(this, &UMainMenuUI::StartButtonClicked);
 	Player_Btn->OnClicked.AddDynamic(this, &UMainMenuUI::PlayerBtnClicked);
+	Shop_Btn->OnClicked.AddDynamic(this, &UMainMenuUI::ShopBtnClicked);
+	Rank_Btn->OnClicked.AddDynamic(this, &UMainMenuUI::RankingBtnClicked);
 }
 
 void UMainMenuUI::StartButtonClicked()
@@ -24,12 +27,28 @@ void UMainMenuUI::StartButtonClicked()
 
 void UMainMenuUI::PlayerBtnClicked()
 {
+}
+
+void UMainMenuUI::ShopBtnClicked()
+{
 	if (WBP_Inventory->GetVisibility() == ESlateVisibility::Hidden)
 	{
-		WBP_Inventory->SetVisibility(ESlateVisibility::Visible);
+		WBP_Inventory->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
 	}
-	else if (WBP_Inventory->GetVisibility() == ESlateVisibility::Visible)
+	else if (WBP_Inventory->GetVisibility() == ESlateVisibility::SelfHitTestInvisible)
 	{
 		WBP_Inventory->SetVisibility(ESlateVisibility::Hidden);
+	}
+}
+
+void UMainMenuUI::RankingBtnClicked()
+{
+	if (WBP_Ranking->GetVisibility() == ESlateVisibility::Hidden)
+	{
+		WBP_Ranking->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
+	}
+	else if (WBP_Ranking->GetVisibility() == ESlateVisibility::SelfHitTestInvisible)
+	{
+		WBP_Ranking->SetVisibility(ESlateVisibility::Hidden);
 	}
 }

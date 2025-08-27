@@ -6,6 +6,13 @@
 #include "Components/TextBlock.h"
 #include "Ranking/RankingData.h"
 
+void URankingDataUI::NativeConstruct()
+{
+	Super::NativeConstruct();
+
+	SetPadding(FMargin(0, 3, 0, 3));
+}
+
 void URankingDataUI::SetUIRankText(int32 Rank, FRankingData Data)
 {
 	RankText->SetText(FText::AsNumber(Rank));

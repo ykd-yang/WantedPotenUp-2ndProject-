@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 #include "MainMenuUI.generated.h"
+class URankingUI;
 class UInventoryUI;
 class ABaseBallGameMode;
 class UButton;
@@ -22,13 +23,29 @@ protected:
 public:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UButton> StartButton;
+
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UButton> Player_Btn;
+	
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UButton> Shop_Btn;
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UInventoryUI> WBP_Inventory;
-
+	
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UButton> Rank_Btn;
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<URankingUI> WBP_Ranking;
+	
 	UFUNCTION()
 	void StartButtonClicked();
+
 	UFUNCTION()
 	void PlayerBtnClicked();
+	
+	UFUNCTION()
+	void ShopBtnClicked();
+
+	UFUNCTION()
+	void RankingBtnClicked();
 };
