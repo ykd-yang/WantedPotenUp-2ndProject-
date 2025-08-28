@@ -33,6 +33,9 @@ private:
 	TSubclassOf<UMaterial> ItemMaterial1;	// Wood Material
 	UPROPERTY(EditAnywhere, Category="ItemInfo")
 	TSubclassOf<UMaterial> ItemMaterial2;	// Titanium Material
+	UPROPERTY()
+	TArray<FRankingData> RankingData_FB;
+
 public:
 	FString GetPlayerName();
 	void SetPlayerName(const FString& NewPlayerName);
