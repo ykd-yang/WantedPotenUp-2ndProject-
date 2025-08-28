@@ -63,7 +63,7 @@ void UInGameUI::UpdateHomerunGauge(int32 NewHomerunGauge)
 		HomerunGauge = 100; // over 100
 		isCalledShot = true;
 	}
-	
+
 	HomerunGaugeText->SetText(FText::Format(NSLOCTEXT("UI", "HomerunGauge", "{0}%"), FText::AsNumber(HomerunGauge)));
 	HomerunGaugeBar->SetPercent(HomerunGauge / 100.0f);
 }
@@ -169,8 +169,9 @@ void UInGameUI::HideBallHitDirection()
 void UInGameUI::DisplayBallJudgement(float Judgement, bool isCritical)
 {
 	isJudgementDisplaying = true;
-	if (isCritical)
+	if (isCritical) // Critical
 	{
+		GameMode->AddScore(180); // Critical score: 180
 	}
 	else // Not Critical
 	{
@@ -178,16 +179,19 @@ void UInGameUI::DisplayBallJudgement(float Judgement, bool isCritical)
 		{
 			UpdateHomerunGauge(30);
 			PerfectImage->SetVisibility(ESlateVisibility::Visible);
+			GameMode->AddScore(140); // Perfect score: 140
 		}
 		else if (Judgement > -0.66f && Judgement < 0.66f)
 		{
 			UpdateHomerunGauge(15);
 			GreatImage->SetVisibility(ESlateVisibility::Visible);
+			GameMode->AddScore(80); // Great score: 80
 		}
 		else
 		{
 			UpdateHomerunGauge(7);
 			GoodImage->SetVisibility(ESlateVisibility::Visible);
+			GameMode->AddScore(20); // Good score: 20
 		}
 	}
 
@@ -229,6 +233,7 @@ void UInGameUI::UpdateBallDistance(ABall* ball, APlayerController* playercontrol
 		DistanceCanvasSlot->SetPosition(ScreenPosition);
 
 		int32 Distance = FVector::Dist(ball->GetActorLocation(), StrikeZoneLocation);
+		// Add Distance Score !!
 		FText WinConditionText = FText::FromString(TEXT("{0}FT"));
 		FText WinCondition = FText::Format(WinConditionText, FText::AsNumber(Distance));
 	}
@@ -257,23 +262,39 @@ void UInGameUI::DisplayHomerunState(bool Homerun)
 		if (ESlateVisibility::Visible != HomerunImage->GetVisibility() && ESlateVisibility::Visible != HitImage->
 			GetVisibility())
 		{
-			FTimerHandle HomerunStateTimer;
 			isHomerunStateDisplaying = true;
-			if (Homerun) // Display Homerun
+			if (Homerun)
 			{
 				ComboNumber += 1;
-				PlayAnimation(HomerunAnimation);
-				HomerunImage->SetVisibility(ESlateVisibility::Visible);
-				GetWorld()->GetTimerManager().SetTimer(HomerunStateTimer, this, &UInGameUI::HideHomerunState,
-				                                       DisplayTime, false);
-				UpdateSuccessfulHomerun();
+				if (ComboNumber == 1)	// First Homerun score: 50
+				{
+					GameMode->AddScore(50);
+				}
+				else	// Combo Homerun score: 20
+				{
+					GameMode->AddScore(20);
+				}
+				if (isCalledShot)	// Display Called Shot
+				{
+					DisplayCalledShot();
+				}
+				else	// Display Homerun
+				{
+					PlayAnimation(HomerunAnimation);
+					HomerunImage->SetVisibility(ESlateVisibility::Visible);
+					FTimerHandle HomerunTimer;
+					GetWorld()->GetTimerManager().SetTimer(HomerunTimer, this, &UInGameUI::HideHomerunState,
+					                                       DisplayTime, false);
+					UpdateSuccessfulHomerun();
+				}
 			}
 			else // Display Hit
 			{
 				ComboNumber = 0;
 				PlayAnimation(HitAnimation);
 				HitImage->SetVisibility(ESlateVisibility::Visible);
-				GetWorld()->GetTimerManager().SetTimer(HomerunStateTimer, this, &UInGameUI::HideHomerunState,
+				FTimerHandle HitTimer;
+				GetWorld()->GetTimerManager().SetTimer(HitTimer, this, &UInGameUI::HideHomerunState,
 				                                       DisplayTime, false);
 			}
 		}
@@ -309,8 +330,8 @@ void UInGameUI::HideHomerunState()
 	{
 		FTimerHandle ChangeStateTimer;
 		GetWorld()->GetTimerManager().SetTimer(ChangeStateTimer,
-											   [this]() { GameMode->ChangeState(EGameModeState::CalledShot); }, 1, false);
-
+		                                       [this]() { GameMode->ChangeState(EGameModeState::CalledShot); }, 1,
+		                                       false);
 	}
 	else
 	{
@@ -344,7 +365,7 @@ void UInGameUI::HideStageClear()
 
 	FActorSpawnParameters Params;
 	Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
-	APawn* ClearPawn = GetWorld()->SpawnActor<APawn>(StageClearPawn, SpawnLocation, FRotator(0,-90.f,0), Params);
+	APawn* ClearPawn = GetWorld()->SpawnActor<APawn>(StageClearPawn, SpawnLocation, FRotator(0, -90.f, 0), Params);
 	if (ClearPawn)
 	{
 		ClearPawn->SetActorScale3D(FVector(3.0f, 3.0f, 3.0f));
@@ -375,10 +396,10 @@ void UInGameUI::HideStageFail()
 	{
 		PlayFailOST.Broadcast();
 	}
-	
+
 	FActorSpawnParameters Params;
 	Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
-	APawn* FailPawn = GetWorld()->SpawnActor<APawn>(StageFailPawn, SpawnLocation, FRotator(0,-90.f,0), Params);
+	APawn* FailPawn = GetWorld()->SpawnActor<APawn>(StageFailPawn, SpawnLocation, FRotator(0, -90.f, 0), Params);
 	if (FailPawn)
 	{
 		FailPawn->SetActorScale3D(FVector(3.0f, 3.0f, 3.0f));
@@ -415,7 +436,24 @@ void UInGameUI::HideCyclingHomerun()
 		LeftOnImage->SetVisibility(ESlateVisibility::Hidden);
 		CenterOnImage->SetVisibility(ESlateVisibility::Hidden);
 		RightOnImage->SetVisibility(ESlateVisibility::Hidden);
+		GameMode->AddScore(500);
 	}
+}
+
+void UInGameUI::DisplayCalledShot()
+{
+	CalledShotImage->SetVisibility(ESlateVisibility::Visible);
+
+
+	FTimerHandle HideCalledShotTimer;
+	GetWorld()->GetTimerManager().SetTimer(HideCalledShotTimer, this, &UInGameUI::HideCalledShot, DisplayTime,
+	                                       false);
+	GameMode->AddScore(700);
+}
+
+void UInGameUI::HideCalledShot()
+{
+	CalledShotImage->SetVisibility(ESlateVisibility::Hidden);
 }
 
 void UInGameUI::DisplayCombo()
