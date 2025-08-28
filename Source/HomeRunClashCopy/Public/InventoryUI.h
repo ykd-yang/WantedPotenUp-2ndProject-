@@ -8,6 +8,7 @@
 #include "Components/Image.h"
 #include "InventoryUI.generated.h"
 
+class UBaseBallGameInstance;
 class UCanvasPanelSlot;
 class UTextBlock;
 class UButton;
@@ -71,7 +72,9 @@ public:
 	TObjectPtr<UTextBlock> PowerStatusText;
 	UPROPERTY(meta=(BindWidget))
 	TObjectPtr<UTextBlock> AccuracyStatusText;
-
+	UPROPERTY()
+	TObjectPtr<UBaseBallGameInstance> GI;
+	
 	// Button Events
 	UFUNCTION()
 	void OnItemPressed();

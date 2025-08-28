@@ -3,9 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "ItemInfo.h"
 #include "Engine/GameInstance.h"
 #include "Ranking/RankingData.h"
 #include "BaseBallGameInstance.generated.h"
+
 
 /**
  * 
@@ -26,11 +28,22 @@ private:
 
 	UPROPERTY()
 	FRankingArray RankingData;
-	
+
+	UPROPERTY(EditAnywhere, Category="ItemInfo")
+	TSubclassOf<UMaterial> ItemMaterial1;	// Wood Material
+	UPROPERTY(EditAnywhere, Category="ItemInfo")
+	TSubclassOf<UMaterial> ItemMaterial2;	// Titanium Material
 public:
 	FString GetPlayerName();
 	void SetPlayerName(const FString& NewPlayerName);
 
 	const TArray<FRankingData>& GetRankingData();
 	void UpdateRankingData(const FString& Name, const int32 Score, const int32 HitBallCnt);
+
+	int32 ItemType = 1;	// 1: Wood Bat, 2: Titanium Bat
+
+	UPROPERTY(EditAnywhere)
+	FItemInformation ItemInfo;
+	
+	void UpdateItemInfo();
 };
