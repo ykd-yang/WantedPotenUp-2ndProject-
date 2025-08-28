@@ -281,7 +281,7 @@ void ABaseBallGameMode::OnStartEnter()
 
 void ABaseBallGameMode::OnThrowEnter()
 {
-	
+	CheckCallHitPoints();
 	if (nullptr != InGameUI)
 	{
 		InGameUI->isHomerunStateDisplaying = false;

@@ -199,9 +199,11 @@ float AHitBox::CheckTiming(ABall* Ball)
 
 	if (FMath::Abs(deltaX) > kHalfTiming)
 		return -2.f;                                   // 범위 밖
-
+	const float TimingOffset=0.3f;
+	const float TimingBefore = deltaX / kHalfTiming;
+	const float HandiTiming = FMath::Clamp((TimingBefore + 1.f) * 0.5f+TimingOffset, 0.f, 1.f);
 	
-	return deltaX / kHalfTiming;
+	return HandiTiming;
 }
 
 
@@ -256,7 +258,7 @@ float AHitBox::CheckHeight(ABall* Ball)
 }
 bool AHitBox::CheckCritical(float Timing, float HeightBat,float SideBat)
 {
-	float CriticalThreshold = 0.2+ItemCritical;
+	float CriticalThreshold = 0.3+ItemCritical;
 	return (FMath::Abs(Timing) <= CriticalThreshold) &&
 		   (FMath::Abs(HeightBat) <= CriticalThreshold) &&
 		   (FMath::Abs(SideBat) <= CriticalThreshold);
@@ -289,9 +291,9 @@ bool AHitBox::ApplyHitReal(float Timing, float HeightBat, float SideBat, ABall* 
     // 고정 전방(-X), 타이밍 좌우(Y), 높이(Z)
     const float Xcomp   = -Power * Accuracy;
 	const float TimingOffset=0.3f;
-	const float HandiTiming = FMath::Clamp((Timing + 1.f) * 0.5f+TimingOffset, 0.f, 1.f);
 	
-    const float BallDir = FMath::Lerp(1.5f, -1.5f, HandiTiming);
+	
+    const float BallDir = FMath::Lerp(1.5f, -1.5f, Timing);
     const float Ycomp   =  BallDir * Power * Accuracy;
 
     const float BallAng = FMath::Lerp(0.95f, 0.4f, (HeightBat + 1.f) * 0.5f);
@@ -394,7 +396,7 @@ bool AHitBox::ApplyHitReal(float Timing, float HeightBat, float SideBat, ABall* 
 
     UE_LOG(LogTemp, Warning,
         TEXT("ApplyHitReal -> T:%f H:%f S:%f | Acc:%f | Power:%f | Vin:%s Vout:%s | J:%s | FoulAngle:%f"),
-        Timing, HeightBat, SideBat, Accuracy, Power, *Vin.ToString(), *Vout.ToString(), *J.ToString(), FoulAngleDeg);
+        Timing, HeightBat, SideBat, Accuracy, PowerBase, *Vin.ToString(), *Vout.ToString(), *J.ToString(), FoulAngleDeg);
 
     if (ABaseBallGameMode* GM = Cast<ABaseBallGameMode>(UGameplayStatics::GetGameMode(this)))
     {
