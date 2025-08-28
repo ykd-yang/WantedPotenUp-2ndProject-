@@ -16,6 +16,10 @@ UCLASS()
 class HOMERUNCLASHCOPY_API UBaseBallGameInstance : public UGameInstance
 {
 	GENERATED_BODY()
+
+public:
+	UBaseBallGameInstance();
+
 protected:
 	virtual void Init() override;
 
@@ -32,20 +36,22 @@ private:
 	const TArray<FRankingData>& GetRankingData();
 	void UpdateRankingData(const FString& Name, const int32 Score, const int32 HitBallCnt);
 
-	
 	UPROPERTY(EditAnywhere, Category="ItemInfo")
 	TSubclassOf<UMaterial> ItemMaterial1;	// Wood Material
 	UPROPERTY(EditAnywhere, Category="ItemInfo")
 	TSubclassOf<UMaterial> ItemMaterial2;	// Titanium Material
 
+	UPROPERTY()
+	TObjectPtr<UMaterial> WoodMat;
+	UPROPERTY()
+	TObjectPtr<UMaterial> TitaniumMat;
+	
 public:
 	FString GetPlayerName();
 	void SetPlayerName(const FString& NewPlayerName);
 
-	int32 ItemType = 1;	// 1: Wood Bat, 2: Titanium Bat
-
 	UPROPERTY(EditAnywhere,BlueprintReadOnly)
-	FItemInformation ItemInfo;
+	FItemInformation PlayerItemInfo;
 	
-	void UpdateItemInfo();
+	void UpdateItemInfo(int32 itemtype);
 };

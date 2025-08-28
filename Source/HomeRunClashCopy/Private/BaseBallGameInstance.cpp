@@ -5,11 +5,29 @@
 #include "ItemInfo.h"
 #include "Ranking/RankingDataManager.h"
 
+UBaseBallGameInstance::UBaseBallGameInstance()
+{
+	ConstructorHelpers::FObjectFinder<UMaterial> Mat1(
+		TEXT("/Script/Engine.Material'/Game/Blueprint/Ui/Widget/Material/M_GradientBlack.M_GradientBlack'"));
+	if (Mat1.Succeeded())
+	{
+		WoodMat = Mat1.Object;
+	}
+
+	ConstructorHelpers::FObjectFinder<UMaterial> Mat2(
+		TEXT("Script/Engine.Material'/Game/Blueprint/Ui/Widget/Material/M_BlueRadialFade.M_BlueRadialFade'"));
+	if (Mat2.Succeeded())
+	{
+		TitaniumMat = Mat2.Object;
+	}
+}
+
 void UBaseBallGameInstance::Init()
 {
 	Super::Init();
-	
 	//RankingData = RankingDataManager::LoadLocal(RankingDataFileName);
+	UpdateItemInfo(1);
+	RankingData = RankingDataManager::LoadLocal(RankingDataFileName);
 }
 
 FString UBaseBallGameInstance::GetPlayerName()
@@ -32,19 +50,19 @@ void UBaseBallGameInstance::UpdateRankingData(const FString& Name, const int32 S
 	RankingDataManager::AddNewDataLocal(RankingData, Name, Score, HitBallCnt, RankingDataFileName);
 }
 
-void UBaseBallGameInstance::UpdateItemInfo()
+void UBaseBallGameInstance::UpdateItemInfo(int32 itemtype)
 {
-	if (ItemType == 1)
+	if (itemtype == 1)
 	{
-		ItemInfo.Material = ItemMaterial1->GetDefaultObject<UMaterial>();
-		ItemInfo.PowerRate = 0;
-		ItemInfo.CriticalRate = 0.05;
+		PlayerItemInfo.Material = WoodMat;
+		PlayerItemInfo.PowerRate = 0;
+		PlayerItemInfo.CriticalRate = 1;
 	}
-	else if (ItemType == 2)
+	else if (itemtype == 2)
 	{
-		ItemInfo.Material = ItemMaterial2->GetDefaultObject<UMaterial>();
-		ItemInfo.PowerRate = 300;
-		ItemInfo.CriticalRate = 0.f;
+		PlayerItemInfo.Material = TitaniumMat;
+		PlayerItemInfo.PowerRate = 300;
+		PlayerItemInfo.CriticalRate = 1;
 	}
 	
 }
