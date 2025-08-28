@@ -6,6 +6,7 @@
 #include "Ball.h"
 #include "GameFramework/GameModeBase.h"
 #include "BallInfo.h"
+#include "CallHitObejct.h"
 #include "BaseBallGameMode.generated.h"
 
 
@@ -73,6 +74,8 @@ public:
 	TSubclassOf<UStageFailUI> StageFailUIClass;
 	UPROPERTY()
 	TObjectPtr<UStageFailUI> StageFailUI;
+	UPROPERTY(EditAnywhere)
+	TArray<class ACallHitObejct*> SpawnPoints;
 	
 	// EBallType to String
 	UFUNCTION()
@@ -143,4 +146,11 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void SwitchToInGameUI();
+	
+	void CheckCallHitObject();// 피치 단계로 넘어가기 전에 전에 존재하는 콜히트 오브젝트는 꺼줘야 한다.
+	UFUNCTION(BlueprintCallable)
+	TArray<ACallHitObejct*> GetSpawnPoints();
 };
+
+
+

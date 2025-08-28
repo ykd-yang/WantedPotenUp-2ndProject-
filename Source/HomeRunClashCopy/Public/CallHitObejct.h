@@ -28,7 +28,12 @@ public:
 	void UpdateRate();
 	UFUNCTION(BlueprintCallable)
 	UNiagaraComponent* SpawnDoor();
-
+	UNiagaraComponent* GetDoor();
+	int LifeCount=0;
+	UFUNCTION(BlueprintCallable)
+	void DestroyDoor();
+	UFUNCTION(BlueprintCallable)
+	void SetDoor(UNiagaraComponent* NewDoor);
 	FTimerHandle DoorTimerHandle;
 protected:
 	// Called when the game starts or when spawned

@@ -16,10 +16,7 @@ ACallHitObejct::ACallHitObejct()
 
 void ACallHitObejct::UpdateRate()
 {
-	if (Door)
-	{
-		//Door->//
-	}
+	LifeCount++;
 }
 
 UNiagaraComponent* ACallHitObejct::SpawnDoor()
@@ -33,6 +30,23 @@ UNiagaraComponent* ACallHitObejct::SpawnDoor()
 	}
 
 	return Door;
+}
+
+UNiagaraComponent* ACallHitObejct::GetDoor()
+{
+	return Door;
+}
+
+void ACallHitObejct::DestroyDoor()
+{
+	Door->DeactivateImmediate();
+	Door = nullptr;
+	
+}
+
+void ACallHitObejct::SetDoor(UNiagaraComponent* NewDoor)
+{
+	Door = NewDoor;
 }
 
 // Called when the game starts or when spawned

@@ -11,6 +11,7 @@
 #include "MainMenuUI.h"
 #include "StageClearUI.h"
 #include "StageFailUI.h"
+#include "ToolBuilderUtil.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
 #include "Camera/CameraActor.h"
 #include "Camera/CameraComponent.h"
@@ -59,6 +60,8 @@ void ABaseBallGameMode::BeginPlay()
 		}
 	}
 	StageFailUI->SetVisibility(ESlateVisibility::Hidden);
+	TArray<AActor*> FoundActors;
+	
 	
 	// InputModeUIOnly.SetWidgetToFocus(nullptr);
 	// InputModeUIOnly.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
@@ -254,6 +257,17 @@ void ABaseBallGameMode::OnEndTick(float DeltaTime)
 //On Enter
 void ABaseBallGameMode::OnStartEnter()
 {
+	TArray<AActor*> FoundActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(),ACallHitObejct::StaticClass(),FoundActors);
+	for (AActor* Actor : FoundActors)
+	{
+		
+		ACallHitObejct* MyActor = Cast<ACallHitObejct>(Actor);
+		if (MyActor)
+		{
+			SpawnPoints.Add(MyActor);
+		}
+	}
 	InGameUI->IsStageCleared = -1;
 	// UWidgetBlueprintLibrary::GetAllWidgetsOfClass(GetWorld(), AllWidgets, UUserWidget::StaticClass(), true);
 	// AllWidgets[0]->SetVisibility(ESlateVisibility::Visible);
@@ -278,6 +292,8 @@ void ABaseBallGameMode::OnStartEnter()
 
 void ABaseBallGameMode::OnThrowEnter()
 {
+	CheckCallHitObject();
+	UE_LOG(LogTemp, Display, TEXT("미쳣다"));
 	if (nullptr != InGameUI)
 	{
 		InGameUI->isHomerunStateDisplaying = false;
@@ -419,6 +435,28 @@ void ABaseBallGameMode::SwitchToStartCamera(APlayerController* pc)
 		// 부드럽게 시점 전환 (0.5초 동안)                                                                                                                                                
 		pc->SetViewTargetWithBlend(StartCamera, 0.5f);
 	}
+}
+
+void ABaseBallGameMode::CheckCallHitObject()
+{
+	for (auto* point : SpawnPoints)
+	{
+		if (point->GetDoor() !=nullptr && point->LifeCount>=2)
+		{
+			point->DestroyDoor();
+			point->LifeCount =0;
+		}
+		else if(point->GetDoor() !=nullptr && point->LifeCount<2)
+		{
+			point->LifeCount++;
+			
+		}
+	}
+}
+
+TArray<ACallHitObejct*> ABaseBallGameMode::GetSpawnPoints()
+{
+	return SpawnPoints;
 }
 
 
