@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 #include "MainMenuUI.generated.h"
+class UPlayerNameUI;
 class URankingUI;
 class UInventoryUI;
 class ABaseBallGameMode;
@@ -26,6 +27,8 @@ public:
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UButton> Player_Btn;
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UPlayerNameUI> WBP_PlayerName;
 	
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UButton> Shop_Btn;

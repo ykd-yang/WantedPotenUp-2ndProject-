@@ -22,7 +22,7 @@ private:
 	FString RankingDataFileName = TEXT("RankingData.Json");
 	
 	UPROPERTY(EditAnywhere)
-	FString PlayerName;
+	FString PlayerName = TEXT("Player");
 
 	UPROPERTY()
 	FRankingArray RankingData;
