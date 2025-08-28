@@ -92,13 +92,16 @@ public:
 	FVector StrikeZoneLocation;
 	UPROPERTY()
 	UCanvasPanelSlot* DistanceCanvasSlot;
-	// Cycling Homerun
+	// Cycling
 	UPROPERTY(meta = (BindWidget))
 	UImage* LeftOnImage;
 	UPROPERTY(meta = (BindWidget))
 	UImage* CenterOnImage;
 	UPROPERTY(meta = (BindWidget))
 	UImage* RightOnImage;
+	// CalledShot
+	UPROPERTY(meta = (BindWidget))
+	UImage* CalledShotImage;
 	// Combo
 	UPROPERTY(meta = (BindWidget))
 	UOverlay* ComboOverlay;
@@ -175,6 +178,10 @@ public:
 	void DisplayCyclingHomerun(FString Direction);
 	UFUNCTION(BlueprintCallable)
 	void HideCyclingHomerun();
+	UFUNCTION(BlueprintCallable)
+	void DisplayCalledShot();
+	UFUNCTION(BlueprintCallable)
+	void HideCalledShot();
 
 	UFUNCTION(BlueprintCallable)
 	void DisplayCombo();
