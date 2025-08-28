@@ -209,3 +209,7 @@ void UInventoryUI::MoveEquippedText()
 		break;
 	}
 }
+
+void UInventoryUI::SendItemType()
+{
+}

@@ -2,6 +2,8 @@
 
 
 #include "InGameUI.h"
+
+#include "BaseBallGameInstance.h"
 #include "BaseBallGameMode.h"
 #include "StrikeZone.h"
 #include "Blueprint/WidgetLayoutLibrary.h"
@@ -105,6 +107,8 @@ void UInGameUI::UpdateSuccessfulHomerun()
 	if (GameMode->HomerunsForWin <= SuccessfulHomerun)
 	// is there more successful homerun than stage required homerun?
 	{
+		UBaseBallGameInstance* GI =Cast<UBaseBallGameInstance>(GetGameInstance());
+		//GI->UpdateRankingData(GI->GetPlayerName(), GameMode->Score, GameMode->MaxRemainingBalls - GameMode->RemainingBalls);
 		IsStageCleared = 1;
 	}
 }
@@ -171,6 +175,7 @@ void UInGameUI::DisplayBallJudgement(float Judgement, bool isCritical)
 	isJudgementDisplaying = true;
 	if (isCritical)
 	{
+		GameMode->AddScore(180);
 	}
 	else // Not Critical
 	{
@@ -178,16 +183,19 @@ void UInGameUI::DisplayBallJudgement(float Judgement, bool isCritical)
 		{
 			UpdateHomerunGauge(30);
 			PerfectImage->SetVisibility(ESlateVisibility::Visible);
+			GameMode->AddScore(140);
 		}
 		else if (Judgement > -0.66f && Judgement < 0.66f)
 		{
 			UpdateHomerunGauge(15);
 			GreatImage->SetVisibility(ESlateVisibility::Visible);
+			GameMode->AddScore(80);
 		}
 		else
 		{
 			UpdateHomerunGauge(7);
 			GoodImage->SetVisibility(ESlateVisibility::Visible);
+			GameMode->AddScore(20);
 		}
 	}
 
@@ -229,6 +237,7 @@ void UInGameUI::UpdateBallDistance(ABall* ball, APlayerController* playercontrol
 		DistanceCanvasSlot->SetPosition(ScreenPosition);
 
 		int32 Distance = FVector::Dist(ball->GetActorLocation(), StrikeZoneLocation);
+		// ADD DISTANCE SCORE
 		FText WinConditionText = FText::FromString(TEXT("{0}FT"));
 		FText WinCondition = FText::Format(WinConditionText, FText::AsNumber(Distance));
 	}
@@ -257,23 +266,40 @@ void UInGameUI::DisplayHomerunState(bool Homerun)
 		if (ESlateVisibility::Visible != HomerunImage->GetVisibility() && ESlateVisibility::Visible != HitImage->
 			GetVisibility())
 		{
-			FTimerHandle HomerunStateTimer;
+			
 			isHomerunStateDisplaying = true;
-			if (Homerun) // Display Homerun
+			if (Homerun) 
 			{
 				ComboNumber += 1;
-				PlayAnimation(HomerunAnimation);
-				HomerunImage->SetVisibility(ESlateVisibility::Visible);
-				GetWorld()->GetTimerManager().SetTimer(HomerunStateTimer, this, &UInGameUI::HideHomerunState,
-				                                       DisplayTime, false);
-				UpdateSuccessfulHomerun();
+				if (ComboNumber)
+				{
+					GameMode->AddScore(50);
+				}
+				else
+				{
+					GameMode->AddScore(20);
+				}
+				if (bCalledShot)
+				{
+					DisplayCalledShotHomerun();
+				}
+				else	// Display Homerun
+				{
+					PlayAnimation(HomerunAnimation);
+					HomerunImage->SetVisibility(ESlateVisibility::Visible);
+					FTimerHandle HomerunTimer;
+					GetWorld()->GetTimerManager().SetTimer(HomerunTimer, this, &UInGameUI::HideHomerunState,
+														   DisplayTime, false);
+					UpdateSuccessfulHomerun();
+				}
 			}
 			else // Display Hit
 			{
 				ComboNumber = 0;
 				PlayAnimation(HitAnimation);
 				HitImage->SetVisibility(ESlateVisibility::Visible);
-				GetWorld()->GetTimerManager().SetTimer(HomerunStateTimer, this, &UInGameUI::HideHomerunState,
+				FTimerHandle HitTimer;
+				GetWorld()->GetTimerManager().SetTimer(HitTimer, this, &UInGameUI::HideHomerunState,
 				                                       DisplayTime, false);
 			}
 		}
@@ -415,6 +441,30 @@ void UInGameUI::HideCyclingHomerun()
 		LeftOnImage->SetVisibility(ESlateVisibility::Hidden);
 		CenterOnImage->SetVisibility(ESlateVisibility::Hidden);
 		RightOnImage->SetVisibility(ESlateVisibility::Hidden);
+		GameMode->AddScore(500);
+	}
+}
+
+void UInGameUI::DisplayCalledShotHomerun()
+{
+	CalledShotImage->SetVisibility(ESlateVisibility::Visible);
+
+
+	FTimerHandle HideCalledShotTimer;
+	GetWorld()->GetTimerManager().SetTimer(HideCalledShotTimer, this, &UInGameUI::HideCalledShotHomerun, DisplayTime,
+										   false);
+	GameMode->AddScore(700);
+}
+
+void UInGameUI::HideCalledShotHomerun()
+{
+	CalledShotImage->SetVisibility(ESlateVisibility::Hidden);
+	
+	DeductRemainingBalls();
+	DisplayCombo();
+	if (nullptr != GameMode->Ball)
+	{
+		GameMode->Ball->Destroy(); // Destroy Ball
 	}
 }
 

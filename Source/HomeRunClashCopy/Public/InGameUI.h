@@ -99,6 +99,9 @@ public:
 	UImage* CenterOnImage;
 	UPROPERTY(meta = (BindWidget))
 	UImage* RightOnImage;
+	//Called Shot
+	UPROPERTY(meta = (BindWidget))
+	UImage* CalledShotImage;
 	// Combo
 	UPROPERTY(meta = (BindWidget))
 	UOverlay* ComboOverlay;
@@ -175,6 +178,12 @@ public:
 	void DisplayCyclingHomerun(FString Direction);
 	UFUNCTION(BlueprintCallable)
 	void HideCyclingHomerun();
+	UFUNCTION(BlueprintCallable)
+	void DisplayCalledShotHomerun();
+	UFUNCTION(BlueprintCallable)
+	void HideCalledShotHomerun();
+
+	bool bCalledShot = false;
 
 	UFUNCTION(BlueprintCallable)
 	void DisplayCombo();
