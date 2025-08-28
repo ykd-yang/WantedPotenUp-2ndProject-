@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "NiagaraSystem.h"
+#include "Components/BoxComponent.h"
 #include "GameFramework/Actor.h"
 #include "CallHitObejct.generated.h"
 
@@ -35,15 +36,18 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SetDoor(UNiagaraComponent* NewDoor);
 	FTimerHandle DoorTimerHandle;
+
+	bool BisOnCallHit=false;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-
+	virtual void NotifyActorBeginOverlap(AActor* OtherActor) override;
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-	
-	
+
+	UPROPERTY(EditAnywhere,Category="FX",BlueprintReadWrite)
+	class UBoxComponent* BoxComp;
 		
 
 };

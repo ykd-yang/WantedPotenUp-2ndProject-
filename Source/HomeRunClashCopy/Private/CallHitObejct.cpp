@@ -3,6 +3,7 @@
 
 #include "CallHitObejct.h"
 
+#include "Ball.h"
 #include "NiagaraComponent.h"
 #include "NiagaraFunctionLibrary.h"
 
@@ -11,6 +12,9 @@ ACallHitObejct::ACallHitObejct()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+	BoxComp = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxComp"));
+	SetRootComponent(BoxComp);
+	
 
 }
 
@@ -26,7 +30,7 @@ UNiagaraComponent* ACallHitObejct::SpawnDoor()
 	if (Door)
 	{
 		Door->SetAutoDestroy(false);
-		
+		BisOnCallHit =true;
 	}
 
 	return Door;
@@ -39,8 +43,12 @@ UNiagaraComponent* ACallHitObejct::GetDoor()
 
 void ACallHitObejct::DestroyDoor()
 {
-	Door->DeactivateImmediate();
-	Door = nullptr;
+	if (Door)
+	{
+		Door->DeactivateImmediate();
+		Door = nullptr;
+		BisOnCallHit =false;
+	}
 	
 }
 
@@ -56,12 +64,28 @@ void ACallHitObejct::BeginPlay()
 	
 }
 
+void ACallHitObejct::NotifyActorBeginOverlap(AActor* OtherActor)
+{
+	Super::NotifyActorBeginOverlap(OtherActor);
+	if (OtherActor->IsA(ABall::StaticClass()))//&&BisOnCallHit)
+	{
+		//TODO: 예고홈런이 켜져있음을 확인한다. perfect
+		
+		//TODO : 예고홈런존을 서서히 사라지게 한다.
+		DestroyDoor();
+		UE_LOG(LogTemp,Warning,TEXT("cafadsfads"));
+		//TODO :  게임모드에 맞았음을 알린다.
+		
+	}
+}
+
 // Called every frame
 void ACallHitObejct::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
 }
+
 
 
 
