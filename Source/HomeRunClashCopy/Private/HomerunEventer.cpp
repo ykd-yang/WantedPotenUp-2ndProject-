@@ -38,3 +38,8 @@ void AHomerunEventer::ChangeToHomeRun()
 
 	Gm->InGameUI->DisplayHomerunState(true);
 }
+
+void AHomerunEventer::AddScoreToGM(int AddScore)
+{
+	Gm->AddScore(AddScore);
+}
