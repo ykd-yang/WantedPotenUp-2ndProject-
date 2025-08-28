@@ -26,6 +26,10 @@ private:
 
 	UPROPERTY()
 	FRankingArray RankingData;
+
+	UPROPERTY()
+	TArray<FRankingData> RankingData_FB;
+
 	
 public:
 	FString GetPlayerName();

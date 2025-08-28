@@ -11,7 +11,7 @@
 #include "Serialization/JsonSerializer.h"
 #include "Serialization/JsonWriter.h"
 
-const FString RankingDataManager::URL= TEXT("https://homerun-fa203-default-rtdb.firebaseio.com/");
+const FString RankingDataManager::URL= TEXT("https://homerun-fa203-default-rtdb.firebaseio.com/ranking.json");
 FOnRankingLoaded RankingDataManager::OnRankingLoaded;
 
 FRankingArray RankingDataManager::LoadLocal(const FString& FileName)
