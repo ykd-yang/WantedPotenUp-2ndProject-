@@ -10,29 +10,6 @@ void UBaseBallGameInstance::Init()
 	Super::Init();
 	
 	RankingData = RankingDataManager::LoadLocal(RankingDataFileName);
-
-	if (!RankingDataManager::OnRankingLoaded.IsBound())
-	{
-		RankingDataManager::OnRankingLoaded.BindLambda([this](const TArray<FRankingData>& Data)
-		{
-			for (FRankingData Elem : Data)
-			{
-				RankingData_FB.Add(Elem);
-			}
-
-			RankingData_FB.Sort([](const FRankingData& A, const FRankingData& B)
-			{
-				if (A.ThrowBallCount == B.ThrowBallCount)
-					return A.Score > B.Score;
-
-				return A.ThrowBallCount < B.ThrowBallCount;
-			});
-
-			UE_LOG(LogTemp, Warning, TEXT("Ranking data loaded %d"), RankingData_FB.Num());
-		});
-	}
-
-	//RankingDataManager::LoadOnline();
 }
 
 FString UBaseBallGameInstance::GetPlayerName()

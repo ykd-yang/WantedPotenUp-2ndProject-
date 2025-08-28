@@ -31,6 +31,11 @@ private:
 	UPROPERTY()
 	TSubclassOf<URankingDataUI> RankingUIClass;
 
+	UPROPERTY()
+	TArray<FRankingData> RankingData_FB;
+
+	int RankingListCount = 30;
+
 	UFUNCTION()
 	void OnPressExitButton();
 };

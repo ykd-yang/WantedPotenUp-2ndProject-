@@ -28,8 +28,6 @@ private:
 
 	UPROPERTY()
 	FRankingArray RankingData;
-	UPROPERTY()
-	TArray<FRankingData> RankingData_FB;
 
 	UPROPERTY(EditAnywhere, Category="ItemInfo")
 	TSubclassOf<UMaterial> ItemMaterial1;	// Wood Material
