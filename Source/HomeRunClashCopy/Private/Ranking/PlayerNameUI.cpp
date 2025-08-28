@@ -20,17 +20,6 @@ void UPlayerNameUI::NativeConstruct()
 
 	NameInputBox->OnTextChanged.AddDynamic(this, &UPlayerNameUI::OnInputTextChanged);
 	SubmitButton->OnClicked.AddDynamic(this, &UPlayerNameUI::OnClickedSubmit);
-
-	if (GI->GetPlayerName() != TEXT("Player"))
-	{
-		for (UWidget* Child : RootPanel->GetAllChildren())
-		{
-			if (Child != PlayerNameText)
-			{
-				Child->SetVisibility(ESlateVisibility::Hidden);
-			}
-		}
-	}
 }
 
 void UPlayerNameUI::OnClickedSubmit()
