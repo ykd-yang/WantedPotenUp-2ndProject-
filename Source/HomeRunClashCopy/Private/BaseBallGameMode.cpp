@@ -89,6 +89,7 @@ void ABaseBallGameMode::BeginPlay()
 			EndCamera = Cast<ACameraActor>(Cam);
 		}
 	}
+	Score = 0;
 	
 	ChangeState(EGameModeState::Start);
 }
@@ -466,4 +467,9 @@ void ABaseBallGameMode::SwitchToInGameUI()
 			InGameUI->AddToViewport();
 		}
 	}
+}
+
+void ABaseBallGameMode::AddScore(int32 score)
+{
+	Score += score;
 }

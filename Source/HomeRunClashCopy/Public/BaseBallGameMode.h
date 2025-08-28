@@ -143,4 +143,8 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void SwitchToInGameUI();
+
+	int32 Score;
+
+	void AddScore(int32 score);
 };
