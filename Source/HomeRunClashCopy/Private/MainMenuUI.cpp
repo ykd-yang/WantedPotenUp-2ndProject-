@@ -6,6 +6,7 @@
 #include "InventoryUI.h"
 #include "Components/Button.h"
 #include "Kismet/GameplayStatics.h"
+#include "Ranking/PlayerNameUI.h"
 #include "Ranking/RankingUI.h"
 
 void UMainMenuUI::NativeConstruct()
@@ -27,6 +28,8 @@ void UMainMenuUI::StartButtonClicked()
 
 void UMainMenuUI::PlayerBtnClicked()
 {
+	WBP_PlayerName->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
+	WBP_PlayerName->OnClickPlayerBtn();	
 }
 
 void UMainMenuUI::ShopBtnClicked()
