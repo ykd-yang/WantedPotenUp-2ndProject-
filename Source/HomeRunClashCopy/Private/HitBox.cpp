@@ -199,9 +199,9 @@ float AHitBox::CheckTiming(ABall* Ball)
 
 	if (FMath::Abs(deltaX) > kHalfTiming)
 		return -2.f;                                   // 범위 밖
-	const float TimingOffset=0.3f;
+	const float TimingOffset=0.2f;
 	const float TimingBefore = deltaX / kHalfTiming;
-	const float HandiTiming = FMath::Clamp((TimingBefore + 1.f) * 0.5f+TimingOffset, 0.f, 1.f);
+	const float HandiTiming = FMath::Clamp(TimingBefore +TimingOffset, -1.f, 1.f);
 	
 	return HandiTiming;
 }
@@ -228,8 +228,9 @@ float AHitBox::CheckSide(class ABall* Ball)
 	if (FMath::Abs(deltaY) > kHalfSide)
 		return -2.f;                                   // 범위 밖
 
-	// 범위 안: -40 -> -1, 0 -> 0, +40 -> +1
-	return deltaY / kHalfSide;
+	
+	
+	return deltaY / kHalfSide +0.2f;
 }
 
 
@@ -253,7 +254,7 @@ float AHitBox::CheckHeight(ABall* Ball)
 	if (FMath::Abs(deltaZ) > kHalfHeight)
 		return -2.f;                                   // 범위 밖
 
-	// 범위 안: -40 -> -1, 0 -> 0, +40 -> +1
+	
 	return deltaZ / kHalfHeight;
 }
 bool AHitBox::CheckCritical(float Timing, float HeightBat,float SideBat)
@@ -290,10 +291,10 @@ bool AHitBox::ApplyHitReal(float Timing, float HeightBat, float SideBat, ABall* 
 
     // 고정 전방(-X), 타이밍 좌우(Y), 높이(Z)
     const float Xcomp   = -Power * Accuracy;
-	const float TimingOffset=0.3f;
 	
 	
-    const float BallDir = FMath::Lerp(1.5f, -1.5f, Timing);
+	
+    const float BallDir = FMath::Lerp(1.5f, -1.5f, (Timing+1.f)*0.5f);
     const float Ycomp   =  BallDir * Power * Accuracy;
 
     const float BallAng = FMath::Lerp(0.95f, 0.4f, (HeightBat + 1.f) * 0.5f);
