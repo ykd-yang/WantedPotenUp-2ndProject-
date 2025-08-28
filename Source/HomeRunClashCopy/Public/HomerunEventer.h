@@ -27,10 +27,16 @@ public:
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int Score = 225;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	ABaseBallGameMode* Gm;
 
 	UFUNCTION(BlueprintCallable)
 	void ChangeToHomeRun();
+
+	UFUNCTION(BlueprintCallable)
+	void AddScoreToGM(int AddScore);
 	
 public:
 
