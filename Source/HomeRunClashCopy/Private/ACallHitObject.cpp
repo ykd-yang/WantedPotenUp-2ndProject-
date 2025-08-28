@@ -5,6 +5,8 @@
 #include "ACallHitObject.h"
 
 #include "Ball.h"
+#include "BaseBallGameMode.h"
+#include "InGameUI.h"
 #include "NiagaraComponent.h"
 #include "NiagaraFunctionLibrary.h"
 
@@ -68,14 +70,19 @@ void ACallHitObejct::BeginPlay()
 void ACallHitObejct::NotifyActorBeginOverlap(AActor* OtherActor)
 {
 	Super::NotifyActorBeginOverlap(OtherActor);
-	if (OtherActor->IsA(ABall::StaticClass()))//&&BisOnCallHit)
+	if (OtherActor->IsA(ABall::StaticClass()))
 	{
 		//TODO: 예고홈런이 켜져있음을 확인한다. perfect
+		if (nullptr!= Door)
+		{
+			//TODO : 예고홈런존을 서서히 사라지게 한다.
+			DestroyDoor();
+			//TODO :  게임모드에 맞았음을 알린다.
+			auto* MyGameMode = Cast<ABaseBallGameMode>(GetWorld()->GetAuthGameMode());
+			MyGameMode-> InGameUI->bCalledShot = true;
+		}
 		
-		//TODO : 예고홈런존을 서서히 사라지게 한다.
-		DestroyDoor();
-		UE_LOG(LogTemp,Warning,TEXT("cafadsfads"));
-		//TODO :  게임모드에 맞았음을 알린다.
+		
 		
 	}
 }
