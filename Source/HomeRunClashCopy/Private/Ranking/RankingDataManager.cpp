@@ -4,7 +4,9 @@
 #include "Ranking/RankingDataManager.h"
 
 #include "JsonObjectConverter.h"
-FRankingArray RankingDataManager::Load(const FString& FileName)
+const FString RankingDataManager::URL= TEXT("https://homerun-fa203-default-rtdb.firebaseio.com/"); 
+
+FRankingArray RankingDataManager::LoadLocal(const FString& FileName)
 {
 	FRankingArray RankData;
 	FString JsonStr;
@@ -23,7 +25,7 @@ FRankingArray RankingDataManager::Load(const FString& FileName)
 	return RankData;
 }
 
-void RankingDataManager::Save(const FRankingArray& Data, const FString& FileName)
+void RankingDataManager::SaveLocal(const FRankingArray& Data, const FString& FileName)
 {
 	FString OutputString;
 	FJsonObjectConverter::UStructToJsonObjectString(Data, OutputString);
@@ -31,7 +33,7 @@ void RankingDataManager::Save(const FRankingArray& Data, const FString& FileName
 	FFileHelper::SaveStringToFile(OutputString, *(FPaths::ProjectSavedDir() / FileName));
 }
 
-void RankingDataManager::AddNewData(FRankingArray& Data, const FString& Name, const int32 Score, const int32 ThrowBall, const FString& FileName)
+void RankingDataManager::AddNewDataLocal(FRankingArray& Data, const FString& Name, const int32 Score, const int32 ThrowBall, const FString& FileName)
 {
 	FRankingData NewData { Name, Score, ThrowBall};
 	Data.Data.Push(NewData);
@@ -50,5 +52,5 @@ void RankingDataManager::AddNewData(FRankingArray& Data, const FString& Name, co
 	// 	Data.SetNum(10);
 	// }
 	
-	Save(Data, FileName);
+	SaveLocal(Data, FileName);
 }
