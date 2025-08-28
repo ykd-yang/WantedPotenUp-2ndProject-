@@ -3,6 +3,7 @@
 
 
 #include "CoreMinimal.h"
+#include "ACallHitObject.h"
 #include "Ball.h"
 #include "GameFramework/GameModeBase.h"
 #include "BallInfo.h"
@@ -146,6 +147,7 @@ public:
 	void SwitchToInGameUI();
 
 	int32 Score;
-
+	TArray<class ACallHitObejct*> CallHitPoints;
+	void InitializeCallHitPoints();
 	void AddScore(int32 score);
 };

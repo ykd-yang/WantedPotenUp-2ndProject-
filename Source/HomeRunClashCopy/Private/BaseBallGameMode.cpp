@@ -471,7 +471,28 @@ void ABaseBallGameMode::SwitchToInGameUI()
 	}
 }
 
+void ABaseBallGameMode::InitializeCallHitPoints()
+{
+	TArray<AActor*> MyActors;
+	TArray<ACallHitObejct*> CallHitPoints;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(),ACallHitObejct::StaticClass(),MyActors);
+	for (AActor* Actor : MyActors)
+	{
+		if (Actor)
+		{
+			
+			 ACallHitObejct* HitPoint = Cast<ACallHitObejct>(Actor);
+			if (HitPoint)
+			{
+				CallHitPoints.Add(HitPoint);
+			}
+		}
+	}
+}
+
 void ABaseBallGameMode::AddScore(int32 score)
 {
 	Score += score;
 }
+
+
