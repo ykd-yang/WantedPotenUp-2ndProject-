@@ -147,8 +147,10 @@ public:
 	void SwitchToInGameUI();
 
 	int32 Score;
+	UPROPERTY(VisibleAnywhere)
 	TArray<class ACallHitObejct*> _CallHitPoints;
 	void InitializeCallHitPoints();
-	void GetCallHitPoints();
+	UFUNCTION(BlueprintCallable)
+	TArray<ACallHitObejct*> GetCallHitPoints();
 	void AddScore(int32 score);
 };

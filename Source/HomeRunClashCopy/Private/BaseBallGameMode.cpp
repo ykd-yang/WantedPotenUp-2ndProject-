@@ -255,6 +255,7 @@ void ABaseBallGameMode::OnEndTick(float DeltaTime)
 //On Enter
 void ABaseBallGameMode::OnStartEnter()
 {
+	InitializeCallHitPoints();
 	InGameUI->IsStageCleared = -1;
 	// UWidgetBlueprintLibrary::GetAllWidgetsOfClass(GetWorld(), AllWidgets, UUserWidget::StaticClass(), true);
 	// AllWidgets[0]->SetVisibility(ESlateVisibility::Visible);
@@ -472,7 +473,6 @@ void ABaseBallGameMode::SwitchToInGameUI()
 void ABaseBallGameMode::InitializeCallHitPoints()
 {
 	TArray<AActor*> MyActors;
-	TArray<class ACallHitObejct*> CallHitPoints;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(),ACallHitObejct::StaticClass(),MyActors);
 	for (AActor* Actor : MyActors)
 	{
@@ -482,14 +482,15 @@ void ABaseBallGameMode::InitializeCallHitPoints()
 			 ACallHitObejct* HitPoint = Cast<ACallHitObejct>(Actor);
 			if (HitPoint)
 			{
-				CallHitPoints.Add(HitPoint);
+				_CallHitPoints.Add(HitPoint);
 			}
 		}
 	}
 }
 
-void ABaseBallGameMode::GetCallHitPoints()
+TArray<ACallHitObejct*> ABaseBallGameMode::GetCallHitPoints()
 {
+	return _CallHitPoints;
 }
 
 void ABaseBallGameMode::AddScore(int32 score)
