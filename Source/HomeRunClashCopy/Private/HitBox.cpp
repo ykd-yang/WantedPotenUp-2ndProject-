@@ -72,8 +72,8 @@ void AHitBox::BeginPlay()
 	if (MyGameInstance)
 	{
 		// 3. 게임 인스턴스에 정의된 함수를 호출합니다.
-		ItemCritical = MyGameInstance-> ItemInfo.CriticalRate;
-		ItemPower = MyGameInstance-> ItemInfo.PowerRate;
+		ItemCritical = MyGameInstance-> PlayerItemInfo.CriticalRate;
+		ItemPower = MyGameInstance-> PlayerItemInfo.PowerRate;
 	}
 
 	//StrikeZoneActor = Cast<AStrikeZone>(UGameplayStatics::GetActorOfClass(GetWorld(),AStrikeZone::StaticClass()));

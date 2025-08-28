@@ -10,6 +10,7 @@
 #include "BaseBallGameMode.generated.h"
 
 
+class UBaseBallGameInstance;
 class AHitBox;
 class UMainMenuUI;
 class UStageFailUI;
@@ -47,7 +48,8 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<APitcher> Pitcher;
-
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<UBaseBallGameInstance> GI;
 public:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaSeconds) override;

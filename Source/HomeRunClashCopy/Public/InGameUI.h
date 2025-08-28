@@ -45,7 +45,7 @@ public:
 	UPROPERTY()
 	ABaseBallGameMode* GameMode;
 
-
+	float temp;
 	// Homerun Gauge Text
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* HomerunGaugeText;

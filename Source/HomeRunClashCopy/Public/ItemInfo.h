@@ -6,8 +6,7 @@ USTRUCT(BlueprintType)
 struct FItemInformation
 {
 	GENERATED_BODY()
-
-public:
+	
 	UPROPERTY(EditAnywhere,BlueprintReadOnly)
 	UMaterial* Material;
 

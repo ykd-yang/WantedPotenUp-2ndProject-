@@ -199,10 +199,10 @@ void UInventoryUI::SendItemType()
 	switch (ItemType)
 	{
 	case EItemType::Item1: // 1번 아이템 장착 중이면
-		GI->ItemType = 1;
+		GI->UpdateItemInfo(1);
 		break;
 	case EItemType::Item2: // 2번 아이템 장착 중이면
-		GI->ItemType = 2;
+		GI->UpdateItemInfo(2);
 		break;
 	}
 }
