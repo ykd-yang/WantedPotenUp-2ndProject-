@@ -147,7 +147,8 @@ public:
 	void SwitchToInGameUI();
 
 	int32 Score;
-	TArray<class ACallHitObejct*> CallHitPoints;
+	TArray<class ACallHitObejct*> _CallHitPoints;
 	void InitializeCallHitPoints();
+	void GetCallHitPoints();
 	void AddScore(int32 score);
 };

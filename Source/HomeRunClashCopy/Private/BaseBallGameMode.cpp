@@ -474,7 +474,7 @@ void ABaseBallGameMode::SwitchToInGameUI()
 void ABaseBallGameMode::InitializeCallHitPoints()
 {
 	TArray<AActor*> MyActors;
-	TArray<ACallHitObejct*> CallHitPoints;
+	TArray<class ACallHitObejct*> CallHitPoints;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(),ACallHitObejct::StaticClass(),MyActors);
 	for (AActor* Actor : MyActors)
 	{
@@ -488,6 +488,10 @@ void ABaseBallGameMode::InitializeCallHitPoints()
 			}
 		}
 	}
+}
+
+void ABaseBallGameMode::GetCallHitPoints()
+{
 }
 
 void ABaseBallGameMode::AddScore(int32 score)
