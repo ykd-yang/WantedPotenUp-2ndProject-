@@ -153,4 +153,5 @@ public:
 	UFUNCTION(BlueprintCallable)
 	TArray<ACallHitObejct*> GetCallHitPoints();
 	void AddScore(int32 score);
+	void CheckCallHitPoints();
 };

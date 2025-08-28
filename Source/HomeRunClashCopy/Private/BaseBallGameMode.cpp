@@ -280,6 +280,7 @@ void ABaseBallGameMode::OnStartEnter()
 
 void ABaseBallGameMode::OnThrowEnter()
 {
+	
 	if (nullptr != InGameUI)
 	{
 		InGameUI->isHomerunStateDisplaying = false;
@@ -496,6 +497,21 @@ TArray<ACallHitObejct*> ABaseBallGameMode::GetCallHitPoints()
 void ABaseBallGameMode::AddScore(int32 score)
 {
 	Score += score;
+}
+
+void ABaseBallGameMode::CheckCallHitPoints()
+{
+	for (auto* CallhitPoint : _CallHitPoints)
+	{
+		if (CallhitPoint->BisOnCallHit && CallhitPoint->LifeCount<=2)
+		{
+			CallhitPoint->LifeCount++;
+		}
+		else if (CallhitPoint->BisOnCallHit && CallhitPoint->LifeCount>2)
+		{
+			CallhitPoint->DestroyDoor();
+		}
+	}
 }
 
 

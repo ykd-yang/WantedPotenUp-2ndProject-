@@ -31,6 +31,7 @@ ABall::ABall()
 		//BallMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldDynamic, ECR_Block);
 		BallMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel6, ECR_Block); //homerun
 		BallMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel7, ECR_Block); //ground
+		BallMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel8, ECR_Overlap); //ground
 		
 		// Block 이벤트 받기위해 physics만 켜주기
 		BallMesh->SetSimulatePhysics(true);
