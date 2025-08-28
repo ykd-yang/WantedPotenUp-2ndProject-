@@ -28,7 +28,11 @@ private:
 
 	UPROPERTY()
 	FRankingArray RankingData;
+	//현재 Firebase로 변경 - 사용 안할 것
+	const TArray<FRankingData>& GetRankingData();
+	void UpdateRankingData(const FString& Name, const int32 Score, const int32 HitBallCnt);
 
+	
 	UPROPERTY(EditAnywhere, Category="ItemInfo")
 	TSubclassOf<UMaterial> ItemMaterial1;	// Wood Material
 	UPROPERTY(EditAnywhere, Category="ItemInfo")
@@ -37,9 +41,6 @@ private:
 public:
 	FString GetPlayerName();
 	void SetPlayerName(const FString& NewPlayerName);
-
-	const TArray<FRankingData>& GetRankingData();
-	void UpdateRankingData(const FString& Name, const int32 Score, const int32 HitBallCnt);
 
 	int32 ItemType = 1;	// 1: Wood Bat, 2: Titanium Bat
 

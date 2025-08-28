@@ -9,7 +9,7 @@ void UBaseBallGameInstance::Init()
 {
 	Super::Init();
 	
-	RankingData = RankingDataManager::LoadLocal(RankingDataFileName);
+	//RankingData = RankingDataManager::LoadLocal(RankingDataFileName);
 }
 
 FString UBaseBallGameInstance::GetPlayerName()
