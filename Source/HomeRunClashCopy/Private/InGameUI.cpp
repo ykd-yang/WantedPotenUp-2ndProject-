@@ -108,7 +108,7 @@ void UInGameUI::UpdateSuccessfulHomerun()
 	// is there more successful homerun than stage required homerun?
 	{
 		UBaseBallGameInstance* GI =Cast<UBaseBallGameInstance>(GetGameInstance());
-		GI->UpdateRankingData(GI->GetPlayerName(), GameMode->Score, GameMode->MaxRemainingBalls - GameMode->RemainingBalls);
+		//GI->UpdateRankingData(GI->GetPlayerName(), GameMode->Score, GameMode->MaxRemainingBalls - GameMode->RemainingBalls);
 		IsStageCleared = 1;
 	}
 }
