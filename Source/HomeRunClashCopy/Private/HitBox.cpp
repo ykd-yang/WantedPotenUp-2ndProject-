@@ -12,6 +12,8 @@
 #include "Kismet/GameplayStatics.h"
 #include <cmath>
 
+#include "BaseBallGameInstance.h"
+
 // Sets default values
 AHitBox::AHitBox()
 {
@@ -64,6 +66,16 @@ void AHitBox::BeginPlay()
 		}
 	}
 	GetWorld() -> GetFirstPlayerController() ->SetShowMouseCursor(false);
+	UBaseBallGameInstance* MyGameInstance = Cast<UBaseBallGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+
+	// 2. 형변환이 성공했는지 반드시 확인하고 함수를 호출합니다. (매우 중요!)
+	if (MyGameInstance)
+	{
+		// 3. 게임 인스턴스에 정의된 함수를 호출합니다.
+		ItemCritical = MyGameInstance-> ItemInfo.CriticalRate;
+		ItemPower = MyGameInstance-> ItemInfo.PowerRate;
+	}
+
 	//StrikeZoneActor = Cast<AStrikeZone>(UGameplayStatics::GetActorOfClass(GetWorld(),AStrikeZone::StaticClass()));
 	
 }
@@ -244,9 +256,10 @@ float AHitBox::CheckHeight(ABall* Ball)
 }
 bool AHitBox::CheckCritical(float Timing, float HeightBat,float SideBat)
 {
-	return (FMath::Abs(Timing) <= 0.3f) &&
-		   (FMath::Abs(HeightBat) <= 0.3f) &&
-		   (FMath::Abs(SideBat) <= 0.3f);
+	float CriticalThreshold = 0.2+ItemCritical;
+	return (FMath::Abs(Timing) <= CriticalThreshold) &&
+		   (FMath::Abs(HeightBat) <= CriticalThreshold) &&
+		   (FMath::Abs(SideBat) <= CriticalThreshold);
 }
 
 bool AHitBox::ApplyHitReal(float Timing, float HeightBat, float SideBat, ABall* Ball)
@@ -256,7 +269,7 @@ bool AHitBox::ApplyHitReal(float Timing, float HeightBat, float SideBat, ABall* 
 
 	bool IsCritical = CheckCritical(Timing,HeightBat,SideBat);
     const float mBall        = 0.145f;   // kg (스케일용)
-    const float PowerBase    = 2900.f;   // 전체 파워 스케일
+    const float PowerBase    = 2900.f+ItemPower;   // 전체 파워 스케일
     const float MinAccFloor  = 0.40f;    // 정확도 하한
     const float MinPitchDeg  = 6.f;      // 최소 발사각
     const float MaxPitchDeg  = 20.f;     // 최대 발사각

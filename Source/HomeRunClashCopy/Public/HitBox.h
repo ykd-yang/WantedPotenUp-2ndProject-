@@ -47,6 +47,9 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "Effects")
 	class UParticleSystem* ExplosionEffect;
+
+	float ItemPower=0.f;
+	float ItemCritical=0.f;;
 	
 
 	float CheckTiming(class ABall* Ball);

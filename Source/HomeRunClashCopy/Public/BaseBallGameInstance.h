@@ -42,7 +42,7 @@ public:
 
 	int32 ItemType = 1;	// 1: Wood Bat, 2: Titanium Bat
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere,BlueprintReadOnly)
 	FItemInformation ItemInfo;
 	
 	void UpdateItemInfo();

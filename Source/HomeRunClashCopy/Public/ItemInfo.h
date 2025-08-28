@@ -2,13 +2,13 @@
 #include "CoreMinimal.h"
 #include "ItemInfo.generated.h"
 
-USTRUCT()
+USTRUCT(BlueprintType)
 struct FItemInformation
 {
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere,BlueprintReadOnly)
 	UMaterial* Material;
 
 	UPROPERTY(EditAnywhere)

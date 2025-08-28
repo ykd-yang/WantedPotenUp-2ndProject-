@@ -9,7 +9,7 @@ void UBaseBallGameInstance::Init()
 {
 	Super::Init();
 	
-	RankingData = RankingDataManager::Load(RankingDataFileName);
+	RankingData = RankingDataManager::LoadLocal(RankingDataFileName);
 }
 
 FString UBaseBallGameInstance::GetPlayerName()
@@ -29,7 +29,7 @@ const TArray<FRankingData>& UBaseBallGameInstance::GetRankingData()
 
 void UBaseBallGameInstance::UpdateRankingData(const FString& Name, const int32 Score, const int32 HitBallCnt)
 {
-	RankingDataManager::AddNewData(RankingData, Name, Score, HitBallCnt, RankingDataFileName);
+	RankingDataManager::AddNewDataLocal(RankingData, Name, Score, HitBallCnt, RankingDataFileName);
 }
 
 void UBaseBallGameInstance::UpdateItemInfo()
