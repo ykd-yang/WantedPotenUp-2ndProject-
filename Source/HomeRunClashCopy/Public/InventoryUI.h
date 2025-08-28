@@ -90,5 +90,5 @@ public:
 	
 	bool bReverse;
 
-	
+	void SendItemType();
 };

@@ -115,6 +115,7 @@ public:
 	float BatterHitDirection;
 	
 	// Variables for InGameUI
+	int32 MaxRemainingBalls = 12;
 	int32 RemainingBalls = 12;
 	int32 HomerunsForWin = 10; 
 
