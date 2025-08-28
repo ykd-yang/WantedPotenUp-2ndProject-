@@ -3,6 +3,7 @@
 
 #include "BaseBallGameMode.h"
 
+#include "BaseBallGameInstance.h"
 #include "HitBox.h"
 #include "Pitcher.h"
 #include "Blueprint/UserWidget.h"

@@ -3,6 +3,7 @@
 
 #include "InventoryUI.h"
 
+#include "BaseBallGameInstance.h"
 #include "Blueprint/WidgetLayoutLibrary.h"
 #include "Components/CanvasPanelSlot.h"
 #include "Components/TextBlock.h"
@@ -10,6 +11,7 @@
 void UInventoryUI::NativeConstruct()
 {
 	Super::NativeConstruct();
+	GI = Cast<UBaseBallGameInstance>(GetGameInstance());
 
 	InventoryItemButton1->OnClicked.AddDynamic(this, &UInventoryUI::OnItemPressed);
 	InventoryItemButton2->OnClicked.AddDynamic(this, &UInventoryUI::OnItemPressed);
@@ -75,27 +77,9 @@ void UInventoryUI::OnEquipPressed()
 	ChangeEquipStateText();
 	// EquippedText 옮기기
 	MoveEquippedText();
-
 	// Change Material
-	switch (ItemType)
-	{
-	case EItemType::Item1: // 1번 아이템 장착하면
-
-		break;
-	case EItemType::Item2: // 2번 아이템 장착하면
-
-		break;
-	}
 	// Change Status
-	switch (ItemType)
-	{
-	case EItemType::Item1: // 1번 아이템 장착하면
-
-		break;
-	case EItemType::Item2: // 2번 아이템 장착하면
-
-		break;
-	}
+	SendItemType();
 }
 
 void UInventoryUI::ChangeItemType(EItemType newItem)
@@ -212,4 +196,13 @@ void UInventoryUI::MoveEquippedText()
 
 void UInventoryUI::SendItemType()
 {
+	switch (ItemType)
+	{
+	case EItemType::Item1: // 1번 아이템 장착 중이면
+		GI->ItemType = 1;
+		break;
+	case EItemType::Item2: // 2번 아이템 장착 중이면
+		GI->ItemType = 2;
+		break;
+	}
 }
