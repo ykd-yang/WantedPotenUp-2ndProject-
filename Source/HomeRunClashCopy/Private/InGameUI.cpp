@@ -2,6 +2,8 @@
 
 
 #include "InGameUI.h"
+
+#include "BaseBallGameInstance.h"
 #include "BaseBallGameMode.h"
 #include "StrikeZone.h"
 #include "Blueprint/WidgetLayoutLibrary.h"
@@ -12,6 +14,7 @@
 #include "Components/Overlay.h"
 #include "Components/ProgressBar.h"
 #include "Components/TextBlock.h"
+#include "EnvironmentQuery/EnvQueryTypes.h"
 #include "Kismet/GameplayStatics.h"
 
 
@@ -105,6 +108,8 @@ void UInGameUI::UpdateSuccessfulHomerun()
 	if (GameMode->HomerunsForWin <= SuccessfulHomerun)
 	// is there more successful homerun than stage required homerun?
 	{
+		UBaseBallGameInstance* GI = Cast<UBaseBallGameInstance>(GetGameInstance());
+		GI->UpdateRankingData(GI->GetPlayerName(), GameMode->Score, 12 - GameMode->RemainingBalls);
 		IsStageCleared = 1;
 	}
 }

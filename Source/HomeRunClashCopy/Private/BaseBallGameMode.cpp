@@ -3,6 +3,7 @@
 
 #include "BaseBallGameMode.h"
 
+#include "BaseBallGameInstance.h"
 #include "HitBox.h"
 #include "Pitcher.h"
 #include "Blueprint/UserWidget.h"
@@ -89,6 +90,7 @@ void ABaseBallGameMode::BeginPlay()
 			EndCamera = Cast<ACameraActor>(Cam);
 		}
 	}
+	
 	Score = 0;
 	
 	ChangeState(EGameModeState::Start);
@@ -375,7 +377,7 @@ void ABaseBallGameMode::OnEndEnter()
 
 		PlayerController->SetViewTarget(EndCamera);
 	}
-	if (1 == InGameUI->IsStageCleared) // 스테이지 클리어 시
+	if (1 == InGameUI->IsStageCleared) // 스테이지 클리어
 	{
 		StageClearUI->SetVisibility(ESlateVisibility::Visible);
 	}
