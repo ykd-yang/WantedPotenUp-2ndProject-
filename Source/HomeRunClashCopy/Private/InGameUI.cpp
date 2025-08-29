@@ -223,18 +223,21 @@ void UInGameUI::DisplayBallJudgement(float Judgement, bool isCritical)
 		{
 			UpdateHomerunGauge(30);
 			PerfectImage->SetVisibility(ESlateVisibility::Visible);
+			PlayAnimation(PerfectAnimation);
 			GameMode->AddScore(140);
 		}
 		else if (Judgement > -0.66f && Judgement < 0.66f)
 		{
 			UpdateHomerunGauge(15);
 			GreatImage->SetVisibility(ESlateVisibility::Visible);
+			PlayAnimation(GreatAnimation);
 			GameMode->AddScore(80);
 		}
 		else
 		{
 			UpdateHomerunGauge(7);
 			GoodImage->SetVisibility(ESlateVisibility::Visible);
+			PlayAnimation(GoodAnimation);
 			GameMode->AddScore(20);
 		}
 	}
@@ -528,7 +531,8 @@ void UInGameUI::HideCyclingHomerun()
 void UInGameUI::DisplayCalledShotHomerun()
 {
 	bSuccessfulCalledShot = true;
-	CalledShotImage->SetVisibility(ESlateVisibility::Visible);
+	CalledShotHomerunImage->SetVisibility(ESlateVisibility::Visible);
+	PlayAnimation(CalledShotHomerunAnimation);
 
 
 	FTimerHandle HideCalledShotTimer;
@@ -539,7 +543,7 @@ void UInGameUI::DisplayCalledShotHomerun()
 
 void UInGameUI::HideCalledShotHomerun()
 {
-	CalledShotImage->SetVisibility(ESlateVisibility::Hidden);
+	CalledShotHomerunImage->SetVisibility(ESlateVisibility::Hidden);
 
 	DeductRemainingBalls();
 	DisplayCombo();
