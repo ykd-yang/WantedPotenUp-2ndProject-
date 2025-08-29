@@ -216,4 +216,6 @@ public:
 	bool isHomerunStateDisplaying;
 	bool CheckCondition(bool bisHomerun);
 	float DisplayTime = 2.5f; // UI display time
+
+	int32 RemainBallCount;
 };
