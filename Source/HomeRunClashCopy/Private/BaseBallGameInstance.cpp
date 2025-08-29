@@ -8,14 +8,14 @@
 UBaseBallGameInstance::UBaseBallGameInstance()
 {
 	ConstructorHelpers::FObjectFinder<UMaterial> Mat1(
-		TEXT("/Script/Engine.Material'/Game/Blueprint/Ui/Widget/Material/M_GradientBlack.M_GradientBlack'"));
+		TEXT("/Script/Engine.MaterialInstanceConstant'/Game/Fab/Baseball_Bat/m_bat.m_bat'"));
 	if (Mat1.Succeeded())
 	{
 		WoodMat = Mat1.Object;
 	}
 
 	ConstructorHelpers::FObjectFinder<UMaterial> Mat2(
-		TEXT("Script/Engine.Material'/Game/Blueprint/Ui/Widget/Material/M_BlueRadialFade.M_BlueRadialFade'"));
+		TEXT("/Script/Engine.Material'/Game/Fab/Baseball_Bat/M_Titanium.M_Titanium'"));
 	if (Mat2.Succeeded())
 	{
 		TitaniumMat = Mat2.Object;
