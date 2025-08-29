@@ -77,10 +77,16 @@ public:
 	UWidgetAnimation* MissAnimation;
 	UPROPERTY(meta = (BindWidget))
 	UImage* GoodImage;
+	UPROPERTY(meta = (BindWidgetAnim), Transient)
+	UWidgetAnimation* GoodAnimation;
 	UPROPERTY(meta = (BindWidget))
 	UImage* GreatImage;
+	UPROPERTY(meta = (BindWidgetAnim), Transient)
+	UWidgetAnimation* GreatAnimation;
 	UPROPERTY(meta = (BindWidget))
 	UImage* PerfectImage;
+	UPROPERTY(meta = (BindWidgetAnim), Transient)
+	UWidgetAnimation* PerfectAnimation;
 	// Homerun State
 	UPROPERTY(meta = (BindWidget))
 	UImage* HomerunImage;
@@ -104,8 +110,10 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	UImage* RightOnImage;
 	//Called Shot
+	UPROPERTY(meta = (BindWidgetAnim), Transient)
+	UWidgetAnimation* CalledShotHomerunAnimation;
 	UPROPERTY(meta = (BindWidget))
-	UImage* CalledShotImage;
+	UImage* CalledShotHomerunImage;
 	// Combo
 	UPROPERTY(meta = (BindWidget))
 	UOverlay* ComboOverlay;
