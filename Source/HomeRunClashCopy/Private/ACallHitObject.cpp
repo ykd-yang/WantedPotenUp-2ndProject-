@@ -17,7 +17,6 @@ ACallHitObejct::ACallHitObejct()
 	PrimaryActorTick.bCanEverTick = true;
 	BoxComp = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxComp"));
 	SetRootComponent(BoxComp);
-	
 
 }
 
@@ -34,6 +33,7 @@ UNiagaraComponent* ACallHitObejct::SpawnDoor()
 	{
 		Door->SetAutoDestroy(false);
 		BisOnCallHit =true;
+		
 	}
 
 	return Door;
