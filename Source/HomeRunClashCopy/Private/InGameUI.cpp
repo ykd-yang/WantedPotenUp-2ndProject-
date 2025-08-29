@@ -115,7 +115,7 @@ void UInGameUI::UpdateSuccessfulHomerun()
 		IsStageCleared = 1;
 
 		UBaseBallGameInstance* GI= Cast<UBaseBallGameInstance>(GetGameInstance());
-		RankingDataManager::SaveOnline({GI->GetPlayerName(), GameMode->Score, RemainBallCount});
+		RankingDataManager::SaveOnline({GI->GetPlayerName(), GameMode->Score, GameMode->RemainingBalls - RemainBallCount - 1});
 	}
 }
 
