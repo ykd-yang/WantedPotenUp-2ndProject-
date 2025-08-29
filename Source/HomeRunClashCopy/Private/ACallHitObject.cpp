@@ -76,12 +76,15 @@ void ACallHitObejct::NotifyActorBeginOverlap(AActor* OtherActor)
 		//TODO: 예고홈런이 켜져있음을 확인한다. perfect
 		if (nullptr!= Door)
 		{
+			auto* MyGameMode = Cast<ABaseBallGameMode>(GetWorld()->GetAuthGameMode());
+			UE_LOG(LogTemp,Warning,TEXT("아오"));
+			MyGameMode->InGameUI->DisplayCalledShotHomerun();
+			MyGameMode-> InGameUI->bCalledShot = true;
 			//TODO : 예고홈런존을 서서히 사라지게 한다.
 			DestroyDoor();
 			//TODO :  게임모드에 맞았음을 알린다.
-			auto* MyGameMode = Cast<ABaseBallGameMode>(GetWorld()->GetAuthGameMode());
-			UE_LOG(LogTemp,Warning,TEXT("아오"));
-			MyGameMode-> InGameUI->bCalledShot = true;
+			
+			
 		}
 		
 		

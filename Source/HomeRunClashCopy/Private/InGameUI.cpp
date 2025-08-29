@@ -298,7 +298,7 @@ void UInGameUI::DisplayHomerunState(bool Homerun)
 					if (bCalledShot)
 					{
 						DisplayCalledShotHomerun();
-						bSuccessfulCalledShot = true;
+						
 					}
 					else // Display Homerun
 					{
@@ -310,7 +310,7 @@ void UInGameUI::DisplayHomerunState(bool Homerun)
 						UpdateSuccessfulHomerun();
 					}
 				}
-				else // Display Hit
+				else if (!bCalledShot) // Display Hit
 				{
 					ComboNumber = 0;
 					PlayAnimation(HitAnimation);
@@ -481,6 +481,7 @@ void UInGameUI::HideCyclingHomerun()
 
 void UInGameUI::DisplayCalledShotHomerun()
 {
+	bSuccessfulCalledShot = true;
 	CalledShotImage->SetVisibility(ESlateVisibility::Visible);
 
 
