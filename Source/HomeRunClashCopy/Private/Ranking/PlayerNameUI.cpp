@@ -40,13 +40,7 @@ void UPlayerNameUI::OnClickedSubmit()
 	PlayerNameText->SetText(FText::FromString(GI->GetPlayerName()));
 	NameInputBox->SetText(FText::FromString(GI->GetPlayerName()));
 
-	for (UWidget* Child : RootPanel->GetAllChildren())
-	{
-		if (Child != PlayerNameText)
-		{
-			Child->SetVisibility(ESlateVisibility::Hidden);
-		}
-	}
+	HidePlayerBtn();
 }
 
 void UPlayerNameUI::OnInputTextChanged(const FText& Text)
@@ -66,6 +60,17 @@ void UPlayerNameUI::OnClickPlayerBtn()
 		if (Child != PlayerNameText)
 		{
 			Child->SetVisibility(ESlateVisibility::Visible);
+		}
+	}
+}
+
+void UPlayerNameUI::HidePlayerBtn()
+{
+	for (UWidget* Child : RootPanel->GetAllChildren())
+	{
+		if (Child != PlayerNameText)
+		{
+			Child->SetVisibility(ESlateVisibility::Hidden);
 		}
 	}
 }

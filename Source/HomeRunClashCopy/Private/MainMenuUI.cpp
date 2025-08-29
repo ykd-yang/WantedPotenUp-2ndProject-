@@ -28,12 +28,18 @@ void UMainMenuUI::StartButtonClicked()
 
 void UMainMenuUI::PlayerBtnClicked()
 {
+	WBP_Inventory->SetVisibility(ESlateVisibility::Hidden);
+	WBP_Ranking->SetVisibility(ESlateVisibility::Hidden);
+	
 	WBP_PlayerName->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
 	WBP_PlayerName->OnClickPlayerBtn();	
 }
 
 void UMainMenuUI::ShopBtnClicked()
 {
+	WBP_Ranking->SetVisibility(ESlateVisibility::Hidden);
+	WBP_PlayerName->HidePlayerBtn();
+	
 	if (WBP_Inventory->GetVisibility() == ESlateVisibility::Hidden)
 	{
 		WBP_Inventory->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
@@ -46,6 +52,9 @@ void UMainMenuUI::ShopBtnClicked()
 
 void UMainMenuUI::RankingBtnClicked()
 {
+	WBP_Inventory->SetVisibility(ESlateVisibility::Hidden);
+	WBP_PlayerName->HidePlayerBtn();
+	
 	if (WBP_Ranking->GetVisibility() == ESlateVisibility::Hidden)
 	{
 		WBP_Ranking->SetVisibility(ESlateVisibility::SelfHitTestInvisible);

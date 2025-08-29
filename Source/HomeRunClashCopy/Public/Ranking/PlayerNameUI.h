@@ -42,4 +42,6 @@ private:
 public:
 	UFUNCTION()
 	void OnClickPlayerBtn();
+	UFUNCTION()
+	void HidePlayerBtn();
 };
