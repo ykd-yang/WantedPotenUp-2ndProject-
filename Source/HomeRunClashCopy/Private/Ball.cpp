@@ -132,6 +132,11 @@ void ABall::SetBallHit(FVector HitVelocity)
 	Trail->Activate(true);
 }
 
+void ABall::SetBallHitCalledShot()
+{
+	IsFall = true;
+}
+
 void ABall::CalculateGravity(FVector& Vel)
 {
 	Vel = Vel + Gravity * GetWorld()->GetDeltaSeconds();

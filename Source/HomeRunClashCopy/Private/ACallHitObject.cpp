@@ -77,6 +77,9 @@ void ACallHitObejct::NotifyActorBeginOverlap(AActor* OtherActor)
 		if (nullptr!= Door)
 		{
 			auto* MyGameMode = Cast<ABaseBallGameMode>(GetWorld()->GetAuthGameMode());
+			//공이 맞았음을 알림
+			MyGameMode->Ball->SetBallHitCalledShot();
+			
 			UE_LOG(LogTemp,Warning,TEXT("아오"));
 			MyGameMode->InGameUI->DisplayCalledShotHomerun();
 			MyGameMode-> InGameUI->bCalledShot = true;

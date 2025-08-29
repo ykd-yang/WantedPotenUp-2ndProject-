@@ -62,6 +62,8 @@ public:
 	void Init(FBallInfo BI, FVector Location);
 	void SetBallMove();
 	void SetBallHit(FVector HitVelocity);
+
+	void SetBallHitCalledShot();
 	
 private:
 	void CalculateGravity(FVector& Vel);
