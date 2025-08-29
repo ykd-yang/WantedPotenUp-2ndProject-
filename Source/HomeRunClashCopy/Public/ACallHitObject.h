@@ -38,6 +38,9 @@ public:
 	void SetDoor(UNiagaraComponent* NewDoor);
 	FTimerHandle DoorTimerHandle;
 
+	UPROPERTY(EditAnywhere)
+	class UWidgetComponent* CallhitUi;
+
 	bool BisOnCallHit=false;
 protected:
 	// Called when the game starts or when spawned

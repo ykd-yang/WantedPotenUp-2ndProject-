@@ -9,6 +9,7 @@
 #include "InGameUI.h"
 #include "NiagaraComponent.h"
 #include "NiagaraFunctionLibrary.h"
+#include "Components/WidgetComponent.h"
 
 // Sets default values
 ACallHitObejct::ACallHitObejct()
@@ -17,6 +18,8 @@ ACallHitObejct::ACallHitObejct()
 	PrimaryActorTick.bCanEverTick = true;
 	BoxComp = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxComp"));
 	SetRootComponent(BoxComp);
+	CallhitUi = CreateDefaultSubobject<UWidgetComponent>(TEXT("CallWidgetComp"));
+	CallhitUi->SetupAttachment(BoxComp);
 
 }
 
@@ -35,6 +38,7 @@ UNiagaraComponent* ACallHitObejct::SpawnDoor()
 		BisOnCallHit =true;
 		
 	}
+	CallhitUi->SetVisibility(true);
 
 	return Door;
 }
@@ -52,6 +56,7 @@ void ACallHitObejct::DestroyDoor()
 		Door = nullptr;
 		BisOnCallHit =false;
 		LifeCount=0;
+		CallhitUi->SetVisibility(false);
 	}
 	
 }
@@ -85,7 +90,8 @@ void ACallHitObejct::NotifyActorBeginOverlap(AActor* OtherActor)
 			MyGameMode-> InGameUI->bCalledShot = true;
 			//TODO : 예고홈런존을 서서히 사라지게 한다.
 			DestroyDoor();
-			//TODO :  게임모드에 맞았음을 알린다.
+			//TODO :  위젯이 안보이게 한다.
+			CallhitUi->SetVisibility(false);
 			
 			
 		}
