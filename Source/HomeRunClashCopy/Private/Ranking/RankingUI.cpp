@@ -41,6 +41,8 @@ void URankingUI::NativeConstruct()
 	//FireBase에서 랭킹 로드
 	RankingDataManager::OnRankingLoaded.BindLambda([this](const TArray<FRankingData>& Data)
 	{
+		RankingData_FB.Empty(RankingListCount);
+		
 		for (FRankingData Elem : Data)
 		{
 			RankingData_FB.Add(Elem);
@@ -73,10 +75,11 @@ void URankingUI::NativeConstruct()
 	RankingDataManager::LoadOnline();
 
 	//버튼 바인드
-	ExitButton->OnClicked.AddDynamic(this, &URankingUI::OnPressExitButton);
+	RefreshButton->OnClicked.AddDynamic(this, &URankingUI::OnPressRefreshButton);
 }
 
-void URankingUI::OnPressExitButton()
+void URankingUI::OnPressRefreshButton()
 {
-	SetVisibility(ESlateVisibility::Hidden);
+	RankingList->ClearChildren();
+	RankingDataManager::LoadOnline();
 }

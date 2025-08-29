@@ -26,7 +26,7 @@ private:
 	UScrollBox* RankingList;
 
 	UPROPERTY(meta=(BindWidget))
-	UButton* ExitButton;
+	UButton* RefreshButton;
 
 	UPROPERTY()
 	TSubclassOf<URankingDataUI> RankingUIClass;
@@ -37,5 +37,5 @@ private:
 	int RankingListCount = 30;
 
 	UFUNCTION()
-	void OnPressExitButton();
+	void OnPressRefreshButton();
 };
