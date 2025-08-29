@@ -48,6 +48,7 @@ void UInGameUI::NativeConstruct()
 	DistanceCanvasSlot = Cast<UCanvasPanelSlot>(HitDistanceText->Slot);
 
 	ResetHomerunGauge();
+	RemainBallCount = GameMode->RemainingBalls;
 }
 
 // InGameUI Tick
@@ -84,12 +85,14 @@ void UInGameUI::ResetHomerunGauge()
 // Deduct Remaining Ball Count
 void UInGameUI::DeductRemainingBalls()
 {
-	FString RemainingBallsString = RemainingBallText->GetText().ToString();
-	int32 RemainingBallsInt = FCString::Atoi(*RemainingBallsString) - 1;
-	RemainingBallText->SetText(FText::AsNumber(RemainingBallsInt)); // Deduct remaining balls.
+	//FString RemainingBallsString = RemainingBallText->GetText().ToString();
+	//int32 RemainingBallsInt = FCString::Atoi(*RemainingBallsString) - 1;
+	
+	RemainBallCount--;
+	RemainingBallText->SetText(FText::AsNumber(RemainBallCount)); // Deduct remaining balls.
 
 	// Stage failed. (no more remaining balls)
-	if (RemainingBallsInt <= 0 && GameMode->HomerunsForWin > SuccessfulHomerun)
+	if (RemainBallCount <= 0 && GameMode->HomerunsForWin > SuccessfulHomerun)
 	{
 		IsStageCleared = 0;
 	}
@@ -112,7 +115,7 @@ void UInGameUI::UpdateSuccessfulHomerun()
 		IsStageCleared = 1;
 
 		UBaseBallGameInstance* GI= Cast<UBaseBallGameInstance>(GetGameInstance());
-		RankingDataManager::SaveOnline({GI->GetPlayerName(), GameMode->Score, (GameMode->MaxRemainingBalls - GameMode->RemainingBalls)});
+		RankingDataManager::SaveOnline({GI->GetPlayerName(), GameMode->Score, RemainBallCount});
 	}
 }
 
@@ -373,8 +376,15 @@ void UInGameUI::HideStageClear()
 	// Play Clear OST !!
 	InGameOSTComponent->SetVolumeMultiplier(0.15);
 	FTimerHandle StopOSTTimer;
+	TWeakObjectPtr<UInGameUI> WeakThis = this;
 	GetWorld()->GetTimerManager().SetTimer(StopOSTTimer,
-	                                       [this]() { InGameOSTComponent->Stop(); },
+	                                       [WeakThis]()
+	                                       {
+	                                       		if (WeakThis.IsValid())
+	                                       		{
+													 WeakThis->InGameOSTComponent->Stop();
+	                                       		}
+	                                       },
 	                                       2,
 	                                       false);
 	if (PlayClearOST.IsBound())
@@ -407,8 +417,14 @@ void UInGameUI::HideStageFail()
 	// Play Fail OST !!
 	InGameOSTComponent->SetVolumeMultiplier(0.15);
 	FTimerHandle StopOSTTimer;
+	TWeakObjectPtr<UInGameUI> WeakThis = this;
 	GetWorld()->GetTimerManager().SetTimer(StopOSTTimer,
-	                                       [this]() { InGameOSTComponent->Stop(); },
+	                                       [WeakThis]() 	                                       {
+	                                       		if (WeakThis.IsValid())
+	                                       		{
+													 WeakThis->InGameOSTComponent->Stop();
+	                                       		}
+	                                       },
 	                                       2,
 	                                       false);
 	if (PlayFailOST.IsBound())
