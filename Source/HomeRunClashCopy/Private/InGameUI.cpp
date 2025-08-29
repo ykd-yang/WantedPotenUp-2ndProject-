@@ -116,18 +116,46 @@ void UInGameUI::UpdateSuccessfulHomerun()
 		
 		UBaseBallGameInstance* GI = Cast<UBaseBallGameInstance>(GetGameInstance());
 		RankingDataManager::SaveOnline({
-			GI->GetPlayerName(), GameMode->Score, GameMode->RemainingBalls - RemainBallCount - 1
+			GI->GetPlayerName(), GameMode->Score, GameMode->RemainingBalls - RemainBallCount + 1
 		});
 	}
 }
 
 
 // Display Ball Info
-void UInGameUI::DisplayBallInfo(FString BallType)
+void UInGameUI::DisplayBallInfo(EBallType BallType)
 {
 	// 입력 구종에 따라 구종표시 및 구종에 따른 랜덤 속력
-
-
+	int32 RandSpeed = 70;
+	switch (BallType)
+	{
+	case EBallType::Straight:
+		BallTypeText->SetText(FText::FromString("4SFB"));
+		RandSpeed = FMath::RandRange(70, 80);
+		break;
+	case EBallType::Curve:
+		BallTypeText->SetText(FText::FromString("CU"));
+		RandSpeed = FMath::RandRange(65, 75);
+		break;
+	case EBallType::Fork:
+		BallTypeText->SetText(FText::FromString("FO"));
+		RandSpeed = FMath::RandRange(68, 78);
+		break;
+	case EBallType::ChangeUp:
+		BallTypeText->SetText(FText::FromString("CH"));
+		RandSpeed = FMath::RandRange(66, 76);
+		break;
+	case EBallType::Slider:
+		BallTypeText->SetText(FText::FromString("SL"));
+		RandSpeed = FMath::RandRange(67, 77);
+		break;
+	case EBallType::Knuckle:
+		BallTypeText->SetText(FText::FromString("KN"));
+		RandSpeed = FMath::RandRange(57, 65);
+		break;
+	}
+	BallSpeedText->SetText(FText::Format(FText::FromString(TEXT("{0}MPH")), FText::AsNumber(RandSpeed)));
+	
 	BallInfoOverlay->SetVisibility(ESlateVisibility::Visible);
 	PlayAnimation(BallInfoAnimation, 0.f, 1, EUMGSequencePlayMode::Forward, 1.f);
 	FTimerHandle BallInfoTimer;
@@ -250,8 +278,7 @@ void UInGameUI::UpdateBallDistance(ABall* ball, APlayerController* playercontrol
 
 		FVector ballloc = ball->GetActorLocation();
 
-		int32 Distance = FVector::Dist(ballloc, StrikeZoneLocation) / 30;
-		GameMode->AddScore(Distance);
+		Distance = FVector::Dist(ballloc, StrikeZoneLocation) / 30;
 		FText WinConditionText = FText::FromString(TEXT("{0}FT"));
 		FText WinCondition = FText::Format(WinConditionText, FText::AsNumber(Distance));
 		HitDistanceText->SetText(WinCondition);
