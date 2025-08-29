@@ -55,7 +55,6 @@ void UInGameUI::NativeConstruct()
 void UInGameUI::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
 	Super::NativeTick(MyGeometry, InDeltaTime);
-
 }
 
 
@@ -87,7 +86,7 @@ void UInGameUI::DeductRemainingBalls()
 {
 	//FString RemainingBallsString = RemainingBallText->GetText().ToString();
 	//int32 RemainingBallsInt = FCString::Atoi(*RemainingBallsString) - 1;
-	
+
 	RemainBallCount--;
 	RemainingBallText->SetText(FText::AsNumber(RemainBallCount)); // Deduct remaining balls.
 
@@ -114,8 +113,10 @@ void UInGameUI::UpdateSuccessfulHomerun()
 	{
 		IsStageCleared = 1;
 
-		UBaseBallGameInstance* GI= Cast<UBaseBallGameInstance>(GetGameInstance());
-		RankingDataManager::SaveOnline({GI->GetPlayerName(), GameMode->Score, GameMode->RemainingBalls - RemainBallCount - 1});
+		UBaseBallGameInstance* GI = Cast<UBaseBallGameInstance>(GetGameInstance());
+		RankingDataManager::SaveOnline({
+			GI->GetPlayerName(), GameMode->Score, GameMode->RemainingBalls - RemainBallCount - 1
+		});
 	}
 }
 
@@ -278,7 +279,7 @@ void UInGameUI::DisplayHomerunState(bool Homerun)
 		if (!bSuccessfulCalledShot)
 		{
 			if (ESlateVisibility::Visible != HomerunImage->GetVisibility() && ESlateVisibility::Visible != HitImage->
-			GetVisibility())
+				GetVisibility())
 			{
 				isHomerunStateDisplaying = true;
 				if (Homerun)
@@ -292,10 +293,12 @@ void UInGameUI::DisplayHomerunState(bool Homerun)
 					{
 						GameMode->AddScore(20);
 					}
+
+
 					if (bCalledShot)
 					{
 						DisplayCalledShotHomerun();
-						bSuccessfulCalledShot =true;
+						bSuccessfulCalledShot = true;
 					}
 					else // Display Homerun
 					{
@@ -303,7 +306,7 @@ void UInGameUI::DisplayHomerunState(bool Homerun)
 						HomerunImage->SetVisibility(ESlateVisibility::Visible);
 						FTimerHandle HomerunTimer;
 						GetWorld()->GetTimerManager().SetTimer(HomerunTimer, this, &UInGameUI::HideHomerunState,
-															   DisplayTime, false);
+						                                       DisplayTime, false);
 						UpdateSuccessfulHomerun();
 					}
 				}
@@ -314,18 +317,17 @@ void UInGameUI::DisplayHomerunState(bool Homerun)
 					HitImage->SetVisibility(ESlateVisibility::Visible);
 					FTimerHandle HitTimer;
 					GetWorld()->GetTimerManager().SetTimer(HitTimer, this, &UInGameUI::HideHomerunState,
-														   DisplayTime, false);
+					                                       DisplayTime, false);
 				}
 			}
 		}
-		
 	}
 }
 
 // Hide Homerun State
 void UInGameUI::HideHomerunState()
 {
-	HomerunImage->SetVisibility(ESlateVisibility::Hidden);
+	HomerunImage->SetVisibility(ESlateVisibility::Hidden); 
 	HitImage->SetVisibility(ESlateVisibility::Hidden);
 	DeductRemainingBalls();
 	DisplayCombo();
@@ -349,10 +351,11 @@ void UInGameUI::HideHomerunState()
 	}
 	else if (isCalledShot)
 	{
-		FTimerHandle ChangeStateTimer;
-		GetWorld()->GetTimerManager().SetTimer(ChangeStateTimer,
-		                                       [this]() { GameMode->ChangeState(EGameModeState::CalledShot); }, 1,
-		                                       false);
+		GameMode->ChangeState(EGameModeState::CalledShot);
+		// FTimerHandle ChangeStateTimer;
+		// GetWorld()->GetTimerManager().SetTimer(ChangeStateTimer,
+		//                                        [this]() {  }, 1,
+		//                                        false);
 	}
 	else
 	{
@@ -380,10 +383,10 @@ void UInGameUI::HideStageClear()
 	GetWorld()->GetTimerManager().SetTimer(StopOSTTimer,
 	                                       [WeakThis]()
 	                                       {
-	                                       		if (WeakThis.IsValid())
-	                                       		{
-													 WeakThis->InGameOSTComponent->Stop();
-	                                       		}
+		                                       if (WeakThis.IsValid())
+		                                       {
+			                                       WeakThis->InGameOSTComponent->Stop();
+		                                       }
 	                                       },
 	                                       2,
 	                                       false);
@@ -419,11 +422,12 @@ void UInGameUI::HideStageFail()
 	FTimerHandle StopOSTTimer;
 	TWeakObjectPtr<UInGameUI> WeakThis = this;
 	GetWorld()->GetTimerManager().SetTimer(StopOSTTimer,
-	                                       [WeakThis]() 	                                       {
-	                                       		if (WeakThis.IsValid())
-	                                       		{
-													 WeakThis->InGameOSTComponent->Stop();
-	                                       		}
+	                                       [WeakThis]()
+	                                       {
+		                                       if (WeakThis.IsValid())
+		                                       {
+			                                       WeakThis->InGameOSTComponent->Stop();
+		                                       }
 	                                       },
 	                                       2,
 	                                       false);
@@ -496,6 +500,9 @@ void UInGameUI::HideCalledShotHomerun()
 	{
 		GameMode->Ball->Destroy(); // Destroy Ball
 	}
+
+	bCalledShot = false;
+
 	GameMode->ChangeState(EGameModeState::Throw);
 }
 

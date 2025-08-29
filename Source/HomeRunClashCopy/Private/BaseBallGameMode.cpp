@@ -401,7 +401,6 @@ void ABaseBallGameMode::OnThrowExit()
 
 void ABaseBallGameMode::OnCalledShotExit()
 {
-	InGameUI->bCalledShot = false;
 }
 
 void ABaseBallGameMode::OnBallHitExit()
