@@ -106,13 +106,14 @@ void UInGameUI::UpdateSuccessfulHomerun()
 	SuccessfulHomerunText = FText::Format(SuccessfulHomerunText, FText::AsNumber(SuccessfulHomerun),
 	                                      FText::AsNumber(GameMode->HomerunsForWin));
 	MainMissionCounterText->SetText(SuccessfulHomerunText); // Count after a successful homerun.
-
+	
+	
 	// Stage cleared.
 	if (GameMode->HomerunsForWin <= SuccessfulHomerun)
 	// is there more successful homerun than stage required homerun?
 	{
 		IsStageCleared = 1;
-
+		
 		UBaseBallGameInstance* GI = Cast<UBaseBallGameInstance>(GetGameInstance());
 		RankingDataManager::SaveOnline({
 			GI->GetPlayerName(), GameMode->Score, GameMode->RemainingBalls - RemainBallCount - 1
@@ -144,9 +145,11 @@ void UInGameUI::HideBallInfo()
 void UInGameUI::DisplayBallHitDirection(float BallHitDirection)
 {
 	FTimerHandle HitDirectionTimer;
+	CurrentDirection = BallHitDirection;
 	// No Ball Direction Input -> Display Only HitDirection
 	if (-1 > BallHitDirection)
 	{
+		CurrentDirection = BallHitDirection;
 		// Display Ball Direction
 		HitDirectionOverlay->SetVisibility(ESlateVisibility::Visible);
 		GetWorld()->GetTimerManager().SetTimer(HitDirectionTimer, this, &UInGameUI::HideBallHitDirection,
@@ -273,6 +276,7 @@ void UInGameUI::HideBallDistance()
 // Display Homerun State
 void UInGameUI::DisplayHomerunState(bool Homerun)
 {
+	
 	if (nullptr != this)
 	{
 		//TODO: 불값 bSuccessfulCalledShot
@@ -297,11 +301,13 @@ void UInGameUI::DisplayHomerunState(bool Homerun)
 
 					if (bCalledShot)
 					{
+						DisplayCyclingHomerun(CurrentDirection);
 						DisplayCalledShotHomerun();
 						
 					}
 					else // Display Homerun
 					{
+						DisplayCyclingHomerun(CurrentDirection);
 						PlayAnimation(HomerunAnimation);
 						HomerunImage->SetVisibility(ESlateVisibility::Visible);
 						FTimerHandle HomerunTimer;
@@ -447,8 +453,21 @@ void UInGameUI::HideStageFail()
 	GameMode->ChangeState(EGameModeState::End); // play UI after camera move
 }
 
-void UInGameUI::DisplayCyclingHomerun(FString Direction)
+void UInGameUI::DisplayCyclingHomerun(float Timing)
 {
+	FString Direction;
+	if (Timing>-1.f && Timing<-0.3f)
+	{
+		Direction = "Left";
+	}
+	else if (Timing>=-0.3f&& Timing<0.3f)
+	{
+		Direction = "Center";
+	}
+	else if (Timing>=0.3f&& Timing<1.f)
+	{
+		Direction = "Right";
+	}
 	if (Direction == "Left")
 	{
 		LeftOnImage->SetVisibility(ESlateVisibility::Visible);

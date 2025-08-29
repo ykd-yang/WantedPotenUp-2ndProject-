@@ -52,13 +52,13 @@ void UBaseBallGameInstance::UpdateRankingData(const FString& Name, const int32 S
 
 void UBaseBallGameInstance::UpdateItemInfo(int32 itemtype)
 {
-	if (itemtype == 1)
+	if (itemtype == 1) // 1번 나무 배트
 	{
 		PlayerItemInfo.Material = WoodMat;
 		PlayerItemInfo.PowerRate = 0;
 		PlayerItemInfo.CriticalRate = 0.05;
 	}
-	else if (itemtype == 2)
+	else if (itemtype == 2)	// 2번 티타늄 배트
 	{
 		PlayerItemInfo.Material = TitaniumMat;
 		PlayerItemInfo.PowerRate = 300;

@@ -174,7 +174,7 @@ public:
 	void HideStageFail();
 
 	UFUNCTION(BlueprintCallable)
-	void DisplayCyclingHomerun(FString Direction);
+	void DisplayCyclingHomerun(float Timing);
 	UFUNCTION(BlueprintCallable)
 	void HideCyclingHomerun();
 	UFUNCTION(BlueprintCallable)
@@ -216,6 +216,6 @@ public:
 	bool isHomerunStateDisplaying;
 	bool CheckCondition(bool bisHomerun);
 	float DisplayTime = 2.5f; // UI display time
-
+	float CurrentDirection; 
 	int32 RemainBallCount;
 };
