@@ -197,6 +197,7 @@ FString ABaseBallGameMode::BallTypeToString(EBallType BT)
 void ABaseBallGameMode::GiveBallToGameMode(ABall* NewBall)
 {
 	Ball = NewBall;
+	BallType = Ball->BallInfo.BallType;
 }
 
 //On Tick
@@ -307,7 +308,9 @@ void ABaseBallGameMode::OnBallHitEnter()
 	// 1. 타격시 성공
 	// 2. 공의 정보, 타자에서!!공의 방향, 타자에서!!타격 판정, tick에서 비거리 표시
 	//BallType = Ball->BallInfo.BallType;
-	InGameUI->DisplayBallInfo("BallTypeToString(BallType)");;
+	// const UEnum* EnumPtr = StaticEnum<EBallType>();
+	// FString Str = EnumPtr->GetNameStringByValue((uint8)BallType);
+	InGameUI->DisplayBallInfo(BallType);
 }
 
 void ABaseBallGameMode::OnBallMissEnter()
@@ -331,7 +334,7 @@ void ABaseBallGameMode::OnBallMissEnter()
 			InGameUI->DisplayMiss();
 			InGameUI->DisplayBallHitDirection(-2);
 			//BallType = Ball->BallInfo.BallType;
-			InGameUI->DisplayBallInfo("BallTypeToString(BallType)"); // 3. 공의 정보와 방향이 사라지면  4. 다시 Throw State
+			InGameUI->DisplayBallInfo(BallType); // 3. 공의 정보와 방향이 사라지면  4. 다시 Throw State
 			FTimerHandle MissTimer;
 			GetWorld()->GetTimerManager().SetTimer(MissTimer, [this]() { ChangeState(EGameModeState::Throw); },
 			                                       InGameUI->DisplayTime, false);
@@ -355,7 +358,7 @@ void ABaseBallGameMode::OnBallMissEnter()
 		{
 			InGameUI->DisplayBallHitDirection(-2);
 			//BallType = Ball->BallInfo.BallType;
-			InGameUI->DisplayBallInfo("BallTypeToString(BallType)"); // 3. 공의 정보와 방향이 사라지면  4. 다시 Throw State
+			InGameUI->DisplayBallInfo(BallType); // 3. 공의 정보와 방향이 사라지면  4. 다시 Throw State
 			FTimerHandle MissTimer;
 			GetWorld()->GetTimerManager().SetTimer(MissTimer, [this]() { ChangeState(EGameModeState::Throw); },
 			                                       InGameUI->DisplayTime, false);
@@ -407,6 +410,7 @@ void ABaseBallGameMode::OnBallHitExit()
 {
 	didBallFall = false;
 	InGameUI->bHidingBallDistance = false;
+	AddScore(InGameUI->Distance);
 }
 
 void ABaseBallGameMode::OnBallMissExit()

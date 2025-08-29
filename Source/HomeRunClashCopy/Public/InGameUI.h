@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "BallInfo.h"
 #include "Blueprint/UserWidget.h"
 #include "InGameUI.generated.h"
 
@@ -63,6 +64,10 @@ public:
 	// Ball Info & Animation
 	UPROPERTY(meta = (BindWidget))
 	UOverlay* BallInfoOverlay;
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* BallTypeText;
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* BallSpeedText;
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
 	UWidgetAnimation* BallInfoAnimation;
 	// Ball Jugdement
@@ -140,7 +145,7 @@ public:
 	void UpdateSuccessfulHomerun();
 	// 공의 정보!!
 	UFUNCTION(BlueprintCallable)
-	void DisplayBallInfo(FString BallType);
+	void DisplayBallInfo(EBallType BallType);
 	UFUNCTION(BlueprintCallable)
 	void HideBallInfo();
 	// 공의 방향
@@ -212,6 +217,8 @@ public:
 	int32 SuccessfulHomerun = 0;
 	int32 IsStageCleared = -1;
 
+	int32 Distance;
+	
 	bool isJudgementDisplaying;
 	bool isHomerunStateDisplaying;
 	bool CheckCondition(bool bisHomerun);
