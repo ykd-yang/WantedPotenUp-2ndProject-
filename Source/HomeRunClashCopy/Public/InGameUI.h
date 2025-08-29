@@ -44,8 +44,7 @@ public:
 
 	UPROPERTY()
 	ABaseBallGameMode* GameMode;
-
-	float temp;
+	
 	// Homerun Gauge Text
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* HomerunGaugeText;
@@ -208,12 +207,13 @@ public:
 
 	int32 HomerunGauge;
 	bool isCalledShot;
+	bool bSuccessfulCalledShot = false;
 
 	int32 SuccessfulHomerun = 0;
 	int32 IsStageCleared = -1;
 
 	bool isJudgementDisplaying;
 	bool isHomerunStateDisplaying;
-
+	bool CheckCondition(bool bisHomerun);
 	float DisplayTime = 2.5f; // UI display time
 };

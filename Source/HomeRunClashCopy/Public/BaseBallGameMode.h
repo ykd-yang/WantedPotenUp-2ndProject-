@@ -101,7 +101,7 @@ private:
 	void OnBallHitEnter();
 	void OnBallMissEnter();
 	void OnEndEnter();
-
+	
 	//OnState End
 	void OnStartExit();
 	void OnThrowExit();

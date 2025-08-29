@@ -56,13 +56,13 @@ void UBaseBallGameInstance::UpdateItemInfo(int32 itemtype)
 	{
 		PlayerItemInfo.Material = WoodMat;
 		PlayerItemInfo.PowerRate = 0;
-		PlayerItemInfo.CriticalRate = 1;
+		PlayerItemInfo.CriticalRate = 0.05;
 	}
 	else if (itemtype == 2)
 	{
 		PlayerItemInfo.Material = TitaniumMat;
 		PlayerItemInfo.PowerRate = 300;
-		PlayerItemInfo.CriticalRate = 1;
+		PlayerItemInfo.CriticalRate = 0;
 	}
 	
 }

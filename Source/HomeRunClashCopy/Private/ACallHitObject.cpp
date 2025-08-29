@@ -51,6 +51,7 @@ void ACallHitObejct::DestroyDoor()
 		Door->DeactivateImmediate();
 		Door = nullptr;
 		BisOnCallHit =false;
+		LifeCount=0;
 	}
 	
 }
@@ -79,6 +80,7 @@ void ACallHitObejct::NotifyActorBeginOverlap(AActor* OtherActor)
 			DestroyDoor();
 			//TODO :  게임모드에 맞았음을 알린다.
 			auto* MyGameMode = Cast<ABaseBallGameMode>(GetWorld()->GetAuthGameMode());
+			UE_LOG(LogTemp,Warning,TEXT("아오"));
 			MyGameMode-> InGameUI->bCalledShot = true;
 		}
 		

@@ -284,6 +284,7 @@ void ABaseBallGameMode::OnThrowEnter()
 	CheckCallHitPoints();
 	if (nullptr != InGameUI)
 	{
+		InGameUI->bSuccessfulCalledShot = false;
 		InGameUI->isHomerunStateDisplaying = false;
 		// 카메라 원상복귀
 		SwitchToStartCamera(PlayerController);
@@ -400,6 +401,7 @@ void ABaseBallGameMode::OnThrowExit()
 
 void ABaseBallGameMode::OnCalledShotExit()
 {
+	InGameUI->bCalledShot = false;
 }
 
 void ABaseBallGameMode::OnBallHitExit()

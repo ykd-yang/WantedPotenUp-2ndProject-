@@ -15,6 +15,7 @@
 #include "Components/ProgressBar.h"
 #include "Components/TextBlock.h"
 #include "Kismet/GameplayStatics.h"
+#include "Ranking/RankingDataManager.h"
 
 
 // InGameUI BeginPlay
@@ -54,7 +55,6 @@ void UInGameUI::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
 	Super::NativeTick(MyGeometry, InDeltaTime);
 
-	UE_LOG(LogTemp, Warning, TEXT("%f"), temp);
 }
 
 
@@ -109,9 +109,10 @@ void UInGameUI::UpdateSuccessfulHomerun()
 	if (GameMode->HomerunsForWin <= SuccessfulHomerun)
 	// is there more successful homerun than stage required homerun?
 	{
-		UBaseBallGameInstance* GI = Cast<UBaseBallGameInstance>(GetGameInstance());
-		//GI->UpdateRankingData(GI->GetPlayerName(), GameMode->Score, GameMode->MaxRemainingBalls - GameMode->RemainingBalls);
 		IsStageCleared = 1;
+
+		UBaseBallGameInstance* GI= Cast<UBaseBallGameInstance>(GetGameInstance());
+		RankingDataManager::SaveOnline({GI->GetPlayerName(), GameMode->Score, (GameMode->MaxRemainingBalls - GameMode->RemainingBalls)});
 	}
 }
 
@@ -179,6 +180,7 @@ void UInGameUI::DisplayBallJudgement(float Judgement, bool isCritical)
 	{
 		UpdateHomerunGauge(50);
 		GameMode->AddScore(180);
+		GameMode->AddScore(180);
 	}
 	else // Not Critical
 	{
@@ -241,9 +243,8 @@ void UInGameUI::UpdateBallDistance(ABall* ball, APlayerController* playercontrol
 
 		FVector ballloc = ball->GetActorLocation();
 
-		int32 Distance = FVector::Dist(ballloc, StrikeZoneLocation);
-		temp = Distance;
-		// ADD DISTANCE SCORE
+		int32 Distance = FVector::Dist(ballloc, StrikeZoneLocation) / 30;
+		GameMode->AddScore(Distance);
 		FText WinConditionText = FText::FromString(TEXT("{0}FT"));
 		FText WinCondition = FText::Format(WinConditionText, FText::AsNumber(Distance));
 		HitDistanceText->SetText(WinCondition);
@@ -270,45 +271,51 @@ void UInGameUI::DisplayHomerunState(bool Homerun)
 {
 	if (nullptr != this)
 	{
-		if (ESlateVisibility::Visible != HomerunImage->GetVisibility() && ESlateVisibility::Visible != HitImage->
-			GetVisibility())
+		//TODO: 불값 bSuccessfulCalledShot
+		if (!bSuccessfulCalledShot)
 		{
-			isHomerunStateDisplaying = true;
-			if (Homerun)
+			if (ESlateVisibility::Visible != HomerunImage->GetVisibility() && ESlateVisibility::Visible != HitImage->
+			GetVisibility())
 			{
-				ComboNumber += 1;
-				if (ComboNumber)
+				isHomerunStateDisplaying = true;
+				if (Homerun)
 				{
-					GameMode->AddScore(50);
+					ComboNumber += 1;
+					if (ComboNumber)
+					{
+						GameMode->AddScore(50);
+					}
+					else
+					{
+						GameMode->AddScore(20);
+					}
+					if (bCalledShot)
+					{
+						DisplayCalledShotHomerun();
+						bSuccessfulCalledShot =true;
+					}
+					else // Display Homerun
+					{
+						PlayAnimation(HomerunAnimation);
+						HomerunImage->SetVisibility(ESlateVisibility::Visible);
+						FTimerHandle HomerunTimer;
+						GetWorld()->GetTimerManager().SetTimer(HomerunTimer, this, &UInGameUI::HideHomerunState,
+															   DisplayTime, false);
+						UpdateSuccessfulHomerun();
+					}
 				}
-				else
+				else // Display Hit
 				{
-					GameMode->AddScore(20);
+					ComboNumber = 0;
+					PlayAnimation(HitAnimation);
+					HitImage->SetVisibility(ESlateVisibility::Visible);
+					FTimerHandle HitTimer;
+					GetWorld()->GetTimerManager().SetTimer(HitTimer, this, &UInGameUI::HideHomerunState,
+														   DisplayTime, false);
 				}
-				if (bCalledShot)
-				{
-					DisplayCalledShotHomerun();
-				}
-				else // Display Homerun
-				{
-					PlayAnimation(HomerunAnimation);
-					HomerunImage->SetVisibility(ESlateVisibility::Visible);
-					FTimerHandle HomerunTimer;
-					GetWorld()->GetTimerManager().SetTimer(HomerunTimer, this, &UInGameUI::HideHomerunState,
-					                                       DisplayTime, false);
-					UpdateSuccessfulHomerun();
-				}
-			}
-			else // Display Hit
-			{
-				ComboNumber = 0;
-				PlayAnimation(HitAnimation);
-				HitImage->SetVisibility(ESlateVisibility::Visible);
-				FTimerHandle HitTimer;
-				GetWorld()->GetTimerManager().SetTimer(HitTimer, this, &UInGameUI::HideHomerunState,
-				                                       DisplayTime, false);
 			}
 		}
+		
 	}
 }
 
@@ -351,6 +358,7 @@ void UInGameUI::HideHomerunState()
 		                                       [this]() { GameMode->ChangeState(EGameModeState::Throw); }, 1, false);
 	}
 }
+
 
 void UInGameUI::HideStageClear()
 {
@@ -472,6 +480,7 @@ void UInGameUI::HideCalledShotHomerun()
 	{
 		GameMode->Ball->Destroy(); // Destroy Ball
 	}
+	GameMode->ChangeState(EGameModeState::Throw);
 }
 
 void UInGameUI::DisplayCombo()
@@ -529,4 +538,13 @@ void UInGameUI::HideGo()
 
 	GoDisappearImage->SetVisibility(ESlateVisibility::Hidden);
 	GoImage->SetVisibility(ESlateVisibility::Hidden);
+}
+
+bool UInGameUI::CheckCondition(bool bisHomerun)
+{
+	if (bisHomerun || bCalledShot)
+	{
+		return false;
+	}
+	return true;
 }
