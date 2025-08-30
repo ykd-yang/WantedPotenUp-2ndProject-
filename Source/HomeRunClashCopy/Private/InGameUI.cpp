@@ -587,7 +587,21 @@ void UInGameUI::HideCalledShotHomerun()
 
 	bCalledShot = false;
 
-	GameMode->ChangeState(EGameModeState::Throw);
+	if (0 == IsStageCleared) // Stage Fail
+	{
+		StageFailed();
+	}
+	else if (1 == IsStageCleared) // Stage Clear
+	{
+		GameMode->StageClearUI->PlayAnimation(GameMode->StageClearUI->TurnStageClearAnimation);
+		GameMode->StageClearUI->SetVisibility(ESlateVisibility::Visible);
+		FTimerHandle StageClearTimer;
+		GetWorld()->GetTimerManager().SetTimer(StageClearTimer, this, &UInGameUI::HideStageClear, 2, false);
+	}
+	else
+	{
+		GameMode->ChangeState(EGameModeState::Throw);
+	}
 }
 
 void UInGameUI::DisplayCombo()
