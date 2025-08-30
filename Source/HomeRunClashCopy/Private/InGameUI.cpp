@@ -336,9 +336,7 @@ void UInGameUI::DisplayHomerunState(bool Homerun)
 
 					if (bCalledShot)
 					{
-						DisplayCyclingHomerun(CurrentDirection);
 						DisplayCalledShotHomerun();
-						UpdateSuccessfulHomerun();	
 					}
 					else // Display Homerun
 					{
@@ -563,6 +561,8 @@ void UInGameUI::HideCyclingHomerun()
 
 void UInGameUI::DisplayCalledShotHomerun()
 {
+	DisplayCyclingHomerun(CurrentDirection);
+	UpdateSuccessfulHomerun();
 	bSuccessfulCalledShot = true;
 	CalledShotHomerunImage->SetVisibility(ESlateVisibility::Visible);
 	PlayAnimation(CalledShotHomerunAnimation);
