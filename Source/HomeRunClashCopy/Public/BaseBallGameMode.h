@@ -19,6 +19,7 @@ class UStageFailUI;
 class UStageClearUI;
 class UInGameUI;
 class APitcher;
+class ACrowdSound;
 
 UENUM(BlueprintType)
 enum class EGameModeState : uint8
@@ -177,4 +178,9 @@ public:
 	TArray<ACallHitObejct*> GetCallHitPoints();
 	void AddScore(int32 score);
 	void CheckCallHitPoints();
+
+	UPROPERTY()
+	ACrowdSound* CrowdSound;
+	UFUNCTION()
+	void SetCrowdSound(ACrowdSound* Crowd);
 };

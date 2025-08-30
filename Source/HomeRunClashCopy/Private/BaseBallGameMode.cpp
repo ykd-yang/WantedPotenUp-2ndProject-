@@ -4,6 +4,7 @@
 #include "BaseBallGameMode.h"
 
 #include "BaseBallGameInstance.h"
+#include "CrowdSound.h"
 #include "HitBox.h"
 #include "Pitcher.h"
 #include "Blueprint/UserWidget.h"
@@ -364,6 +365,7 @@ void ABaseBallGameMode::OnBallHitEnter()
 	// const UEnum* EnumPtr = StaticEnum<EBallType>();
 	// FString Str = EnumPtr->GetNameStringByValue((uint8)BallType);
 	InGameUI->DisplayBallInfo(BallType);
+	CrowdSound->PlayRandomCheer();
 }
 
 void ABaseBallGameMode::OnBallMissEnter()
@@ -418,7 +420,7 @@ void ABaseBallGameMode::OnBallMissEnter()
 void ABaseBallGameMode::OnEndEnter()
 {
 	AllWidgets[0]->SetVisibility(ESlateVisibility::Hidden);
-
+	CrowdSound->StopCrowdSound();
 
 	// 마우스 커서 활성화
 	if (PlayerController)
@@ -443,6 +445,7 @@ void ABaseBallGameMode::OnEndEnter()
 void ABaseBallGameMode::OnStartExit()
 {
 	ElapsedTime = 0.f;
+	CrowdSound->PlayCrowdSound();
 }
 
 void ABaseBallGameMode::OnThrowExit()
@@ -567,4 +570,9 @@ void ABaseBallGameMode::CheckCallHitPoints()
 			Batter->GetMesh()->SetOverlayMaterial(nullptr);
 		}
 	}
+}
+
+void ABaseBallGameMode::SetCrowdSound(ACrowdSound* Crowd)
+{
+	CrowdSound = Crowd;
 }
