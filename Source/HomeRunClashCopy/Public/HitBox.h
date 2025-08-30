@@ -47,6 +47,8 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "Effects")
 	class UParticleSystem* ExplosionEffect;
+	UPROPERTY(EditAnywhere, Category = "Effects")
+	class UParticleSystem* NormalEffect;
 
 	float ItemPower=0.f;
 	float ItemCritical=0.f;;
@@ -58,7 +60,7 @@ public:
 	float CheckSide(class ABall* Ball);
 	bool ApplyHit(float Timing, float HeightBat, float SideBat, class ABall* ball);
 	bool ApplyHitReal(float Timing, float HeightBat, float SideBat, ABall* Ball);
-	void SpawnEffect(const FVector& SpawnLocation);
+	void SpawnEffect(const FVector& SpawnLocation,UParticleSystem* effect);
 	
 protected:
 	// Called when the game starts or when spawned
