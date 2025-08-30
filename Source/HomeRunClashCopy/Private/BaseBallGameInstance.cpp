@@ -8,7 +8,7 @@
 UBaseBallGameInstance::UBaseBallGameInstance()
 {
 	ConstructorHelpers::FObjectFinder<UMaterial> Mat1(
-		TEXT("/Script/Engine.MaterialInstanceConstant'/Game/Fab/Baseball_Bat/m_bat.m_bat'"));
+		TEXT("/Script/Engine.Material'/Game/Fab/Baseball_Bat/M_WoodBat.M_WoodBat'"));
 	if (Mat1.Succeeded())
 	{
 		WoodMat = Mat1.Object;
