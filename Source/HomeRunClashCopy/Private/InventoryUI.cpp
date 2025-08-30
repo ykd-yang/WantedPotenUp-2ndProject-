@@ -126,10 +126,10 @@ void UInventoryUI::ChangePowerStatusText()
 	switch (ItemType)
 	{
 	case EItemType::Item1: // 1번 아이템 장착 시
-		PowerStatusText->SetText(FText::FromString(TEXT("75")));
+		PowerStatusText->SetText(FText::FromString(TEXT("67")));
 		break;
 	case EItemType::Item2: // 2번 아이템 장착 시
-		PowerStatusText->SetText(FText::FromString(TEXT("67")));
+		PowerStatusText->SetText(FText::FromString(TEXT("75")));
 		break;
 	}
 }
@@ -139,10 +139,10 @@ void UInventoryUI::ChangeAccuracyStatusText()
 	switch (ItemType)
 	{
 	case EItemType::Item1: // 1번 아이템 장착 시
-		AccuracyStatusText->SetText(FText::FromString(TEXT("89")));
+		AccuracyStatusText->SetText(FText::FromString(TEXT("97")));
 		break;
 	case EItemType::Item2: // 2번 아이템 장착 시
-		AccuracyStatusText->SetText(FText::FromString(TEXT("97")));
+		AccuracyStatusText->SetText(FText::FromString(TEXT("89")));
 		break;
 	}
 }
