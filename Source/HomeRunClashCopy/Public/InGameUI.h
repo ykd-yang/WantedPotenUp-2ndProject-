@@ -136,6 +136,9 @@ public:
 	UImage* GoDisappearImage;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Sound")
 	USoundBase* PlayballSound;
+
+	UPROPERTY(meta = (BindWidget))
+	UImage* SkillOnImage;
 	// OST
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Sound")
 	UAudioComponent* InGameOSTComponent;
@@ -208,6 +211,9 @@ public:
 	void DisplayGo();
 	UFUNCTION(BlueprintCallable)
 	void HideGo();
+	UFUNCTION(BlueprintCallable)
+	void DisplaySkill();
+	
 
 
 	UPROPERTY(EditAnywhere, Category="Pawn")

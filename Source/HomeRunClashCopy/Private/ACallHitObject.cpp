@@ -36,9 +36,16 @@ UNiagaraComponent* ACallHitObejct::SpawnDoor()
 	{
 		Door->SetAutoDestroy(false);
 		BisOnCallHit =true;
+		auto* MyGameMode = Cast<ABaseBallGameMode>(GetWorld()->GetAuthGameMode());
+		if (MyGameMode)
+		{
+			MyGameMode->InGameUI->DisplaySkill();
+		}
 		
 	}
+	
 	CallhitUi->SetVisibility(true);
+	
 
 	return Door;
 }
@@ -88,6 +95,7 @@ void ACallHitObejct::NotifyActorBeginOverlap(AActor* OtherActor)
 			UE_LOG(LogTemp,Warning,TEXT("아오"));
 			MyGameMode->InGameUI->DisplayCalledShotHomerun();
 			MyGameMode-> InGameUI->bCalledShot = true;
+			
 			//TODO : 예고홈런존을 서서히 사라지게 한다.
 			DestroyDoor();
 			//TODO :  위젯이 안보이게 한다.

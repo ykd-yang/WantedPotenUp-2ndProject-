@@ -614,6 +614,18 @@ void UInGameUI::HideGo()
 	GoImage->SetVisibility(ESlateVisibility::Hidden);
 }
 
+void UInGameUI::DisplaySkill()
+{
+	if (SkillOnImage->GetVisibility() == ESlateVisibility::Hidden)
+	{
+		SkillOnImage->SetVisibility(ESlateVisibility::Visible);
+	}
+	else if (SkillOnImage->GetVisibility() == ESlateVisibility::Visible)
+	{
+		SkillOnImage->SetVisibility(ESlateVisibility::Hidden);
+	}
+}
+
 bool UInGameUI::CheckCondition(bool bisHomerun)
 {
 	if (bisHomerun || bCalledShot)

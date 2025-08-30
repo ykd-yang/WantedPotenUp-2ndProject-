@@ -516,6 +516,7 @@ void ABaseBallGameMode::CheckCallHitPoints()
 		else if (CallhitPoint->BisOnCallHit && CallhitPoint->LifeCount>2)
 		{
 			CallhitPoint->DestroyDoor();
+			InGameUI->DisplaySkill();
 			auto* Batter = Cast<ABatter>(PlayerController->GetPawn());
 			Batter->GetMesh()->SetOverlayMaterial(nullptr);
 		}
