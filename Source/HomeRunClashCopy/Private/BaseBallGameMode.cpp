@@ -16,6 +16,7 @@
 #include "Blueprint/WidgetBlueprintLibrary.h"
 #include "Camera/CameraActor.h"
 #include "Camera/CameraComponent.h"
+#include "Components/AudioComponent.h"
 #include "Components/Image.h"
 
 
@@ -44,7 +45,7 @@ void ABaseBallGameMode::BeginPlay()
 	Super::BeginPlay();
 
 	PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
-
+	
 	// Create Widget
 	if (nullptr != InGameUIClass)
 	{
@@ -74,10 +75,6 @@ void ABaseBallGameMode::BeginPlay()
 		}
 	}
 	StageFailUI->SetVisibility(ESlateVisibility::Hidden);
-	
-	// InputModeUIOnly.SetWidgetToFocus(nullptr);
-	// InputModeUIOnly.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
-	// PlayerController->SetInputMode(InputModeUIOnly);
 
 	// Casting Pitcher
 	AActor* FoundPitcher = UGameplayStatics::GetActorOfClass(GetWorld(), APitcher::StaticClass());
@@ -89,10 +86,10 @@ void ABaseBallGameMode::BeginPlay()
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Pitcher is null"));
 	}
-	
+
 	TArray<AActor*> Cameras;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ACameraActor::StaticClass(), Cameras);
-	
+
 	for (AActor* Cam : Cameras)
 	{
 		if (Cam->ActorHasTag("StageStartCamera"))
@@ -110,29 +107,52 @@ void ABaseBallGameMode::BeginPlay()
 
 	if (FoundBatter)
 	{
-		// 보이기 / 숨기기
-		FoundBatter->SetActorHiddenInGame(true);  // 숨기기
-		
+		FoundBatter->SetActorHiddenInGame(true); // 숨기기
 	}
 	FMovieSceneSequencePlaybackSettings Settings;
 	Settings.bAutoPlay = true;
 	ALevelSequenceActor* OutActor = nullptr;
 	ULevelSequencePlayer* SequencePlayer = ULevelSequencePlayer::CreateLevelSequencePlayer(
-			GetWorld(), EntroSequence, Settings, OutActor);
+		GetWorld(), EntroSequence, Settings, OutActor);
 
 	if (SequencePlayer)
 	{
-		// 시퀀스 끝 이벤트 바인딩
 		SequencePlayer->OnFinished.AddDynamic(this, &ABaseBallGameMode::OnSequenceFinished);
-
 		SequencePlayer->Play();
 	}
+	UGameplayStatics::PlaySound2D(this, EntroMusic);
+	FTimerHandle VoiceTimer;
+	GetWorld()->GetTimerManager().SetTimer(VoiceTimer, [this]() { UGameplayStatics::PlaySound2D(this, EntroVoice); }, 1.4f,
+	                                       false);
+	FTimerHandle AudienceTimer;
+	GetWorld()->GetTimerManager().SetTimer(AudienceTimer, [this]() { AudienceAudioComp = UGameplayStatics::SpawnSound2D(this, EntroAudience); }, 1.4f + 2,
+	                                       false);
+	FTimerHandle ShoheiOhtaniTimer;
+	GetWorld()->GetTimerManager().SetTimer(ShoheiOhtaniTimer, [this]() { UGameplayStatics::PlaySound2D(this, ShoheiOhtani); }, 1.4f + 6.4,
+	                                       false);
+
+	PlayerController->SetInputMode(InputModeUIOnly);
+	PlayerController->bShowMouseCursor = false;
 }
 
 void ABaseBallGameMode::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	if (!BatterAimFound)
+	{
+		AllWidgets.Empty();
+		UWidgetBlueprintLibrary::GetAllWidgetsOfClass(GetWorld(), AllWidgets, UUserWidget::StaticClass(), true);
+		for (UUserWidget* Widget : AllWidgets)
+		{
+			if (Widget->GetName() == "WBP_BatterAim_C_0")
+			{
+				BatterAimFound = true;
+				AllWidgets[0]->SetVisibility(ESlateVisibility::Hidden);
+			}
+		}
+	}
+	
 
 	switch (State)
 	{
@@ -238,7 +258,7 @@ void ABaseBallGameMode::GiveBallToGameMode(ABall* NewBall)
 void ABaseBallGameMode::OnStartTick(float DeltaTime)
 {
 	ElapsedTime += DeltaTime;
-	if (ElapsedTime >= 1.0f) // 1초 기다림
+	if (ElapsedTime >= 1.0f)
 	{
 		FVector CurrentLoc = StartCamera->GetActorLocation();
 		FVector NewLoc = FMath::VInterpTo(CurrentLoc, TargetLocation, DeltaTime, 2.0f);
@@ -273,7 +293,7 @@ void ABaseBallGameMode::OnBallHitTick(float DeltaTime)
 	{
 		InGameUI->UpdateBallDistance(Ball, PlayerController); // strikezone location, ball location length
 	}
-	else	// 만약 판정UI가 남아 있다면 사라진 후에 표시
+	else // 만약 판정UI가 남아 있다면 사라진 후에 표시
 	{
 		InGameUI->HideBallDistance();
 	}
@@ -291,11 +311,10 @@ void ABaseBallGameMode::OnEndTick(float DeltaTime)
 //On Enter
 void ABaseBallGameMode::OnStartEnter()
 {
+	AudienceAudioComp->Stop();
 	InitializeCallHitPoints();
 	InGameUI->IsStageCleared = -1;
-	// UWidgetBlueprintLibrary::GetAllWidgetsOfClass(GetWorld(), AllWidgets, UUserWidget::StaticClass(), true);
-	// AllWidgets[0]->SetVisibility(ESlateVisibility::Visible);
-	PlayerController->bShowMouseCursor = false;
+	AllWidgets[0]->SetVisibility(ESlateVisibility::Visible);
 	PlayerController->SetInputMode(InputModeGameOnly);
 	// 1. 화면이 타자시점이 된다
 	// 2. 줌이되고 ReadyUI 표시
@@ -357,7 +376,7 @@ void ABaseBallGameMode::OnBallMissEnter()
 	{
 		InGameUI->DeductRemainingBalls();
 
-		if (0 == InGameUI->IsStageCleared)	// 게임 실패
+		if (0 == InGameUI->IsStageCleared) // 게임 실패
 		{
 			InGameUI->StageFailed();
 		}
@@ -380,7 +399,7 @@ void ABaseBallGameMode::OnBallMissEnter()
 	{
 		InGameUI->DeductRemainingBalls();
 
-		if (0 == InGameUI->IsStageCleared)	// 게임 실패
+		if (0 == InGameUI->IsStageCleared) // 게임 실패
 		{
 			InGameUI->StageFailed();
 		}
@@ -398,10 +417,9 @@ void ABaseBallGameMode::OnBallMissEnter()
 
 void ABaseBallGameMode::OnEndEnter()
 {
-	UWidgetBlueprintLibrary::GetAllWidgetsOfClass(GetWorld(), AllWidgets, UUserWidget::StaticClass(), true);
 	AllWidgets[0]->SetVisibility(ESlateVisibility::Hidden);
 
-	
+
 	// 마우스 커서 활성화
 	if (PlayerController)
 	{
@@ -414,8 +432,6 @@ void ABaseBallGameMode::OnEndEnter()
 	}
 	if (1 == InGameUI->IsStageCleared) // 스테이지 클리어 시
 	{
-		
-		
 	}
 	else // 스테이지 실패 시s
 	{
@@ -511,13 +527,12 @@ void ABaseBallGameMode::SwitchToInGameUI()
 void ABaseBallGameMode::InitializeCallHitPoints()
 {
 	TArray<AActor*> MyActors;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(),ACallHitObejct::StaticClass(),MyActors);
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ACallHitObejct::StaticClass(), MyActors);
 	for (AActor* Actor : MyActors)
 	{
 		if (Actor)
 		{
-			
-			 ACallHitObejct* HitPoint = Cast<ACallHitObejct>(Actor);
+			ACallHitObejct* HitPoint = Cast<ACallHitObejct>(Actor);
 			if (HitPoint)
 			{
 				_CallHitPoints.Add(HitPoint);
@@ -540,11 +555,11 @@ void ABaseBallGameMode::CheckCallHitPoints()
 {
 	for (auto* CallhitPoint : _CallHitPoints)
 	{
-		if (CallhitPoint->BisOnCallHit && CallhitPoint->LifeCount<=1)
+		if (CallhitPoint->BisOnCallHit && CallhitPoint->LifeCount <= 1)
 		{
 			CallhitPoint->LifeCount++;
 		}
-		else if (CallhitPoint->BisOnCallHit && CallhitPoint->LifeCount>1)
+		else if (CallhitPoint->BisOnCallHit && CallhitPoint->LifeCount > 1)
 		{
 			CallhitPoint->DestroyDoor();
 			InGameUI->DisplaySkill();
@@ -553,5 +568,3 @@ void ABaseBallGameMode::CheckCallHitPoints()
 		}
 	}
 }
-
-

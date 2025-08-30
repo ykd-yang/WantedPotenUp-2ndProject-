@@ -116,6 +116,7 @@ private:
 
 
 public:
+	bool BatterAimFound = false;
 	bool didBallFall = false;
 	bool isHomerun;
 	// hit: -1 ~ 1 or miss: -2
@@ -130,10 +131,21 @@ public:
 	ABall* Ball;
 	EBallType BallType;
 
+	// Entro
 	UPROPERTY()
 	ULevelSequence* EntroSequence;
 	UPROPERTY()
 	AActor* FoundBatter;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Sound")
+	USoundBase* EntroVoice;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Sound")
+	USoundBase* EntroMusic;
+	UPROPERTY()
+	UAudioComponent* AudienceAudioComp;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Sound")
+	USoundBase* EntroAudience;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Sound")
+	USoundBase* ShoheiOhtani;
 
 	UPROPERTY()
 	ACameraActor* StartCamera;
