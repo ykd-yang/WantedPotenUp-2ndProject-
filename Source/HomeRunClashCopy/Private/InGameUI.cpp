@@ -5,6 +5,8 @@
 
 #include "BaseBallGameInstance.h"
 #include "BaseBallGameMode.h"
+#include "StageClearUI.h"
+#include "StageFailUI.h"
 #include "StrikeZone.h"
 #include "Blueprint/WidgetLayoutLibrary.h"
 #include "Camera/CameraActor.h"
@@ -375,13 +377,13 @@ void UInGameUI::HideHomerunState()
 
 	if (0 == IsStageCleared) // Stage Fail
 	{
-		// StageFailImage->SetVisibility(ESlateVisibility::Visible); !!
-		FTimerHandle StageFailTimer;
-		GetWorld()->GetTimerManager().SetTimer(StageFailTimer, this, &UInGameUI::HideStageFail, 2, false);
+		StageFailed();
 	}
 	else if (1 == IsStageCleared) // Stage Clear
 	{
-		// StageClearImage->SetVisibility(ESlateVisibility::Visible); !!
+		// StageClearImage->SetVisibility(ESlateVisibility::Visible);
+		GameMode->StageClearUI->PlayAnimation(GameMode->StageClearUI->TurnStageClearAnimation);
+		GameMode->StageClearUI->SetVisibility(ESlateVisibility::Visible);
 		FTimerHandle StageClearTimer;
 		GetWorld()->GetTimerManager().SetTimer(StageClearTimer, this, &UInGameUI::HideStageClear, 2, false);
 	}
@@ -404,9 +406,15 @@ void UInGameUI::HideHomerunState()
 
 void UInGameUI::HideStageClear()
 {
+	// Hide InGame UI
 	this->SetVisibility(ESlateVisibility::Hidden);
-	// StageClearImage->SetVisibility(ESlateVisibility::Hidden); !!
-
+	GameMode->StageClearUI->IMG_TurnStageClear->SetVisibility(ESlateVisibility::Hidden);
+	GameMode->StageClearUI->IMG_TurnStageClearDisappear->SetVisibility(ESlateVisibility::Hidden);
+	GameMode->StageClearUI->IMG_TurnStageClearBG->SetVisibility(ESlateVisibility::Hidden);
+	// Display End UI
+	GameMode->StageClearUI->PlayAnimation(GameMode->StageClearUI->StageClearAnimation);
+	GameMode->StageClearUI->IMG_StageClear->SetVisibility(ESlateVisibility::Visible);
+	GameMode->StageClearUI->WBP_ExitButton->SetVisibility(ESlateVisibility::Visible);
 	// Play Clear Animation
 	if (PlayClearAnim.IsBound())
 	{
@@ -445,9 +453,13 @@ void UInGameUI::HideStageClear()
 
 void UInGameUI::HideStageFail()
 {
+	// Hide InGame UI
 	this->SetVisibility(ESlateVisibility::Hidden);
-	// StageFailImage->SetVisibility(ESlateVisibility::Hidden); !!
-
+	GameMode->StageFailUI->IMG_TurnStageFail->SetVisibility(ESlateVisibility::Hidden);
+	GameMode->StageFailUI->IMG_TurnStageFailBG->SetVisibility(ESlateVisibility::Hidden);
+	// Display End UI
+	GameMode->StageFailUI->IMG_StageFail->SetVisibility(ESlateVisibility::Visible);
+	GameMode->StageFailUI->WBP_ExitButton->SetVisibility(ESlateVisibility::Visible);
 	// Play Fail Animation
 	if (PlayFailAnim.IsBound())
 	{
@@ -603,7 +615,7 @@ void UInGameUI::DisplayGo()
 	UGameplayStatics::PlaySound2D(GetWorld(), PlayballSound);
 
 	FTimerHandle DisplayGoTimer;
-	GetWorld()->GetTimerManager().SetTimer(DisplayGoTimer, this, &UInGameUI::HideGo, 1.16f, false);
+	GetWorld()->GetTimerManager().SetTimer(DisplayGoTimer, this, &UInGameUI::HideGo, 1.15f, false);
 }
 
 void UInGameUI::HideGo()
@@ -633,4 +645,13 @@ bool UInGameUI::CheckCondition(bool bisHomerun)
 		return false;
 	}
 	return true;
+}
+
+void UInGameUI::StageFailed()
+{
+	// StageFailImage->SetVisibility(ESlateVisibility::Visible);
+	GameMode->StageFailUI->PlayAnimation(GameMode->StageFailUI->TurnStageFailAnimation);
+	GameMode->StageFailUI->SetVisibility(ESlateVisibility::Visible);
+	FTimerHandle StageFailTimer;
+	GetWorld()->GetTimerManager().SetTimer(StageFailTimer, this, &UInGameUI::HideStageFail, 2, false);
 }

@@ -239,4 +239,6 @@ public:
 	float DisplayTime = 2.5f; // UI display time
 	float CurrentDirection; 
 	int32 RemainBallCount;
+
+	void StageFailed();
 };

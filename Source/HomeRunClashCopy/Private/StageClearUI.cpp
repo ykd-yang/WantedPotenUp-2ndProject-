@@ -20,7 +20,7 @@ void UStageClearUI::NativeConstruct()
 	}
 	
 	ABaseBallGameMode* Gm =  Cast<ABaseBallGameMode>(GetWorld()->GetAuthGameMode());
-	Gm->InGameUI->PlayFailOST.AddDynamic(this, &UStageClearUI::PlayClearOST);
+	Gm->InGameUI->PlayClearOST.AddDynamic(this, &UStageClearUI::PlayClearOST);
 }
 
 void UStageClearUI::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
@@ -31,5 +31,11 @@ void UStageClearUI::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 void UStageClearUI::PlayClearOST()
 {
 	ClearOSTComponent->Play();
+	ClearOSTComponent->SetVolumeMultiplier(0.45);
+}
+
+void UStageClearUI::PlayStageClearAnimation()
+{
+	PlayAnimation(TurnStageClearAnimation);
 }
 

@@ -36,4 +36,5 @@ void UStageFailUI::PlayFailOST()
 {
 	// 실패 노래 재생
 	FailOSTComponent->Play();
+	FailOSTComponent->SetVolumeMultiplier(0.45);
 }
