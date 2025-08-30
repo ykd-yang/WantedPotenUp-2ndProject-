@@ -509,11 +509,11 @@ void ABaseBallGameMode::CheckCallHitPoints()
 {
 	for (auto* CallhitPoint : _CallHitPoints)
 	{
-		if (CallhitPoint->BisOnCallHit && CallhitPoint->LifeCount<=2)
+		if (CallhitPoint->BisOnCallHit && CallhitPoint->LifeCount<=1)
 		{
 			CallhitPoint->LifeCount++;
 		}
-		else if (CallhitPoint->BisOnCallHit && CallhitPoint->LifeCount>2)
+		else if (CallhitPoint->BisOnCallHit && CallhitPoint->LifeCount>1)
 		{
 			CallhitPoint->DestroyDoor();
 			InGameUI->DisplaySkill();
