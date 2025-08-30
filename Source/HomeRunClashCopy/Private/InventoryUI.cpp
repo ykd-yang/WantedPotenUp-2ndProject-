@@ -96,17 +96,13 @@ void UInventoryUI::ChangeEquipItemImage()
 	case EItemType::Item1: // 1번 아이템 장착 시
 		if (EquipItemImage && EquipItemTexture1)
 		{
-			// FSlateBrush Brush;
-			// Brush.SetResourceObject(EquipItemTexture1);
-			// EquipItemImage->SetBrush(Brush);
+			EquipItemImage->SetBrushFromTexture(EquipItemTexture1);
 		}
 		break;
 	case EItemType::Item2: // 2번 아이템 장착 시
 		if (EquipItemImage && EquipItemTexture2)
 		{
-			// FSlateBrush Brush;
-			// Brush.SetResourceObject(EquipItemTexture2);
-			// EquipItemImage->SetBrush(Brush);
+			EquipItemImage->SetBrushFromTexture(EquipItemTexture2);
 		}
 		break;
 	}
