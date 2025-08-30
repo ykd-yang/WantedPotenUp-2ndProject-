@@ -20,10 +20,7 @@ void UMainMenuUI::NativeConstruct()
 
 void UMainMenuUI::StartButtonClicked()
 {
-	UE_LOG(LogTemp, Warning, TEXT("StartButtonClicked()"))
 	UGameplayStatics::OpenLevel(this, FName("BaseballLevel"));
-	//GameMode->SwitchToInGameUI();
-	//GameMode->ChangeState(EGameModeState::Start);
 }
 
 void UMainMenuUI::PlayerBtnClicked()

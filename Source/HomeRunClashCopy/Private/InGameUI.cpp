@@ -51,7 +51,6 @@ void UInGameUI::NativeConstruct()
 	MainMissionCounterText->SetText(WinCondition);
 
 	DistanceCanvasSlot = Cast<UCanvasPanelSlot>(HitDistanceText->Slot);
-
 	ResetHomerunGauge();
 	RemainBallCount = GameMode->RemainingBalls;
 }
@@ -280,9 +279,10 @@ void UInGameUI::UpdateBallDistance(ABall* ball, APlayerController* playercontrol
 
 	if (ball && playercontroller && DistanceCanvasSlot)
 	{
+		float Scale = UWidgetLayoutLibrary::GetViewportScale(GetWorld());
 		FVector2D ScreenPosition;
 		playercontroller->ProjectWorldLocationToScreen(ball->GetActorLocation(), ScreenPosition);
-		DistanceCanvasSlot->SetPosition(ScreenPosition);
+		DistanceCanvasSlot->SetPosition(ScreenPosition / Scale);
 
 		FVector ballloc = ball->GetActorLocation();
 

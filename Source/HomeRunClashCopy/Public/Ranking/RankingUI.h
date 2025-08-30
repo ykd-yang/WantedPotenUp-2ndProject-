@@ -6,6 +6,8 @@
 #include "Blueprint/UserWidget.h"
 #include "RankingUI.generated.h"
 
+class UButton;
+struct FRankingData;
 class UScrollBox;
 class URankingDataUI;
 /**

@@ -128,7 +128,7 @@ void ABaseBallGameMode::BeginPlay()
 		SequencePlayer->OnFinished.AddDynamic(this, &ABaseBallGameMode::OnSequenceFinished);
 		SequencePlayer->Play();
 	}
-	
+
 	UGameplayStatics::PlaySound2D(this, EntroMusic);
 	FTimerHandle VoiceTimer;
 	GetWorld()->GetTimerManager().SetTimer(VoiceTimer, [this]() { UGameplayStatics::PlaySound2D(this, EntroVoice); },
@@ -148,22 +148,25 @@ void ABaseBallGameMode::BeginPlay()
 
 	PlayerController->SetInputMode(InputModeUIOnly);
 	PlayerController->bShowMouseCursor = false;
+	BatterAimFound = false;
 }
 
 void ABaseBallGameMode::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	
 	if (!BatterAimFound)
 	{
 		AllWidgets.Empty();
 		UWidgetBlueprintLibrary::GetAllWidgetsOfClass(GetWorld(), AllWidgets, UUserWidget::StaticClass(), true);
 		for (UUserWidget* Widget : AllWidgets)
 		{
-			if (Widget->GetName() == "WBP_BatterAim_C_0")
+			if (Widget->GetName().Contains(TEXT("WBP_BatterAim")))
 			{
-				BatterAimFound = true;
 				AllWidgets[0]->SetVisibility(ESlateVisibility::Hidden);
+				BatterAimFound = true;
+				break;
 			}
 		}
 	}
