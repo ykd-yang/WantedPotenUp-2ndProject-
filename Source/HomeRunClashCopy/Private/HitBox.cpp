@@ -304,7 +304,8 @@ bool AHitBox::ApplyHitReal(float Timing, float HeightBat, float SideBat, ABall* 
 
 	if (IsCritical)
 	{
-		Vtarget.X*=1.6f;
+		Vtarget.X*=1.9f;
+		Vtarget.Z*=1.5f;
 	}
 	
     {
@@ -390,7 +391,9 @@ bool AHitBox::ApplyHitReal(float Timing, float HeightBat, float SideBat, ABall* 
     
     const FVector SpawnLoc = StrikeZoneActor->GetActorLocation();
 
-	if (IsCritical)SpawnEffect(SpawnLoc);
+	if (IsCritical)SpawnEffect(SpawnLoc,ExplosionEffect);
+	else SpawnEffect(SpawnLoc,NormalEffect);
+	
     Ball->SetActorRotation(FRotator::ZeroRotator);
     Ball->SetActorLocation(SpawnLoc);
     Ball->SetBallHit(Vout);
@@ -409,14 +412,14 @@ bool AHitBox::ApplyHitReal(float Timing, float HeightBat, float SideBat, ABall* 
 
 
 
-void AHitBox::SpawnEffect(const FVector& SpawnLocation)
+void AHitBox::SpawnEffect(const FVector& SpawnLocation,UParticleSystem* effect)
 {
-	if (ExplosionEffect)
+	if (effect)
 	{
 		// 2. GameplayStatics를 이용해 파티클 스폰
 		UGameplayStatics::SpawnEmitterAtLocation(
 			GetWorld(),         // 현재 월드
-			ExplosionEffect,    // 스폰할 파티클 (UPROPERTY 변수)
+			effect,    // 스폰할 파티클 (UPROPERTY 변수)
 			SpawnLocation,      // 스폰할 위치
 			FRotator::ZeroRotator // 회전 없음
 		);

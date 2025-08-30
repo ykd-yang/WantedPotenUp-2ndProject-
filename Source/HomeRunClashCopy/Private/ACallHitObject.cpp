@@ -6,6 +6,7 @@
 
 #include "Ball.h"
 #include "BaseBallGameMode.h"
+#include "Batter.h"
 #include "InGameUI.h"
 #include "NiagaraComponent.h"
 #include "NiagaraFunctionLibrary.h"
@@ -31,7 +32,7 @@ void ACallHitObejct::UpdateRate()
 UNiagaraComponent* ACallHitObejct::SpawnDoor()
 {
 	Door = UNiagaraFunctionLibrary::SpawnSystemAtLocation
-	(GetWorld(),DoorSystem,GetActorLocation(),GetActorRotation(),FVector(0.f,10.f,7.f),false,true,ENCPoolMethod::None,true);
+	(GetWorld(),DoorSystem,GetActorLocation(),GetActorRotation(),FVector(0.f,16.f,5.f),false,true,ENCPoolMethod::None,true);
 	if (Door)
 	{
 		Door->SetAutoDestroy(false);
@@ -100,6 +101,9 @@ void ACallHitObejct::NotifyActorBeginOverlap(AActor* OtherActor)
 			DestroyDoor();
 			//TODO :  위젯이 안보이게 한다.
 			CallhitUi->SetVisibility(false);
+			auto* PlayerController = GetWorld()->GetFirstPlayerController();
+			auto* Batter = Cast<ABatter>(PlayerController->GetPawn());
+			Batter->GetMesh()->SetOverlayMaterial(nullptr);
 			
 			
 		}
