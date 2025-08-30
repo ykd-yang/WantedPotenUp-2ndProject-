@@ -10,6 +10,8 @@
 #include "BaseBallGameMode.generated.h"
 
 
+class ULevelSequencePlayer;
+class ULevelSequence;
 class UBaseBallGameInstance;
 class AHitBox;
 class UMainMenuUI;
@@ -51,6 +53,8 @@ private:
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<UBaseBallGameInstance> GI;
 public:
+	UFUNCTION()
+	void OnSequenceFinished();
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaSeconds) override;
 	UFUNCTION(BlueprintCallable)
@@ -125,6 +129,11 @@ public:
 	UPROPERTY()
 	ABall* Ball;
 	EBallType BallType;
+
+	UPROPERTY()
+	ULevelSequence* EntroSequence;
+	UPROPERTY()
+	AActor* FoundBatter;
 
 	UPROPERTY()
 	ACameraActor* StartCamera;

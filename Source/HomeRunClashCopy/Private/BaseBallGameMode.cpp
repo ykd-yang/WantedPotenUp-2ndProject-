@@ -9,6 +9,7 @@
 #include "Blueprint/UserWidget.h"
 #include "Kismet/GameplayStatics.h"
 #include "InGameUI.h"
+#include "LevelSequencePlayer.h"
 #include "MainMenuUI.h"
 #include "StageClearUI.h"
 #include "StageFailUI.h"
@@ -18,11 +19,24 @@
 #include "Components/Image.h"
 
 
+class ULevelSequence;
+
 ABaseBallGameMode::ABaseBallGameMode()
 {
 	State = EGameModeState::None;
 
 	PrimaryActorTick.bCanEverTick = true;
+
+	ConstructorHelpers::FObjectFinder<ULevelSequence> SequenceAsset(
+		TEXT("/Script/LevelSequence.LevelSequence'/Game/Sequence/StartSequence.StartSequence'"));
+
+	EntroSequence = SequenceAsset.Object;
+}
+
+void ABaseBallGameMode::OnSequenceFinished()
+{
+	FoundBatter->SetActorHiddenInGame(false); // 보이기
+	ChangeState(EGameModeState::Start);
 }
 
 void ABaseBallGameMode::BeginPlay()
@@ -91,8 +105,28 @@ void ABaseBallGameMode::BeginPlay()
 		}
 	}
 	Score = 0;
-	
-	ChangeState(EGameModeState::Start);
+
+	FoundBatter = UGameplayStatics::GetActorOfClass(GetWorld(), ABatter::StaticClass());
+
+	if (FoundBatter)
+	{
+		// 보이기 / 숨기기
+		FoundBatter->SetActorHiddenInGame(true);  // 숨기기
+		
+	}
+	FMovieSceneSequencePlaybackSettings Settings;
+	Settings.bAutoPlay = true;
+	ALevelSequenceActor* OutActor = nullptr;
+	ULevelSequencePlayer* SequencePlayer = ULevelSequencePlayer::CreateLevelSequencePlayer(
+			GetWorld(), EntroSequence, Settings, OutActor);
+
+	if (SequencePlayer)
+	{
+		// 시퀀스 끝 이벤트 바인딩
+		SequencePlayer->OnFinished.AddDynamic(this, &ABaseBallGameMode::OnSequenceFinished);
+
+		SequencePlayer->Play();
+	}
 }
 
 void ABaseBallGameMode::Tick(float DeltaTime)
