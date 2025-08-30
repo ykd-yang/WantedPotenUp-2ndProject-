@@ -10,7 +10,7 @@ AStrikeZone::AStrikeZone()
 	PrimaryActorTick.bCanEverTick = true;
 	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComp"));
 	ConstructorHelpers::FObjectFinder<UStaticMesh> tempMesh(TEXT("/Script/Engine.StaticMesh'/Engine/EngineMeshes/Cube.Cube'"));
-	ConstructorHelpers::FObjectFinder<UMaterial> tempMaterial(TEXT("/Script/Engine.Texture2D'/Game/Asset/UI/InGameImage/StrikeZoneUI.StrikeZoneUI'"));
+	ConstructorHelpers::FObjectFinder<UMaterial> tempMaterial(TEXT("/Script/Engine.Material'/Game/Blueprint/Ui/Widget/StrikeZone__2__Mat.StrikeZone__2__Mat'"));
 	MeshComp ->SetStaticMesh(tempMesh.Object);
 	MeshComp ->SetMaterial(0,tempMaterial.Object);
 	RootComponent = MeshComp;
