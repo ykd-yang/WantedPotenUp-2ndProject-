@@ -338,7 +338,7 @@ void UInGameUI::DisplayHomerunState(bool Homerun)
 					{
 						DisplayCyclingHomerun(CurrentDirection);
 						DisplayCalledShotHomerun();
-						
+						UpdateSuccessfulHomerun();	
 					}
 					else // Display Homerun
 					{
