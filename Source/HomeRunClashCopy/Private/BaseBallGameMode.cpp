@@ -325,9 +325,7 @@ void ABaseBallGameMode::OnBallMissEnter()
 
 		if (0 == InGameUI->IsStageCleared)	// 게임 실패
 		{
-			FTimerHandle StageFailTimer;
-			GetWorld()->GetTimerManager().SetTimer(StageFailTimer,
-											   [this]() { InGameUI->HideStageFail(); }, 1, false);
+			InGameUI->StageFailed();
 		}
 		else
 		{
@@ -350,9 +348,7 @@ void ABaseBallGameMode::OnBallMissEnter()
 
 		if (0 == InGameUI->IsStageCleared)	// 게임 실패
 		{
-			FTimerHandle StageFailTimer;
-			GetWorld()->GetTimerManager().SetTimer(StageFailTimer,
-											   [this]() { InGameUI->HideStageFail(); }, 1, false);
+			InGameUI->StageFailed();
 		}
 		else
 		{
@@ -384,7 +380,8 @@ void ABaseBallGameMode::OnEndEnter()
 	}
 	if (1 == InGameUI->IsStageCleared) // 스테이지 클리어 시
 	{
-		StageClearUI->SetVisibility(ESlateVisibility::Visible);
+		
+		
 	}
 	else // 스테이지 실패 시s
 	{

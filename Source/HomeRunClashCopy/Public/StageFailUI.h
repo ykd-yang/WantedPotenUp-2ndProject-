@@ -6,6 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "StageFailUI.generated.h"
 
+class UImage;
 class UUserWidget;
 /**
  * 
@@ -21,7 +22,16 @@ protected:
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 	
 public:
-	
+	// End Stage UI
+	UPROPERTY(meta = (BindWidget))
+	UImage* IMG_TurnStageFail;
+	UPROPERTY(meta = (BindWidget))
+	UImage* IMG_TurnStageFailBG;
+	UPROPERTY(meta = (BindWidget))
+	UImage* IMG_StageFail;
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
+	UWidgetAnimation* TurnStageFailAnimation;
+	// OST
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Sound")
 	UAudioComponent* FailOSTComponent;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Sound")
