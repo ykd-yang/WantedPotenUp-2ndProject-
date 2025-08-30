@@ -132,9 +132,9 @@ public:
 	EBallType BallType;
 
 	// Intro
-	UPROPERTY()
+	UPROPERTY(EditAnywhere)
 	ULevelSequence* EntroSequence;
-	UPROPERTY()
+	UPROPERTY(EditAnywhere)
 	ULevelSequence* StageFailSequence;
 	UPROPERTY()
 	AActor* FoundBatter;

@@ -29,15 +29,15 @@ ABaseBallGameMode::ABaseBallGameMode()
 
 	PrimaryActorTick.bCanEverTick = true;
 
-	ConstructorHelpers::FObjectFinder<ULevelSequence> IntroSequenceAsset(
-		TEXT("/Script/LevelSequence.LevelSequence'/Game/Sequence/StartSequence.StartSequence'"));
-
-	EntroSequence = IntroSequenceAsset.Object;
-
-	ConstructorHelpers::FObjectFinder<ULevelSequence> FailSequenceAsset(
-		TEXT("/Script/LevelSequence.LevelSequence'/Game/Sequence/StageFailSequence.StageFailSequence'"));
-
-	StageFailSequence = FailSequenceAsset.Object;
+	// ConstructorHelpers::FObjectFinder<ULevelSequence> IntroSequenceAsset(
+	// 	TEXT("/Script/LevelSequence.LevelSequence'/Game/Sequence/StartSequence.StartSequence'"));
+	//
+	// EntroSequence = IntroSequenceAsset.Object;
+	//
+	// ConstructorHelpers::FObjectFinder<ULevelSequence> FailSequenceAsset(
+	// 	TEXT("/Script/LevelSequence.LevelSequence'/Game/Sequence/StageFailSequence.StageFailSequence'"));
+	//
+	// StageFailSequence = FailSequenceAsset.Object;
 }
 
 void ABaseBallGameMode::OnSequenceFinished()
