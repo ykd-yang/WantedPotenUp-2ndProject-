@@ -7,6 +7,7 @@
 #include "Blueprint/UserWidget.h"
 #include "InGameUI.generated.h"
 
+class ULevelSequence;
 /**
  * 
  */
@@ -186,6 +187,8 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void HideStageClear();
+	UFUNCTION()
+	void OnSequenceFinished();
 	UFUNCTION(BlueprintCallable)
 	void HideStageFail();
 

@@ -29,6 +29,8 @@ class HOMERUNCLASHCOPY_API UInventoryUI : public UUserWidget
 	GENERATED_BODY()
 
 protected:
+
+	
 	virtual void NativeConstruct() override;
 
 	virtual void NativeTick(const FGeometry& MyGeometry, float DeltaTime) override;

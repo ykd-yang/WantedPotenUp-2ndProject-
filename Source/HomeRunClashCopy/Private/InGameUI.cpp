@@ -5,6 +5,9 @@
 
 #include "BaseBallGameInstance.h"
 #include "BaseBallGameMode.h"
+#include "LevelSequenceActor.h"
+#include "LevelSequencePlayer.h"
+#include "MovieSceneSequencePlaybackSettings.h"
 #include "StageClearUI.h"
 #include "StageFailUI.h"
 #include "StrikeZone.h"
@@ -412,6 +415,8 @@ void UInGameUI::HideStageClear()
 	GameMode->StageClearUI->IMG_TurnStageClearDisappear->SetVisibility(ESlateVisibility::Hidden);
 	GameMode->StageClearUI->IMG_TurnStageClearBG->SetVisibility(ESlateVisibility::Hidden);
 	// Display End UI
+	auto* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	PlayerController->SetViewTargetWithBlend(GameMode->EndCamera, 0);
 	GameMode->StageClearUI->PlayAnimation(GameMode->StageClearUI->StageClearAnimation);
 	GameMode->StageClearUI->IMG_StageClear->SetVisibility(ESlateVisibility::Visible);
 	GameMode->StageClearUI->WBP_ExitButton->SetVisibility(ESlateVisibility::Visible);
@@ -451,15 +456,32 @@ void UInGameUI::HideStageClear()
 	GameMode->ChangeState(EGameModeState::End); // play UI after camera move
 }
 
+void UInGameUI::OnSequenceFinished()
+{
+	// Display End UI
+	GameMode->StageFailUI->IMG_StageFail->SetVisibility(ESlateVisibility::Visible);
+	GameMode->StageFailUI->WBP_ExitButton->SetVisibility(ESlateVisibility::Visible);
+	auto* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	PlayerController->SetViewTargetWithBlend(GameMode->EndCamera, 0);
+}
+
 void UInGameUI::HideStageFail()
 {
 	// Hide InGame UI
 	this->SetVisibility(ESlateVisibility::Hidden);
 	GameMode->StageFailUI->IMG_TurnStageFail->SetVisibility(ESlateVisibility::Hidden);
 	GameMode->StageFailUI->IMG_TurnStageFailBG->SetVisibility(ESlateVisibility::Hidden);
-	// Display End UI
-	GameMode->StageFailUI->IMG_StageFail->SetVisibility(ESlateVisibility::Visible);
-	GameMode->StageFailUI->WBP_ExitButton->SetVisibility(ESlateVisibility::Visible);
+	// Play Intro Sequence
+	FMovieSceneSequencePlaybackSettings Settings;
+	Settings.bAutoPlay = true;
+	ALevelSequenceActor* OutActor = nullptr;
+	ULevelSequencePlayer* SequencePlayer = ULevelSequencePlayer::CreateLevelSequencePlayer(
+		GetWorld(), GameMode->StageFailSequence, Settings, OutActor);
+	if (SequencePlayer)
+	{
+		SequencePlayer->OnFinished.AddDynamic(this, &UInGameUI::OnSequenceFinished);
+		SequencePlayer->Play();
+	}
 	// Play Fail Animation
 	if (PlayFailAnim.IsBound())
 	{
@@ -483,7 +505,6 @@ void UInGameUI::HideStageFail()
 	{
 		PlayFailOST.Broadcast();
 	}
-
 	FActorSpawnParameters Params;
 	Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 	APawn* FailPawn = GetWorld()->SpawnActor<APawn>(StageFailPawn, SpawnLocation, FRotator(0, -90.f, 0), Params);
@@ -598,9 +619,6 @@ void UInGameUI::HideReady()
 	ReadyLeftImage->SetVisibility(ESlateVisibility::Hidden);
 	ReadyRightImage->SetVisibility(ESlateVisibility::Hidden);
 	ReadyImage->SetVisibility(ESlateVisibility::Hidden);
-
-	InGameOSTComponent->Play();
-	InGameOSTComponent->SetVolumeMultiplier(0.15);
 
 	FTimerHandle HideReadyTimer;
 	GetWorld()->GetTimerManager().SetTimer(HideReadyTimer, this, &UInGameUI::DisplayGo, 2.35f, false);

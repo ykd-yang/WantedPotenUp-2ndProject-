@@ -1,4 +1,3 @@
-
 #pragma once
 
 
@@ -24,18 +23,18 @@ class ACrowdSound;
 UENUM(BlueprintType)
 enum class EGameModeState : uint8
 {
-	None		UMETA(DisplayName = "None"),
-	Start		UMETA(DisplayName = "Start"),
-	Throw		UMETA(DisplayName = "Throw"),
-	CalledShot	UMETA(DisplayName = "CalledShot"),
-	BallHit		UMETA(DisplayName = "BallHit"),
-	BallMiss	UMETA(DisplayName = "BallMiss"),
-	End			UMETA(DisplayName = "End"),
+	None UMETA(DisplayName = "None"),
+	Start UMETA(DisplayName = "Start"),
+	Throw UMETA(DisplayName = "Throw"),
+	CalledShot UMETA(DisplayName = "CalledShot"),
+	BallHit UMETA(DisplayName = "BallHit"),
+	BallMiss UMETA(DisplayName = "BallMiss"),
+	End UMETA(DisplayName = "End"),
 };
+
 /**
  * 
  */
-
 
 
 UCLASS()
@@ -53,6 +52,7 @@ private:
 	TObjectPtr<APitcher> Pitcher;
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<UBaseBallGameInstance> GI;
+
 public:
 	UFUNCTION()
 	void OnSequenceFinished();
@@ -81,7 +81,7 @@ public:
 	TSubclassOf<UStageFailUI> StageFailUIClass;
 	UPROPERTY()
 	TObjectPtr<UStageFailUI> StageFailUI;
-	
+
 	// EBallType to String
 	UFUNCTION()
 	FString BallTypeToString(EBallType BT);
@@ -89,7 +89,7 @@ public:
 	// 
 	UFUNCTION()
 	void GiveBallToGameMode(ABall* NewBall);
-	
+
 private:
 	// Tick
 	void OnStartTick(float DeltaTime);
@@ -106,7 +106,7 @@ private:
 	void OnBallHitEnter();
 	void OnBallMissEnter();
 	void OnEndEnter();
-	
+
 	//OnState End
 	void OnStartExit();
 	void OnThrowExit();
@@ -115,26 +115,27 @@ private:
 	void OnBallMissExit();
 	void OnEndExit();
 
-
 public:
 	bool BatterAimFound = false;
 	bool didBallFall = false;
 	bool isHomerun;
 	// hit: -1 ~ 1 or miss: -2
 	float BatterHitDirection;
-	
+
 	// Variables for InGameUI
 	int32 MaxRemainingBalls = 12;
 	int32 RemainingBalls = 12;
-	int32 HomerunsForWin = 10; 
+	int32 HomerunsForWin = 5;
 
 	UPROPERTY()
 	ABall* Ball;
 	EBallType BallType;
 
-	// Entro
+	// Intro
 	UPROPERTY()
 	ULevelSequence* EntroSequence;
+	UPROPERTY()
+	ULevelSequence* StageFailSequence;
 	UPROPERTY()
 	AActor* FoundBatter;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Sound")
@@ -152,8 +153,8 @@ public:
 	ACameraActor* StartCamera;
 	UPROPERTY()
 	ACameraActor* EndCamera;
-	FVector TargetLocation = FVector(3380.0f,-470.0f,280.0f);
-	FRotator TargetRotation = FRotator(0.f,180.f,0.f);
+	FVector TargetLocation = FVector(3380.0f, -470.0f, 280.0f);
+	FRotator TargetRotation = FRotator(0.f, 180.f, 0.f);
 	float ElapsedTime;
 	UPROPERTY()
 	APlayerController* PlayerController;
@@ -161,7 +162,7 @@ public:
 	FInputModeGameOnly InputModeGameOnly;
 	UPROPERTY()
 	TArray<UUserWidget*> AllWidgets;
-	
+
 	void SwitchToStartCamera(APlayerController* PlayerController);
 
 	UFUNCTION(BlueprintCallable)

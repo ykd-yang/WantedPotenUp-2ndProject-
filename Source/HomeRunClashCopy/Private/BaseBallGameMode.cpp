@@ -29,10 +29,15 @@ ABaseBallGameMode::ABaseBallGameMode()
 
 	PrimaryActorTick.bCanEverTick = true;
 
-	ConstructorHelpers::FObjectFinder<ULevelSequence> SequenceAsset(
+	ConstructorHelpers::FObjectFinder<ULevelSequence> IntroSequenceAsset(
 		TEXT("/Script/LevelSequence.LevelSequence'/Game/Sequence/StartSequence.StartSequence'"));
 
-	EntroSequence = SequenceAsset.Object;
+	EntroSequence = IntroSequenceAsset.Object;
+
+	ConstructorHelpers::FObjectFinder<ULevelSequence> FailSequenceAsset(
+		TEXT("/Script/LevelSequence.LevelSequence'/Game/Sequence/StageFailSequence.StageFailSequence'"));
+
+	StageFailSequence = FailSequenceAsset.Object;
 }
 
 void ABaseBallGameMode::OnSequenceFinished()
@@ -46,7 +51,7 @@ void ABaseBallGameMode::BeginPlay()
 	Super::BeginPlay();
 
 	PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
-	
+
 	// Create Widget
 	if (nullptr != InGameUIClass)
 	{
@@ -56,6 +61,7 @@ void ABaseBallGameMode::BeginPlay()
 			InGameUI->AddToViewport(); // Display Widget
 		}
 	}
+	InGameUI->SetVisibility(ESlateVisibility::Hidden);
 	// 새로운 StageClearUI 생성
 	if (StageClearUIClass)
 	{
@@ -110,26 +116,34 @@ void ABaseBallGameMode::BeginPlay()
 	{
 		FoundBatter->SetActorHiddenInGame(true); // 숨기기
 	}
+
+	// Play Intro Sequence
 	FMovieSceneSequencePlaybackSettings Settings;
 	Settings.bAutoPlay = true;
 	ALevelSequenceActor* OutActor = nullptr;
 	ULevelSequencePlayer* SequencePlayer = ULevelSequencePlayer::CreateLevelSequencePlayer(
 		GetWorld(), EntroSequence, Settings, OutActor);
-
 	if (SequencePlayer)
 	{
 		SequencePlayer->OnFinished.AddDynamic(this, &ABaseBallGameMode::OnSequenceFinished);
 		SequencePlayer->Play();
 	}
+	
 	UGameplayStatics::PlaySound2D(this, EntroMusic);
 	FTimerHandle VoiceTimer;
-	GetWorld()->GetTimerManager().SetTimer(VoiceTimer, [this]() { UGameplayStatics::PlaySound2D(this, EntroVoice); }, 1.4f,
+	GetWorld()->GetTimerManager().SetTimer(VoiceTimer, [this]() { UGameplayStatics::PlaySound2D(this, EntroVoice); },
+	                                       1.4f,
 	                                       false);
 	FTimerHandle AudienceTimer;
-	GetWorld()->GetTimerManager().SetTimer(AudienceTimer, [this]() { AudienceAudioComp = UGameplayStatics::SpawnSound2D(this, EntroAudience); }, 1.4f + 2,
+	GetWorld()->GetTimerManager().SetTimer(AudienceTimer,
+	                                       [this]()
+	                                       {
+		                                       AudienceAudioComp = UGameplayStatics::SpawnSound2D(this, EntroAudience);
+	                                       }, 1.4f + 2,
 	                                       false);
 	FTimerHandle ShoheiOhtaniTimer;
-	GetWorld()->GetTimerManager().SetTimer(ShoheiOhtaniTimer, [this]() { UGameplayStatics::PlaySound2D(this, ShoheiOhtani); }, 1.4f + 6.4,
+	GetWorld()->GetTimerManager().SetTimer(ShoheiOhtaniTimer,
+	                                       [this]() { UGameplayStatics::PlaySound2D(this, ShoheiOhtani); }, 1.4f + 6.4,
 	                                       false);
 
 	PlayerController->SetInputMode(InputModeUIOnly);
@@ -153,7 +167,7 @@ void ABaseBallGameMode::Tick(float DeltaTime)
 			}
 		}
 	}
-	
+
 
 	switch (State)
 	{
@@ -315,8 +329,17 @@ void ABaseBallGameMode::OnStartEnter()
 	AudienceAudioComp->Stop();
 	InitializeCallHitPoints();
 	InGameUI->IsStageCleared = -1;
+	InGameUI->SetVisibility(ESlateVisibility::Visible);
 	AllWidgets[0]->SetVisibility(ESlateVisibility::Visible);
 	PlayerController->SetInputMode(InputModeGameOnly);
+
+
+	FTimerHandle PlayOSTTimer;
+	GetWorld()->GetTimerManager().SetTimer(PlayOSTTimer, [this]
+	{
+		InGameUI->InGameOSTComponent->Play();
+		InGameUI->InGameOSTComponent->SetVolumeMultiplier(0.15);
+	}, 0.2, false);
 	// 1. 화면이 타자시점이 된다
 	// 2. 줌이되고 ReadyUI 표시
 	// 3. 카메라가 Pitch방향으로 숙인다
@@ -430,7 +453,7 @@ void ABaseBallGameMode::OnEndEnter()
 		InputModeUIOnly.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
 		PlayerController->SetInputMode(InputModeUIOnly); // UI 모드로 입력 전환
 
-		PlayerController->SetViewTarget(EndCamera);
+		//PlayerController->SetViewTarget(EndCamera);
 	}
 	if (1 == InGameUI->IsStageCleared) // 스테이지 클리어 시
 	{
