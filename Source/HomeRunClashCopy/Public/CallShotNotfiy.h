@@ -13,6 +13,6 @@ UCLASS()
 class HOMERUNCLASHCOPY_API UCallShotNotfiy : public UAnimNotify
 {
 	GENERATED_BODY()
-	virtual void Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference) override;
+	virtual void Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation) override;
 	
 };
