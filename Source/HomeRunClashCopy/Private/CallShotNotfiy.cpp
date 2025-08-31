@@ -6,9 +6,9 @@
 #include "BaseBallGameMode.h"
 #include "InGameUI.h"
 
-void UCallShotNotfiy::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation)
+void UCallShotNotfiy::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
 {
-	Super::Notify(MeshComp, Animation);
+	Super::Notify(MeshComp, Animation, EventReference);
 	auto* myGameMode = Cast<ABaseBallGameMode>(GetWorld()->GetAuthGameMode());
 	if (myGameMode)
 	{
