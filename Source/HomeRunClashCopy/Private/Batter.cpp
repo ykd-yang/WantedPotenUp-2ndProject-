@@ -170,7 +170,7 @@ void ABatter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
     if (input)
     {
     	input -> BindAction(IA_Swing,ETriggerEvent::Triggered,this,&ABatter::PlaySwingMontage);
-    	input -> BindAction(IA_Test , ETriggerEvent::Triggered,this,&ABatter::PlayCallHitMontage);
+    	//input -> BindAction(IA_Test , ETriggerEvent::Triggered,this,&ABatter::PlayCallHitMontage);
     }
 
 }
